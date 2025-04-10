@@ -47,6 +47,7 @@ node_modules/
 *.sln
 *.sw?
 # OS specific
-# Task files
-tasks.json
-tasks/ 
+
+# Ignored Editor/Tooling specific files
+.obsidian/
+.cursor/
