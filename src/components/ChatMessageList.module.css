@@ -1,0 +1,128 @@
+/* Styles for ChatMessageList Component */
+/* Optimized spacing and design for better readability and modern feel */
+
+/* Base chat container styling */
+.chatContainer {
+  padding: 12px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  max-width: 100% !important;
+}
+
+/* Message groups for consecutive messages */
+.messageGroup {
+  margin-bottom: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  max-width: 85% !important;
+}
+
+.messageGroupOwn {
+  align-self: flex-end !important;
+}
+
+.messageGroupOther {
+  align-self: flex-start !important;
+}
+
+/* Base chat bubble styling */
+.chatBubble {
+  padding: 12px 16px !important; /* Increased padding for better text breathing room */
+  border-radius: 18px !important; /* Smoother corners */
+  word-wrap: break-word !important;
+  margin-bottom: 2px !important; /* Reduced for consecutive messages from same sender */
+  display: inline-block !important;
+  max-width: 100% !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07) !important; /* Subtle shadow */
+  line-height: 1.4 !important; /* Improved line height for readability */
+  /* Background/color handled in component with inline styles */
+}
+
+/* First and last bubbles in a group get special treatment */
+.firstBubble {
+  margin-top: 2px !important;
+}
+
+.lastBubble {
+  margin-bottom: 4px !important;
+}
+
+/* Specific bubble type variants */
+.chatBubbleOwn {
+  /* Core styles in chatBubble and inline styles */
+  border-bottom-right-radius: 6px !important; /* Less dramatic corner */
+  background-color: var(--ion-color-primary) !important; /* Fallback color */
+  color: white !important; /* Fallback color */
+}
+
+.chatBubbleOther {
+  /* Core styles in chatBubble and inline styles */
+  border-bottom-left-radius: 6px !important; /* Less dramatic corner */
+  background-color: #f0f0f5 !important; /* Lighter, more modern color */
+  color: #333 !important; /* Better contrast */
+}
+
+.chatBubbleSystem {
+  /* Core styles in chatBubble and inline styles */
+  text-align: center !important;
+  border-radius: 8px !important;
+  padding: 8px 14px !important; 
+  font-size: 0.85rem !important; /* Slightly larger */
+  width: fit-content !important;
+  margin: 12px auto !important; /* Center with more vertical space */
+  background-color: rgba(240, 240, 240, 0.9) !important; /* Slightly transparent */
+  color: #555 !important;
+  font-style: italic !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; /* More subtle shadow */
+}
+
+.chatBubbleClue {
+  /* Core styles in chatBubble and inline styles */
+  border-radius: 12px !important; 
+  background-color: #3880ff !important; /* Bleu ionique */
+  color: white !important;
+  border: none !important; /* Remove border for cleaner look */
+  box-shadow: 0 2px 4px rgba(56, 128, 255, 0.2) !important; /* Soft blue shadow */
+  margin: 12px auto !important; /* Center with more vertical space */
+  padding: 12px 18px !important; /* More padding for emphasis */
+  font-weight: 500 !important; /* Slightly bolder for emphasis */
+}
+
+/* Sender name and timestamp styles (complementing inline styles) */
+.senderName {
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 6px !important; /* More space before message */
+  opacity: 0.85 !important; /* More readable */
+  padding-left: 4px !important; /* Align with bubble content */
+}
+
+.timestamp {
+  font-size: 0.7rem !important;
+  opacity: 0.6 !important;
+  margin-top: 4px !important;
+  text-align: right !important;
+  padding-right: 4px !important; /* Align with bubble */
+  letter-spacing: 0.02em !important; /* Better readability for small text */
+}
+
+/* Time indicators between message groups */
+.timeIndicator {
+  text-align: center !important;
+  font-size: 0.75rem !important;
+  color: #8e8e93 !important;
+  margin: 16px 0 !important;
+  position: relative !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .chatBubble {
+    padding: 10px 14px !important; /* Slightly smaller on mobile */
+    max-width: 85% !important; /* Narrower bubbles on small screens */
+  }
+  
+  .messageGroup {
+    max-width: 90% !important;
+  }
+} 
