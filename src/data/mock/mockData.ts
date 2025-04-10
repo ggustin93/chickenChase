@@ -26,7 +26,7 @@ const mockBars: Bar[] = [
     name: 'Le Coq Sportif',
     address: '23 Rue des Martyrs, 75009 Paris',
     description: 'Un bar sportif avec une bonne sélection de bières.',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?pub&sig=1',
+    photoUrl: 'https://picsum.photos/seed/bar1/800/600',
     latitude: 48.8789,
     longitude: 2.3395
   },
@@ -35,7 +35,7 @@ const mockBars: Bar[] = [
     name: 'Chez Poule & Coq',
     address: '18 Rue Condorcet, 75009 Paris',
     description: 'Un bistrot traditionnel français avec des cocktails signature.',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?pub&sig=2',
+    photoUrl: 'https://picsum.photos/seed/bar2/800/600',
     latitude: 48.8806,
     longitude: 2.3445
   },
@@ -44,7 +44,7 @@ const mockBars: Bar[] = [
     name: 'La Plume Dorée',
     address: '42 Boulevard de Clichy, 75018 Paris',
     description: 'Bar chic avec musique live et cocktails artisanaux.',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?pub&sig=3',
+    photoUrl: 'https://picsum.photos/seed/bar3/800/600',
     latitude: 48.8824,
     longitude: 2.3381
   },
@@ -53,7 +53,7 @@ const mockBars: Bar[] = [
     name: 'Le Poulet Ivre',
     address: '8 Rue Pierre Fontaine, 75009 Paris',
     description: 'Bar à thème avec décoration inspirée de la volaille.',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?pub&sig=4',
+    photoUrl: 'https://picsum.photos/seed/bar4/800/600',
     latitude: 48.8810,
     longitude: 2.3350
   },
@@ -62,7 +62,7 @@ const mockBars: Bar[] = [
     name: 'Les Œufs d\'Or',
     address: '15 Rue Frochot, 75009 Paris',
     description: 'Petit bar intime avec une ambiance conviviale.',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?pub&sig=5',
+    photoUrl: 'https://picsum.photos/seed/bar5/800/600',
     latitude: 48.8805,
     longitude: 2.3370
   },
@@ -74,13 +74,13 @@ const mockTeamMembers1: TeamMember[] = [
     id: 'user-001',
     name: 'alex93',
     isLeader: true,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=1'
+    avatarUrl: 'https://picsum.photos/seed/user1/100/100'
   },
   {
     id: 'user-002',
     name: 'sophie22',
     isLeader: false,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=2'
+    avatarUrl: 'https://picsum.photos/seed/user2/100/100'
   }
 ];
 
@@ -89,19 +89,19 @@ const mockTeamMembers2: TeamMember[] = [
     id: 'user-003',
     name: 'thomas75',
     isLeader: true,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=3'
+    avatarUrl: 'https://picsum.photos/seed/user3/100/100'
   },
   {
     id: 'user-004',
     name: 'julie_p',
     isLeader: false,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=4'
+    avatarUrl: 'https://picsum.photos/seed/user4/100/100'
   },
   {
     id: 'user-005',
     name: 'marc44',
     isLeader: false,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=5'
+    avatarUrl: 'https://picsum.photos/seed/user5/100/100'
   }
 ];
 
@@ -110,13 +110,13 @@ const mockTeamMembers3: TeamMember[] = [
     id: 'user-006',
     name: 'emma_b',
     isLeader: true,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=6'
+    avatarUrl: 'https://picsum.photos/seed/user6/100/100'
   },
   {
     id: 'user-007',
     name: 'lucas77',
     isLeader: false,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=7'
+    avatarUrl: 'https://picsum.photos/seed/user7/100/100'
   }
 ];
 
@@ -125,13 +125,13 @@ const mockTeamMembers4: TeamMember[] = [
     id: 'user-008',
     name: 'pauline23',
     isLeader: true,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=8'
+    avatarUrl: 'https://picsum.photos/seed/user8/100/100'
   },
   {
     id: 'user-009',
     name: 'david_l',
     isLeader: false,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=9'
+    avatarUrl: 'https://picsum.photos/seed/user9/100/100'
   }
 ];
 
@@ -140,19 +140,19 @@ const mockTeamMembers5: TeamMember[] = [
     id: 'user-010',
     name: 'vincent_s',
     isLeader: true,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=10'
+    avatarUrl: 'https://picsum.photos/seed/user10/100/100'
   },
   {
     id: 'user-011',
     name: 'chloe33',
     isLeader: false,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=11'
+    avatarUrl: 'https://picsum.photos/seed/user11/100/100'
   },
   {
     id: 'user-012',
     name: 'jerome_p',
     isLeader: false,
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait&sig=12'
+    avatarUrl: 'https://picsum.photos/seed/user12/100/100'
   }
 ];
 
@@ -161,7 +161,7 @@ const mockTeams: Team[] = [
   {
     id: 'team-001',
     name: 'Les Chasseurs de Poulet',
-    avatarUrl: 'https://source.unsplash.com/random/200x200/?chicken&sig=1',
+    avatarUrl: 'https://picsum.photos/seed/team1/200/200',
     score: 325,
     barsVisited: 3,
     challengesCompleted: 2,
@@ -171,7 +171,7 @@ const mockTeams: Team[] = [
   {
     id: 'team-002',
     name: 'Équipe KFC',
-    avatarUrl: 'https://source.unsplash.com/random/200x200/?chicken&sig=2',
+    avatarUrl: 'https://picsum.photos/seed/team2/200/200',
     score: 410,
     barsVisited: 4,
     challengesCompleted: 3,
@@ -181,7 +181,7 @@ const mockTeams: Team[] = [
   {
     id: 'team-003',
     name: 'Équipe Poule Position',
-    avatarUrl: 'https://source.unsplash.com/random/200x200/?chicken&sig=3',
+    avatarUrl: 'https://picsum.photos/seed/team3/200/200',
     score: 275,
     barsVisited: 2,
     challengesCompleted: 3,
@@ -191,7 +191,7 @@ const mockTeams: Team[] = [
   {
     id: 'team-004',
     name: 'Équipe Cocorico',
-    avatarUrl: 'https://source.unsplash.com/random/200x200/?chicken&sig=4',
+    avatarUrl: 'https://picsum.photos/seed/team4/200/200',
     score: 225,
     barsVisited: 2,
     challengesCompleted: 1,
@@ -201,7 +201,7 @@ const mockTeams: Team[] = [
   {
     id: 'team-005',
     name: 'Chicken Run',
-    avatarUrl: 'https://source.unsplash.com/random/200x200/?chicken&sig=5',
+    avatarUrl: 'https://picsum.photos/seed/team5/200/200',
     score: 500,
     barsVisited: 0,
     challengesCompleted: 0,
@@ -264,7 +264,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-001',
     timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
     status: 'approved',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?selfie&sig=1'
+    photoUrl: 'https://picsum.photos/200/300?random=1'
   },
   {
     id: 'completion-002',
@@ -272,7 +272,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-002',
     timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
     status: 'approved',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?dance&sig=2'
+    photoUrl: 'https://picsum.photos/200/300?random=2'
   },
   {
     id: 'completion-003',
@@ -280,7 +280,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-003',
     timestamp: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
     status: 'rejected',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?cocktail&sig=3'
+    photoUrl: 'https://picsum.photos/200/300?random=3'
   },
   {
     id: 'completion-004',
@@ -288,7 +288,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-001',
     timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
     status: 'approved',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?magic&sig=4'
+    photoUrl: 'https://picsum.photos/200/300?random=4'
   },
   {
     id: 'completion-005',
@@ -296,7 +296,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-002',
     timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
     status: 'approved',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?selfie&sig=5'
+    photoUrl: 'https://picsum.photos/200/300?random=5'
   },
   {
     id: 'completion-006',
@@ -304,7 +304,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-002',
     timestamp: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
     status: 'approved',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?cocktail&sig=6'
+    photoUrl: 'https://picsum.photos/200/300?random=6'
   },
   {
     id: 'completion-007',
@@ -312,7 +312,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-004',
     timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
     status: 'pending',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?cocktail&sig=7'
+    photoUrl: 'https://picsum.photos/200/300?random=7'
   },
   {
     id: 'completion-008',
@@ -320,7 +320,7 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     teamId: 'team-003',
     timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
     status: 'pending',
-    photoUrl: 'https://source.unsplash.com/random/800x600/?magic&sig=8'
+    photoUrl: 'https://picsum.photos/200/300?random=8'
   }
 ];
 
