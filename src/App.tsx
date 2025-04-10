@@ -1,9 +1,13 @@
-import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { Redirect, Route, useLocation } from 'react-router-dom';
+import { IonApp, IonRouterOutlet, setupIonicReact, AnimationBuilder, RouteAction, RouterOptions } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import { useIonRouter } from '@ionic/react';
+import { RouterDirection } from '@ionic/core';
+import React, { useState } from 'react';
 import Home from './pages/Home';
 import ChickenPage from './pages/ChickenPage';
 import PlayerPage from './pages/PlayerPage';
+import SideMenu from './components/SideMenu';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -39,10 +43,52 @@ import './index.css';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
+// Use the correct signature for router.push based on linter feedback
+interface MainLayoutProps {
+  location: { pathname: string };
+  router: {
+    push: (
+      pathname: string, 
+      routerDirection?: RouterDirection | undefined, 
+      routeAction?: RouteAction | undefined,
+      routerOptions?: RouterOptions | undefined,
+      animationBuilder?: AnimationBuilder | undefined
+    ) => void;
+  };
+}
+
+// Renamed from AppContent, accepts router context via props
+const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
+  const [gameName] = useState('La Course du Poulet - Édition Pigalle'); // Placeholder
+
+  // Determine mode based on path from props
+  const currentPath = location.pathname;
+  const mode = currentPath.startsWith('/chicken') ? 'chicken' : 
+               currentPath.startsWith('/player') ? 'player' : undefined;
+
+  // Define quit game handler using router from props
+  const handleQuitGame = () => {
+    console.log("Quitting game from App...");
+    // Correct the arguments for router.push
+    // Path: /home, Direction: root, Action: replace, Options: undefined
+    router.push('/home', 'root', 'replace', undefined); 
+  };
+
+  // Determine if the menu should be shown
+  const showMenu = mode !== undefined;
+
+  return (
+    <>
+      {/* Conditionally render SideMenu only for game pages */} 
+      {showMenu && mode && (
+        <SideMenu 
+          mode={mode} 
+          gameName={gameName} 
+          onQuitGame={handleQuitGame} 
+        />
+      )}
+      {/* Use the IonRouterOutlet with the correct ID */}
+      <IonRouterOutlet id="main-content">
         <Route exact path="/home">
           <Home />
         </Route>
@@ -56,8 +102,26 @@ const App: React.FC = () => (
           <Redirect to="/home" />
         </Route>
       </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+    </>
+  );
+}
+
+// New intermediate component to capture router context
+const RouterContextWrapper: React.FC = () => {
+  const location = useLocation();
+  const router = useIonRouter();
+  return <MainLayout location={location} router={router} />;
+}
+
+// Main App component sets up IonApp and IonReactRouter
+const App: React.FC = () => {
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <RouterContextWrapper /> {/* Render the wrapper here */}
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
