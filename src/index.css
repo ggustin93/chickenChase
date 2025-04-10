@@ -1,0 +1,664 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Personnalisations globales pour l'application */
+@layer components {
+  /* Styles globaux pour les en-têtes de sections si nécessaire */
+  /* .global-section-header { ... } */
+}
+
+/* Assurer la compatibilité avec Ionic */
+:root {
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
+  --ion-color-primary: #fc8a03;
+  --ion-color-primary-rgb: 252, 138, 3;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #dd7903;
+  --ion-color-primary-tint: #fc9a1c;
+
+  --ion-color-warning: #fc8a03;
+  --ion-color-warning-rgb: 252, 138, 3;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #dd7903;
+  --ion-color-warning-tint: #fc9a1c;
+  
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45,211,111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255,255,255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235,68,90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255,255,255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+  
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146,148,156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255,255,255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+  
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244,245,248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0,0,0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+}
+
+/* Fix pour l'intégration Ionic + Tailwind */
+ion-content {
+  --background: #f8f8f8; /* Fond général légèrement gris */
+}
+
+/* Styles globaux */
+html, body {
+  height: 100%;
+  width: 100%;
+  overscroll-behavior-y: none;
+}
+
+/* Styles globaux pour la Tab Bar */
+ion-tab-bar {
+  --background: #ffffff;
+  --border-color: #eee;
+  --border-width: 1px 0 0 0;
+  --color-selected: var(--ion-color-primary);
+}
+
+ion-tab-button {
+  --color: #666;
+  --color-selected: var(--ion-color-primary);
+}
+
+ion-tab-button ion-label {
+  font-size: 0.75rem; /* Taille de texte plus petite pour les onglets */
+}
+
+/* Styles pour le mode sombre */
+@media (prefers-color-scheme: dark) {
+  ion-content {
+    --background: var(--ion-background-color);
+  }
+  ion-tab-bar {
+    --background: var(--ion-background-color);
+    --border-color: #333;
+  }
+  ion-tab-button {
+    --color: var(--ion-color-step-600, #a0a0a0);
+    --color-selected: var(--ion-color-primary);
+  }
+}
+
+/* Fix pour les problèmes d'affichage sur iOS */
+ion-content {
+  --overflow: auto;
+  --webkit-overflow-scrolling: touch;
+}
+
+/* Header principal */
+.main-toolbar {
+  --background: var(--ion-color-primary);
+  --color: white;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+}
+
+.main-toolbar ion-title {
+  font-weight: bold;
+}
+
+.time-chip {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  margin-right: 10px;
+}
+
+.time-chip ion-icon {
+  margin-right: 4px;
+}
+
+/* Toolbar des stats sous le header */
+.stats-toolbar {
+  --background: #ffffff;
+  --color: #333;
+  --min-height: auto;
+  padding: 8px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  color: #555;
+}
+
+.stat-item ion-icon {
+  margin-right: 5px;
+}
+
+.game-selector {
+  display: flex;
+  align-items: center;
+  color: #555;
+  cursor: pointer;
+}
+
+.game-selector ion-icon {
+  margin-left: 4px;
+}
+
+/* Style général des titres de page dans le header secondaire */
+ion-header ion-toolbar[color="light"] ion-title.page-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+  color: #333;
+}
+
+/* Onglet Position/Carte */
+.current-position-card {
+  --background: #fff;
+  margin: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #eee;
+}
+
+.current-position-card ion-card-content {
+  padding: 15px;
+}
+
+.current-position-card .position-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.current-position-card .position-address {
+  color: #555;
+  font-size: 0.9rem;
+  margin: 0 0 10px 0;
+}
+
+.current-position-card .position-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.current-position-card .change-button {
+  --color: var(--ion-color-primary);
+  --padding-start: 0;
+  --padding-end: 0;
+  text-transform: uppercase;
+  font-weight: 500;
+  height: auto;
+  font-size: 0.9rem;
+}
+
+.current-position-card .position-duration {
+  color: #666;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.bar-list-header {
+  --background: #f5f5f5;
+  --min-height: auto;
+  padding: 10px 15px !important;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+}
+
+.bar-list-header ion-label h3 {
+  font-weight: 500;
+  margin-bottom: 2px;
+  font-size: 1rem;
+}
+
+.bar-list-header ion-label p {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.search-bar-item {
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --min-height: auto;
+  padding-bottom: 5px !important;
+}
+
+.custom-searchbar {
+  --background: #f0f0f0;
+  --border-radius: 20px;
+  --box-shadow: none;
+  --placeholder-color: #888;
+  padding: 0 !important;
+  height: 40px;
+}
+
+.bar-list-container {
+  background: white; /* Fond blanc pour la liste des bars */
+  padding: 0;
+}
+
+.bar-list-item {
+  --padding-start: 15px;
+  --padding-end: 15px;
+  --inner-padding-end: 10px;
+}
+
+.bar-thumbnail {
+  width: 50px;
+  height: 50px;
+  --border-radius: 4px;
+  margin-right: 12px;
+  background-color: #eee;
+}
+
+.bar-thumbnail img {
+  object-fit: cover;
+}
+
+.bar-list-item .bar-name {
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.bar-list-item .bar-address {
+  color: #666;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  white-space: normal;
+}
+
+.bar-list-item .bar-description {
+  color: #777;
+  font-size: 0.85rem;
+  white-space: normal;
+}
+
+.choose-button {
+  --border-radius: 15px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  font-size: 0.8rem;
+  height: 30px;
+  text-transform: uppercase;
+}
+
+/* Style pour l'icône de coche verte */
+.bar-list-item ion-icon[color="success"] {
+  align-self: center;
+}
+
+/* Style pour les sections d'information simples */
+.info-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.info-item svg, .info-item ion-icon {
+  margin-right: 8px;
+  color: #777;
+}
+
+/* Titre sections */
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 15px 15px 10px;
+  background: #f0f0f0;
+  margin: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Customisation UI - Styles épurés */
+.minimalist-header {
+  background-color: var(--ion-color-primary);
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.minimalist-menu-button {
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: white;
+  margin-right: 10px;
+}
+
+.minimalist-info-bar {
+  background-color: white;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  font-size: 0.9rem;
+}
+
+.minimalist-info-item {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.minimalist-info-item svg, .minimalist-info-item ion-icon {
+  margin-right: 6px;
+}
+
+.minimalist-section {
+  padding: 15px;
+}
+
+.minimalist-position-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.minimalist-position-header {
+  background-color: var(--ion-color-primary);
+  color: white;
+  padding: 10px 15px;
+  font-weight: 500;
+}
+
+.minimalist-position-content {
+  padding: 15px;
+}
+
+.minimalist-position-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.minimalist-position-address {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.minimalist-change-button {
+  color: var(--ion-color-primary);
+  background: none;
+  border: none;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.minimalist-duration {
+  display: flex;
+  align-items: center;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.minimalist-duration ion-icon {
+  margin-right: 5px;
+}
+
+.minimalist-bar-list {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.minimalist-bar-item {
+  background-color: white;
+  border-bottom: 1px solid #eee;
+  padding: 12px 15px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.minimalist-bar-image {
+  width: 60px;
+  height: 60px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 12px;
+}
+
+.minimalist-bar-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.minimalist-bar-info {
+  flex: 1;
+}
+
+.minimalist-bar-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.minimalist-bar-address {
+  color: #666;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.minimalist-bar-description {
+  color: #777;
+  font-size: 0.85rem;
+}
+
+.minimalist-choose-button {
+  background-color: white;
+  color: var(--ion-color-primary);
+  border: 1px solid var(--ion-color-primary);
+  border-radius: 20px;
+  padding: 6px 15px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.minimalist-choose-button:hover, .minimalist-change-button:hover {
+  background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+}
+
+/* Styles pour la barre de recherche minimaliste */
+.minimalist-search {
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  margin: 10px 15px;
+  border: 1px solid #e0e0e0;
+}
+
+.minimalist-search ion-icon {
+  color: #999;
+  margin-right: 8px;
+}
+
+.minimalist-search input {
+  border: none;
+  background: transparent;
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 30px;
+}
+
+.minimalist-search input:focus {
+  outline: none;
+}
+
+/* Styles spécifiques pour l'UI de la maquette */
+.simple-ui .ion-header,
+.simple-ui ion-toolbar,
+.simple-ui ion-title {
+  display: block;
+  background-color: var(--ion-color-primary);
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+.simple-ui .stats {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  padding: 10px 15px;
+}
+
+.simple-ui .section-header {
+  font-size: 1.1rem;
+  margin: 15px 15px 10px;
+  font-weight: 500;
+}
+
+.simple-ui .bar-detail {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.simple-ui .bar-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.simple-ui .bar-address {
+  color: #555;
+  margin: 5px 0 10px;
+}
+
+.simple-ui .bar-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.simple-ui .change-button {
+  background-color: transparent;
+  color: var(--ion-color-primary);
+  border: none;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 5px 10px;
+}
+
+.simple-ui .duration {
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.simple-ui .bar-list-header {
+  background-color: #f5f5f5;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+}
+
+.simple-ui .search-box {
+  margin: 10px 15px;
+  position: relative;
+}
+
+.simple-ui .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.simple-ui .search-input {
+  width: 100%;
+  padding: 8px 15px 8px 35px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.simple-ui .bar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.simple-ui .bar-item {
+  display: flex;
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  background-color: white;
+}
+
+.simple-ui .bar-image {
+  width: 50px;
+  height: 50px;
+  background-color: #eee;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.simple-ui .bar-content {
+  flex: 1;
+}
+
+.simple-ui .choose-button {
+  color: var(--ion-color-primary);
+  border: 1px solid var(--ion-color-primary);
+  background-color: white;
+  border-radius: 15px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+/* --- Consolidated Global Chat Styles --- */
+/* MOVED TO ChatMessageList.module.css */
+/*
+.chat-messages-container {
+  // ... styles ...
+}
+// ... other chat styles ...
+.badge-indice {
+  // ... styles ...
+}
+*/
+/* --- End Consolidated Chat Styles --- */ 
