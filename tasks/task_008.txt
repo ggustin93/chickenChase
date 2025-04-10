@@ -1,0 +1,18 @@
+# Task ID: 8
+# Title: Implement Communication System
+# Status: pending
+# Dependencies: 2, 3, 6, 7
+# Priority: medium
+# Description: Develop the real-time communication features including global chat, team chat, and notifications
+# Details:
+1. Implement Supabase Realtime subscriptions for chat
+2. Create global chat interface accessible to all players
+3. Develop team-specific chat channels
+4. Implement private messaging between chicken and admin
+5. Add hint broadcasting system
+6. Integrate Capacitor Push Notifications
+7. Create notification triggers for key game events
+8. Implement message persistence and history loading
+
+# Test Strategy:
+Test real-time message delivery in different chat channels. Verify notifications are received properly. Test hint broadcasting to specific teams. Measure performance with multiple active chats. Test offline message queuing and delivery.

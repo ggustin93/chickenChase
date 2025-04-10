@@ -1,0 +1,18 @@
+# Task ID: 9
+# Title: Develop Scoring and Ranking System
+# Status: pending
+# Dependencies: 4, 7
+# Priority: medium
+# Description: Build the scoring logic, leaderboard, and game results functionality
+# Details:
+1. Implement scoring algorithm based on bar visits and challenges
+2. Create Supabase Function for score calculation
+3. Develop real-time leaderboard with Supabase Realtime
+4. Build game results screen showing final standings
+5. Implement last team detection logic
+6. Create game history storage
+7. Add team statistics tracking
+8. Develop animations and visual feedback for score changes
+
+# Test Strategy:
+Test scoring algorithm with various scenarios. Verify leaderboard updates in real-time. Test last team detection accuracy. Confirm game results are calculated and displayed correctly. Test history retrieval for past games.

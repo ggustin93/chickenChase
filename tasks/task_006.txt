@@ -1,0 +1,18 @@
+# Task ID: 6
+# Title: Build Chicken Role Interface
+# Status: pending
+# Dependencies: 3, 5
+# Priority: medium
+# Description: Develop the specialized interface for players with the chicken role
+# Details:
+1. Intégrer et adapter le composant ChickenPage.tsx amélioré
+2. Implement timer for head start period
+3. Create bar selection interface on map
+4. Build challenge validation UI for reviewing team submissions
+5. Develop hint broadcasting functionality
+6. Add photo gallery to view team submissions
+7. Implement real-time updates for team movements/status
+8. Create specialized communication tools for chicken role
+
+# Test Strategy:
+Test timer functionality for accuracy. Verify challenge validation flow works correctly. Test hint broadcasting to all teams. Confirm real-time updates are received properly. Test photo gallery rendering and navigation.

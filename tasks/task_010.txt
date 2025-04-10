@@ -1,0 +1,18 @@
+# Task ID: 10
+# Title: Implement Challenge System with CMS Integration
+# Status: pending
+# Dependencies: 6, 7, 9
+# Priority: low
+# Description: Develop the challenge creation, assignment, and validation system with PageCMS integration
+# Details:
+1. Set up PageCMS for challenge content management
+2. Create challenge models and templates in CMS
+3. Implement API integration to fetch challenges
+4. Develop challenge assignment algorithm
+5. Build challenge completion UI for hunter teams
+6. Create challenge validation interface for chicken
+7. Implement proof submission with photo upload
+8. Add scoring integration for completed challenges
+
+# Test Strategy:
+Test CMS integration for reliable challenge retrieval. Verify challenge assignment works correctly. Test proof submission and validation flow. Confirm scoring updates properly after challenge completion. Test with various challenge types.

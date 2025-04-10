@@ -1,0 +1,18 @@
+# Task ID: 7
+# Title: Develop Hunter Team Interface
+# Status: pending
+# Dependencies: 3, 5
+# Priority: medium
+# Description: Create the interface for hunter teams to search for the chicken, visit bars, and complete challenges
+# Details:
+1. Intégrer et adapter le composant HunterTeamPage.tsx amélioré
+2. Implement bar visit tracking and history
+3. Create photo capture functionality using Capacitor Camera
+4. Build challenge list and completion interface
+5. Develop team chat functionality
+6. Add bar marking system on map
+7. Implement bar visit counter and visualization
+8. Create found chicken reporting mechanism
+
+# Test Strategy:
+Test bar visit tracking for accuracy. Verify photo capture and upload works correctly. Test challenge completion flow. Confirm team chat messages are delivered properly. Test found chicken reporting mechanism.

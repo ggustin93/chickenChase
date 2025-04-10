@@ -1,0 +1,17 @@
+# Task ID: 2
+# Title: Setup Supabase Infrastructure and Authentication
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Initialize the Supabase project with authentication, database schema, and storage buckets for the application
+# Details:
+1. Create a Supabase project
+2. Configure authentication methods (Magic Link, optional SMS OTP)
+3. Set up database tables according to data model (games, teams, users, participants, visits, challenges, messages)
+4. Create appropriate indexes and relationships between tables
+5. Configure RLS (Row Level Security) policies for data access
+6. Set up Storage buckets for photos with appropriate permissions
+7. Create initial Supabase Edge Functions for core functionality
+
+# Test Strategy:
+Verify authentication flow works with test users. Test database queries for basic CRUD operations. Confirm storage bucket configuration with test uploads. Validate RLS policies with different user roles.

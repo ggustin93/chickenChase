@@ -51,3 +51,4 @@ node_modules/
 # Ignored Editor/Tooling specific files
 .obsidian/
 .cursor/
+.vercel
