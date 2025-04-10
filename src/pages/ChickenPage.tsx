@@ -66,8 +66,8 @@ import './ChickenPage.css';
 import { ChickenGameState, Bar } from '../data/types';
 import { mockChickenGameState } from '../data/mock/mockData';
 
-// Importer le nouveau composant Chat
-import ChatInterface from '../components/ChatInterface';
+// Importer le composant de liste de messages
+import ChatMessageList from '../components/ChatMessageList';
 
 // Importer le nouveau composant Map
 import GameMap from '../components/GameMap';
@@ -169,6 +169,7 @@ const ChickenPage: React.FC = () => {
   const [showPanel, setShowPanel] = useState<string | null>(null);
   const [showSelectBarModal, setShowSelectBarModal] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [isSendingClue, setIsSendingClue] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -237,10 +238,11 @@ const ChickenPage: React.FC = () => {
         sender: 'Vous',
         content: newMessage,
         timestamp: new Date().toISOString(),
-        isClue: false
+        isClue: isSendingClue
       };
       setGameState(prevState => ({ ...prevState, messages: [...prevState.messages, newMsg] }));
       setNewMessage('');
+      setIsSendingClue(false);
     }
   };
   
@@ -562,6 +564,25 @@ const ChickenPage: React.FC = () => {
     </>
   );
   
+  const ChatTabContent: React.FC = () => (
+    <>
+      <IonHeader>
+        <IonToolbar color="light"> 
+          <IonTitle>Chat de partie</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={() => setShowPanel('clue')} color="warning"> 
+              <IonIcon icon={bulbOutline} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <ChatMessageList 
+        messages={gameState.messages} 
+        currentTeamName="Vous"
+      />
+    </>
+  );
+  
   const CluePanel: React.FC = () => (
     <IonModal isOpen={showPanel === 'clue'} onDidDismiss={() => setShowPanel(null)}>
       <IonHeader>
@@ -709,15 +730,7 @@ const ChickenPage: React.FC = () => {
       <IonContent className={activeTab === 'chat' ? 'chat-content-padding' : ''} scrollY={activeTab !== 'map'}>
         {activeTab === 'map' && <MapTabContent />}
         {activeTab === 'challenges' && <ChallengesTabContent />}
-        {activeTab === 'chat' && 
-          <ChatInterface 
-            gameState={gameState} 
-            setShowPanel={setShowPanel} 
-            sendMessage={sendMessage} 
-            newMessage={newMessage} 
-            setNewMessage={setNewMessage} 
-          />
-        }
+        {activeTab === 'chat' && <ChatTabContent />}
         {activeTab === 'teams' && <TeamsTabContent />}
       </IonContent>
       
@@ -744,13 +757,13 @@ const ChickenPage: React.FC = () => {
       
       {activeTab === 'chat' && (
         <IonFooter>
-          <IonToolbar className="chat-input-toolbar">
+          <IonToolbar className="chat-input-toolbar p-2">
             <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="chat-input-form">
               <IonInput
                 placeholder="Message..."
                 value={newMessage}
                 onIonChange={(e) => setNewMessage(e.detail.value || '')}
-                className="chat-input"
+                className="chat-input pl-3"
               />
               <IonButton
                 type="submit"

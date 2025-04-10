@@ -282,4 +282,47 @@
   --background: var(--ion-color-light, #f4f5f8); /* Fond cohérent avec le header */
   --box-shadow: none;
   padding: 5px 10px; 
+}
+
+/* Styles pour le footer de saisie du chat */
+.chat-input-toolbar {
+  --background: var(--ion-color-light, #f8f9fa); /* Fond léger */
+  --min-height: auto;
+  padding: 5px; /* Réduit le padding global un peu */
+}
+
+.chat-input-form {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.chat-input {
+  flex: 1;
+  background-color: white;
+  border-radius: 20px; /* Coins arrondis */
+  border: 1px solid #e0e0e0;
+  --padding-start: 15px; /* Padding interne pour le texte */
+  --padding-end: 10px;
+  min-height: 40px; /* Hauteur minimale */
+  margin-right: 5px; /* Espace avant les boutons */
+}
+
+/* Styles pour le bouton de bascule indice */
+.clue-toggle-button {
+  --padding-start: 5px;
+  --padding-end: 5px;
+  min-width: 40px; /* Taille cliquable */
+  height: 40px;
+  font-size: 1.3rem; /* Taille de l'icône */
+  margin: 0 2px; /* Petit espace autour */
+}
+
+/* Styles pour le bouton d'envoi */
+.send-button {
+  --padding-start: 5px;
+  --padding-end: 5px;
+  min-width: 40px; /* Taille cliquable */
+  height: 40px;
+  font-size: 1.3rem; /* Taille de l'icône */
 } 
