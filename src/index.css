@@ -120,6 +120,9 @@ ion-content {
 .main-toolbar ion-title {
   font-weight: bold;
   font-family: var(--ion-font-fantasy); /* Utilisation de la variable de police */
+  font-size: 1.5rem; /* Increased font size */
+  text-align: center; /* Ensure text is centered */
+  flex-grow: 1; /* Allow title to take available space for centering */
 }
 
 .time-chip {
@@ -343,6 +346,7 @@ ion-header ion-toolbar[color="light"] ion-title.page-title {
   background: #f0f0f0;
   margin: 0;
   border-bottom: 1px solid #e0e0e0;
+  text-align: center;
 }
 
 /* Customisation UI - Styles épurés */
