@@ -5,7 +5,7 @@ import {
   IonCardContent, IonCardTitle, IonCardSubtitle, IonChip, IonAvatar, IonFooter,
   IonFab, IonFabButton, IonText, IonButtons, IonSegment, IonSegmentButton, IonBadge, IonModal,
   IonLoading, IonNote, IonThumbnail,
-  IonToast
+  IonToast, IonMenuButton
 } from '@ionic/react';
 import {
   mapOutline, checkmarkCircleOutline, chatbubbleOutline, trophyOutline, searchOutline,
@@ -27,6 +27,7 @@ import { useGeolocation } from '../hooks/useGeolocation';
 // Import new component
 import LeaderboardList from '../components/LeaderboardList';
 import ChatMessageList from '../components/ChatMessageList';
+import SideMenu from '../components/SideMenu';
 
 // Player-specific Game State Interface (derived from ChickenGameState or defined separately)
 interface PlayerGameState {
@@ -491,10 +492,23 @@ const PlayerPage: React.FC = () => {
 
   // --- Main Render ---
   return (
-    <IonPage>
+    <IonPage id="main-content">
+      <SideMenu 
+        mode="player" 
+        gameName={gameState.game.name} 
+        onQuitGame={() => {
+          console.log("Quitting game from Player Page...");
+          setToastMessage("Partie quittée (simulation)");
+          setToastColor('medium');
+          setShowToast(true);
+        }} 
+      />
       {/* Main Header */}
       <IonHeader>
         <IonToolbar color="primary">
+          <IonButtons slot="start">
+            <IonMenuButton menu="main-menu" />
+          </IonButtons>
           <IonTitle>{gameState.team.name}</IonTitle>
           <IonChip slot="end" className="mr-2" color="light" style={{
             backgroundColor: 'rgba(255, 255, 255, 0.9)', 

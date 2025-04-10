@@ -427,5 +427,9 @@ export const mockChickenGameState: ChickenGameState = {
   messages: mockMessages,
   currentBar: mockBars[3], // Le Poulet Ivre
   timeLeft: '2:15:00',
-  barOptions: mockBars
+  barOptions: mockBars,
+  // --- Hypothetical Cagnotte Values ---
+  initialCagnotte: 100, // Assuming a starting value
+  currentCagnotte: 12,  // Reflecting the current state
+  // -----------------------------------
 }; 

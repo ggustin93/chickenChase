@@ -73,4 +73,8 @@ export interface ChickenGameState {
   currentBar?: Bar;
   timeLeft: string;
   barOptions: Bar[];
+
+  // Hypothetical Cagnotte values added
+  initialCagnotte: number;
+  currentCagnotte: number;
 } 

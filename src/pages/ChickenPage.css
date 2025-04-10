@@ -325,4 +325,20 @@
   min-width: 40px; /* Taille cliquable */
   height: 40px;
   font-size: 1.3rem; /* Taille de l'icône */
+}
+
+/* Styles pour l'image de preuve de défi */
+.challenge-proof-container {
+  padding: 8px; /* Ajoute du padding autour de l'image */
+  background-color: var(--ion-color-light, #f4f5f8); /* Fond léger */
+  border-radius: 12px; /* Coins arrondis pour le conteneur */
+}
+
+.challenge-proof-image {
+  display: block; /* Assure que l'image se comporte comme un bloc */
+  width: 100%; /* Prend toute la largeur du conteneur */
+  height: auto; /* Maintient le ratio, devient carré avec aspect-ratio */
+  aspect-ratio: 1 / 1; /* Force un ratio carré */
+  object-fit: cover; /* Couvre la zone carrée sans déformer l'image */
+  border-radius: 8px; /* Coins arrondis pour l'image elle-même */
 } 
