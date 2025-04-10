@@ -38,8 +38,6 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonSearchbar,
-  IonSegment,
-  IonSegmentButton,
   IonSkeletonText,
   IonSpinner,
   IonToast,
@@ -48,7 +46,8 @@ import {
   IonText,
   IonRouterLink,
   IonRippleEffect,
-  IonLoading
+  IonLoading,
+  IonNote
 } from '@ionic/react';
 
 import { 
@@ -64,7 +63,7 @@ import {
 import './ChickenPage.css';
 
 // Import des types et données simulées
-import { ChickenGameState } from '../data/types';
+import { ChickenGameState, Bar } from '../data/types';
 import { mockChickenGameState } from '../data/mock/mockData';
 
 // Importer le nouveau composant Chat
@@ -73,63 +72,144 @@ import ChatInterface from '../components/ChatInterface';
 // Importer le nouveau composant Map
 import GameMap from '../components/GameMap';
 
+// Interface pour les props de la modale de sélection de bar
+interface SelectHidingSpotModalProps {
+  isOpen: boolean;
+  barOptions: Bar[];
+  currentBar: Bar | null;
+  onClose: () => void;
+  onSelectBar: (barId: string) => void;
+}
+
+// --- Modale de Sélection de Bar --- 
+const SelectHidingSpotModal: React.FC<SelectHidingSpotModalProps> = (
+  { isOpen, barOptions, currentBar, onClose, onSelectBar }
+) => {
+  const [searchTextModal, setSearchTextModal] = useState(''); // Search state specific to modal
+
+  const filteredBars = barOptions.filter(bar => 
+    !searchTextModal || bar.name.toLowerCase().includes(searchTextModal.toLowerCase())
+  );
+
+  // Clear search when modal opens or closes
+  useEffect(() => {
+    if (isOpen) {
+      setSearchTextModal('');
+    }
+  }, [isOpen]);
+
+  return (
+    <IonModal isOpen={isOpen} onDidDismiss={onClose}>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Choisir ma cachette</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={onClose}>
+              <IonIcon slot="icon-only" icon={closeOutline} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+        <IonToolbar>
+          <IonSearchbar
+            placeholder="Rechercher un bar..."
+            value={searchTextModal}
+            onIonChange={e => setSearchTextModal(e.detail.value || '')}
+            className="modal-search-bar"
+          />
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <IonList lines="full">
+          {filteredBars.map(bar => {
+            const isCurrent = currentBar?.id === bar.id;
+            return (
+              <IonItem 
+                key={bar.id} 
+                button 
+                onClick={() => {
+                  onSelectBar(bar.id);
+                  onClose(); // Close modal after selection
+                }}
+                detail={false} 
+                color={isCurrent ? 'light' : undefined}
+              >
+                <IonThumbnail slot="start" className="bar-thumbnail-modal">
+                  <img 
+                    alt={bar.name} 
+                    src={bar.photoUrl || 'https://ionicframework.com/docs/img/demos/thumbnail.svg'} 
+                    onError={(e) => (e.currentTarget.src = 'https://ionicframework.com/docs/img/demos/thumbnail.svg')} 
+                  />
+                </IonThumbnail>
+                <IonLabel className="ion-text-wrap">
+                  <h2 className={isCurrent ? 'font-bold' : ''}>{bar.name}</h2> 
+                  <p className="text-xs text-medium">{bar.address}</p>
+                </IonLabel>
+                {isCurrent && (
+                  <IonIcon slot="end" icon={checkmarkCircleOutline} color="success" />
+                )}
+              </IonItem>
+            );
+          })}
+          {filteredBars.length === 0 && (
+            <IonItem lines="none">
+              <IonLabel className="ion-text-center ion-padding">
+                <p className="text-medium">Aucun bar correspondant trouvé.</p>
+              </IonLabel>
+            </IonItem>
+          )}
+        </IonList>
+      </IonContent>
+    </IonModal>
+  );
+};
+
 const ChickenPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('map');
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPanel, setShowPanel] = useState<string | null>(null);
+  const [showSelectBarModal, setShowSelectBarModal] = useState(false);
   const [newMessage, setNewMessage] = useState('');
-  const [searchText, setSearchText] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  // État du jeu avec données simulées
   const [gameState, setGameState] = useState<ChickenGameState>(mockChickenGameState);
 
   useEffect(() => {
-    // Simuler un chargement pour montrer les animations
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);
   }, []);
 
-  // Action de diffusion d'un indice avec notification
   const sendClue = (clueText: string) => {
     setToastMessage(`Indice envoyé à toutes les équipes: "${clueText}"`);
     setShowToast(true);
     setShowPanel(null);
   };
 
-  // Action pour valider un défi
   const handleChallengeValidation = (id: string, approve: boolean) => {
     setGameState(prevState => {
       const updatedCompletions = prevState.challengeCompletions.map(completion => 
         completion.id === id ? { ...completion, status: approve ? 'approved' as const : 'rejected' as const } : completion
       );
-      
       return { ...prevState, challengeCompletions: updatedCompletions };
     });
-    
     setToastMessage(`Défi ${approve ? 'approuvé' : 'rejeté'} avec succès`);
     setShowToast(true);
   };
 
-  // Action pour marquer une équipe comme ayant trouvé le poulet
   const markTeamFound = (teamId: string) => {
     setGameState(prevState => {
       const updatedTeams = prevState.teams.map(team => 
         team.id === teamId ? { ...team, foundChicken: true } : team
       );
-      
       return { ...prevState, teams: updatedTeams };
     });
-    
     setToastMessage(`L'équipe a trouvé le poulet!`);
     setShowToast(true);
   };
 
-  // Changer le bar actuel
   const changeCurrentBar = (barId: string) => {
     const bar = gameState.barOptions.find(b => b.id === barId);
     if (bar) {
@@ -139,35 +219,27 @@ const ChickenPage: React.FC = () => {
     }
   };
 
-  // Toggle l'activation d'un défi
   const toggleChallengeStatus = (id: string) => {
     setGameState(prevState => {
       const updatedChallenges = prevState.challenges.map(challenge => 
         challenge.id === id ? {...challenge, active: !challenge.active} : challenge
       );
-      
       return { ...prevState, challenges: updatedChallenges };
     });
   };
   
-  // Envoyer un message
   const sendMessage = () => {
     if (newMessage.trim()) {
       const newMsg = {
         id: `message-${Date.now()}`,
         gameId: gameState.game.id,
-        userId: 'user-5', // L'utilisateur actuel (poulet)
+        userId: 'user-5',
         sender: 'Vous',
         content: newMessage,
         timestamp: new Date().toISOString(),
         isClue: false
       };
-      
-      setGameState(prevState => ({
-        ...prevState,
-        messages: [...prevState.messages, newMsg]
-      }));
-      
+      setGameState(prevState => ({ ...prevState, messages: [...prevState.messages, newMsg] }));
       setNewMessage('');
     }
   };
@@ -252,66 +324,43 @@ const ChickenPage: React.FC = () => {
   );
 
   const MapTabContent: React.FC = () => {
-    // Définir le centre et le zoom de la carte (Paris par exemple)
-    const mapCenter: [number, number] = [48.87, 2.34]; // Approximativement centre de la zone de jeu mockée
+    const mapCenter: [number, number] = gameState.currentBar 
+      ? [gameState.currentBar.latitude, gameState.currentBar.longitude] 
+      : [48.87, 2.34];
     const mapZoom = 14;
 
     return (
-      <>
-        <IonHeader>
-          <IonToolbar color="light">
-            <IonTitle className="page-title">Carte de la zone</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          {/* Section pour la carte - prendra toute la hauteur disponible */}
-          <div className="map-container">
-            <GameMap 
-              bars={gameState.barOptions} 
-              currentBar={gameState.currentBar} 
-              center={mapCenter} 
-              zoom={mapZoom} 
-            />
-          </div>
+      <div className="map-tab-container">
+        <div className="map-view">
+          <GameMap
+            bars={gameState.barOptions}
+            currentBar={gameState.currentBar}
+            center={mapCenter}
+            zoom={mapZoom}
+          />
+        </div>
 
-          {/* Bannière flottante pour la position actuelle - à styler */}
-          <IonCard className="current-position-card floating-position-card">
-            <IonCardContent>
-              <IonLabel className="position-title">{gameState.currentBar ? gameState.currentBar.name : "Aucun bar sélectionné"}</IonLabel>
-              {gameState.currentBar && (
-                <p className="position-address">{gameState.currentBar.address}</p>
+        <div className="position-info-action">
+          <IonItem lines="none" className="current-bar-display">
+            <IonIcon icon={locationOutline} slot="start" color="primary" />
+            <IonLabel>
+              <h2>Position Actuelle</h2>
+              {gameState.currentBar ? (
+                <p>{gameState.currentBar.name}</p>
+              ) : (
+                <p className="text-medium">Aucune cachette sélectionnée</p>
               )}
-              <div className="position-action-bar">
-                <IonButton 
-                  fill="clear" 
-                  className="change-button" 
-                  onClick={() => setShowPanel('changePosition')}
-                >
-                  CHANGER
-                </IonButton>
-                {gameState.currentBar && (
-                  <div className="position-duration">
-                    <IonIcon icon={timeOutline} size="small"/>
-                    <span className="ml-1">Depuis 1h20</span>
-                  </div>
-                )}
-              </div>
-            </IonCardContent>
-          </IonCard>
-
-          {/* Bouton pour voir la liste - optionnel, pourrait être un Fab ou autre */}
-          <IonFab vertical="bottom" horizontal="center" slot="fixed" className="mb-16">
-             <IonButton 
-               shape="round" 
-               onClick={() => setShowPanel('changePosition')} 
-               className="list-view-button"
-              >
-                Voir la liste des bars
-             </IonButton>
-          </IonFab>
-
-        </IonContent>
-      </>
+            </IonLabel>
+          </IonItem>
+          <IonButton 
+            expand="block" 
+            onClick={() => setShowSelectBarModal(true)} 
+            className="select-position-button"
+          >
+            Choisir / Changer ma cachette
+          </IonButton>
+        </div>
+      </div>
     );
   };
 
@@ -327,106 +376,104 @@ const ChickenPage: React.FC = () => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
-        <IonItem lines="none" className="bg-gradient-to-r from-orange-100 to-yellow-50 ion-no-padding">
-          <IonLabel className="ion-padding">
-            <h2 className="text-lg font-bold text-orange-800">Validation des défis</h2>
-            <p className="text-sm text-orange-700">Approuvez ou rejetez les preuves des équipes</p>
-          </IonLabel>
-        </IonItem>
-        
-        <IonList>
-          {gameState.challengeCompletions.map(completion => {
-            const challenge = gameState.challenges.find(c => c.id === completion.challengeId);
-            const team = gameState.teams.find(t => t.id === completion.teamId);
-            
-            return (
-              <IonCard key={completion.id} className="m-2">
-                <IonCardHeader>
-                  <IonItem lines="none" className="ion-no-padding">
-                    <IonAvatar slot="start">
-                      <img 
-                        src={team?.avatarUrl || 'https://via.placeholder.com/40'} 
-                        alt={team?.name} 
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).onerror = null;
-                          (e.target as HTMLImageElement).src = 'https://picsum.photos/200';
-                        }}
-                      />
-                    </IonAvatar>
-                    <IonLabel>
-                      <h2>{team?.name}</h2>
-                      <p className="text-xs text-gray-500">
-                        {new Date(completion.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                      </p>
-                    </IonLabel>
-                    {completion.status === 'approved' && (
-                      <IonChip color="success" slot="end">
-                        <IonIcon icon={checkmarkCircleOutline} />
-                        <IonLabel>Approuvé</IonLabel>
-                      </IonChip>
-                    )}
-                    {completion.status === 'rejected' && (
-                      <IonChip color="danger" slot="end">
-                        <IonIcon icon={closeCircleOutline} />
-                        <IonLabel>Rejeté</IonLabel>
-                      </IonChip>
-                    )}
-                    {completion.status === 'pending' && (
-                      <IonChip color="warning" slot="end">
-                        <IonIcon icon={timerOutline} />
-                        <IonLabel>En attente</IonLabel>
-                      </IonChip>
-                    )}
-                  </IonItem>
-                </IonCardHeader>
-                
-                <IonCardContent>
-                  <IonText>
-                    <p className="font-medium mb-3">{challenge?.title}</p>
-                    <p className="text-sm text-gray-600 mb-3">{challenge?.description}</p>
-                  </IonText>
-                  
-                  {completion.photoUrl && (
-                    <div className="my-3 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center" style={{ minHeight: '150px' }}>
-                      <img 
-                        src={completion.photoUrl} 
-                        alt="Preuve défi" 
-                        className="w-full max-h-60 object-cover block" 
-                        onError={(e) => { 
-                          (e.target as HTMLImageElement).onerror = null;
-                          (e.target as HTMLImageElement).src = 'https://picsum.photos/600/400';
-                          (e.target as HTMLImageElement).classList.add('image-error-placeholder'); 
-                        }}
-                      />
-                    </div>
-                  )}
-                  
-                  {completion.status === 'pending' && (
-                    <div className="grid grid-cols-2 gap-2 mt-3">
-                      <IonButton expand="block" color="success" onClick={() => handleChallengeValidation(completion.id, true)}>
-                        <IonIcon slot="start" icon={checkmarkCircleOutline} />
-                        Approuver
-                      </IonButton>
-                      <IonButton expand="block" color="danger" onClick={() => handleChallengeValidation(completion.id, false)}>
-                        <IonIcon slot="start" icon={closeCircleOutline} />
-                        Rejeter
-                      </IonButton>
-                    </div>
-                  )}
-                </IonCardContent>
-              </IonCard>
-            );
-          })}
+      <IonItem lines="none" className="bg-gradient-to-r from-orange-100 to-yellow-50 ion-no-padding">
+        <IonLabel className="ion-padding">
+          <h2 className="text-lg font-bold text-orange-800">Validation des défis</h2>
+          <p className="text-sm text-orange-700">Approuvez ou rejetez les preuves des équipes</p>
+        </IonLabel>
+      </IonItem>
+      
+      <IonList>
+        {gameState.challengeCompletions.map(completion => {
+          const challenge = gameState.challenges.find(c => c.id === completion.challengeId);
+          const team = gameState.teams.find(t => t.id === completion.teamId);
           
-          {gameState.challengeCompletions.length === 0 && (
-            <div className="p-5 text-center">
-              <IonIcon icon={imageOutline} color="medium" size="large" />
-              <p className="text-gray-500 mt-2">Aucun défi à valider pour le moment</p>
-            </div>
-          )}
-        </IonList>
-      </IonContent>
+          return (
+            <IonCard key={completion.id} className="m-2">
+              <IonCardHeader>
+                <IonItem lines="none" className="ion-no-padding">
+                  <IonAvatar slot="start">
+                    <img 
+                      src={team?.avatarUrl || 'https://via.placeholder.com/40'} 
+                      alt={team?.name} 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).onerror = null;
+                        (e.target as HTMLImageElement).src = 'https://picsum.photos/200';
+                      }}
+                    />
+                  </IonAvatar>
+                  <IonLabel>
+                    <h2>{team?.name}</h2>
+                    <p className="text-xs text-gray-500">
+                      {new Date(completion.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </p>
+                  </IonLabel>
+                  {completion.status === 'approved' && (
+                    <IonChip color="success" slot="end">
+                      <IonIcon icon={checkmarkCircleOutline} />
+                      <IonLabel>Approuvé</IonLabel>
+                    </IonChip>
+                  )}
+                  {completion.status === 'rejected' && (
+                    <IonChip color="danger" slot="end">
+                      <IonIcon icon={closeCircleOutline} />
+                      <IonLabel>Rejeté</IonLabel>
+                    </IonChip>
+                  )}
+                  {completion.status === 'pending' && (
+                    <IonChip color="warning" slot="end">
+                      <IonIcon icon={timerOutline} />
+                      <IonLabel>En attente</IonLabel>
+                    </IonChip>
+                  )}
+                </IonItem>
+              </IonCardHeader>
+              
+              <IonCardContent>
+                <IonText>
+                  <p className="font-medium mb-3">{challenge?.title}</p>
+                  <p className="text-sm text-gray-600 mb-3">{challenge?.description}</p>
+                </IonText>
+                
+                {completion.photoUrl && (
+                  <div className="my-3 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center" style={{ minHeight: '150px' }}>
+                    <img 
+                      src={completion.photoUrl} 
+                      alt="Preuve défi" 
+                      className="w-full max-h-60 object-cover block" 
+                      onError={(e) => { 
+                        (e.target as HTMLImageElement).onerror = null;
+                        (e.target as HTMLImageElement).src = 'https://picsum.photos/600/400';
+                        (e.target as HTMLImageElement).classList.add('image-error-placeholder'); 
+                      }}
+                    />
+                  </div>
+                )}
+                
+                {completion.status === 'pending' && (
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    <IonButton expand="block" color="success" onClick={() => handleChallengeValidation(completion.id, true)}>
+                      <IonIcon slot="start" icon={checkmarkCircleOutline} />
+                      Approuver
+                    </IonButton>
+                    <IonButton expand="block" color="danger" onClick={() => handleChallengeValidation(completion.id, false)}>
+                      <IonIcon slot="start" icon={closeCircleOutline} />
+                      Rejeter
+                    </IonButton>
+                  </div>
+                )}
+              </IonCardContent>
+            </IonCard>
+          );
+        })}
+        
+        {gameState.challengeCompletions.length === 0 && (
+          <div className="p-5 text-center">
+            <IonIcon icon={imageOutline} color="medium" size="large" />
+            <p className="text-gray-500 mt-2">Aucun défi à valider pour le moment</p>
+          </div>
+        )}
+      </IonList>
     </>
   );
 
@@ -437,83 +484,81 @@ const ChickenPage: React.FC = () => {
           <IonTitle>Équipes en recherche</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
-        <IonItem lines="full" className="bg-gradient-to-r from-orange-100 to-yellow-50 ion-no-padding">
-          <IonLabel className="ion-padding">
-            <h2 className="text-lg font-bold text-orange-800">Équipes en recherche</h2>
-            <p className="text-sm text-orange-700">Progression des équipes</p>
-          </IonLabel>
-        </IonItem>
-        
-        <IonItem lines="full" className="bg-yellow-50">
-          <IonIcon icon={cashOutline} color="warning" slot="start" />
-          <IonLabel>
-            <span className="font-medium">Cagnotte</span>
-          </IonLabel>
-          <IonText slot="end" className="font-bold">85€</IonText>
-        </IonItem>
-        
-        <IonList>
-          {gameState.teams.map((team) => (
-            <IonCard key={team.id} className="m-2">
-              <IonItem lines="none" className="ion-no-padding">
-                <IonAvatar slot="start">
-                  <img 
-                    src={team.avatarUrl} 
-                    alt={team.name} 
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).onerror = null;
-                      (e.target as HTMLImageElement).src = 'https://picsum.photos/200';
-                    }}
-                  />
-                </IonAvatar>
-                <IonLabel>
-                  <h2>{team.name}</h2>
-                  <div className="flex items-center text-xs text-gray-500">
-                    <IonIcon icon={peopleOutline} size="small" className="mr-1" />
-                    <span>{team.members.length} membres</span>
-                  </div>
-                </IonLabel>
-                <IonChip color="primary" slot="end">
-                  <IonIcon icon={trophyOutline} />
-                  <IonLabel>{team.score} pts</IonLabel>
-                </IonChip>
-              </IonItem>
-              
-              <IonCardContent>
-                <div className="flex items-center text-sm text-gray-600 space-x-4 mb-3">
-                  <div className="flex items-center">
-                    <IonIcon icon={locationOutline} size="small" className="mr-1" />
-                    <span>{team.barsVisited} bars</span>
-                  </div>
-                  <div className="flex items-center">
-                    <IonIcon icon={checkmarkCircleOutline} size="small" className="mr-1" />
-                    <span>{team.challengesCompleted} défis</span>
-                  </div>
+      <IonItem lines="full" className="bg-gradient-to-r from-orange-100 to-yellow-50 ion-no-padding">
+        <IonLabel className="ion-padding">
+          <h2 className="text-lg font-bold text-orange-800">Équipes en recherche</h2>
+          <p className="text-sm text-orange-700">Progression des équipes</p>
+        </IonLabel>
+      </IonItem>
+      
+      <IonItem lines="full" className="bg-yellow-50">
+        <IonIcon icon={cashOutline} color="warning" slot="start" />
+        <IonLabel>
+          <span className="font-medium">Cagnotte</span>
+        </IonLabel>
+        <IonText slot="end" className="font-bold">85€</IonText>
+      </IonItem>
+      
+      <IonList>
+        {gameState.teams.map((team) => (
+          <IonCard key={team.id} className="m-2">
+            <IonItem lines="none" className="ion-no-padding">
+              <IonAvatar slot="start">
+                <img 
+                  src={team.avatarUrl} 
+                  alt={team.name} 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).onerror = null;
+                    (e.target as HTMLImageElement).src = 'https://picsum.photos/200';
+                  }}
+                />
+              </IonAvatar>
+              <IonLabel>
+                <h2>{team.name}</h2>
+                <div className="flex items-center text-xs text-gray-500">
+                  <IonIcon icon={peopleOutline} size="small" className="mr-1" />
+                  <span>{team.members.length} membres</span>
                 </div>
-                
-                {team.foundChicken ? (
-                  <div className="mt-2 bg-green-100 text-green-800 p-3 rounded-md text-sm flex items-center">
-                    <IonIcon icon={checkmarkCircleOutline} size="small" className="mr-1" />
-                    A trouvé le poulet
-                  </div>
-                ) : (
-                  <IonButton 
-                    expand="block" 
-                    fill="solid" 
-                    color="primary" 
-                    size="small"
-                    className="mt-2"
-                    onClick={() => markTeamFound(team.id)}
-                  >
-                    Marquer comme trouvé
-                  </IonButton>
-                )}
-              </IonCardContent>
-            </IonCard>
-          ))}
-        </IonList>
-      </IonContent>
+              </IonLabel>
+              <IonChip color="primary" slot="end">
+                <IonIcon icon={trophyOutline} />
+                <IonLabel>{team.score} pts</IonLabel>
+              </IonChip>
+            </IonItem>
+            
+            <IonCardContent>
+              <div className="flex items-center text-sm text-gray-600 space-x-4 mb-3">
+                <div className="flex items-center">
+                  <IonIcon icon={locationOutline} size="small" className="mr-1" />
+                  <span>{team.barsVisited} bars</span>
+                </div>
+                <div className="flex items-center">
+                  <IonIcon icon={checkmarkCircleOutline} size="small" className="mr-1" />
+                  <span>{team.challengesCompleted} défis</span>
+                </div>
+              </div>
+              
+              {team.foundChicken ? (
+                <div className="mt-2 bg-green-100 text-green-800 p-3 rounded-md text-sm flex items-center">
+                  <IonIcon icon={checkmarkCircleOutline} size="small" className="mr-1" />
+                  A trouvé le poulet
+                </div>
+              ) : (
+                <IonButton 
+                  expand="block" 
+                  fill="solid" 
+                  color="primary" 
+                  size="small"
+                  className="mt-2"
+                  onClick={() => markTeamFound(team.id)}
+                >
+                  Marquer comme trouvé
+                </IonButton>
+              )}
+            </IonCardContent>
+          </IonCard>
+        ))}
+      </IonList>
     </>
   );
   
@@ -628,72 +673,6 @@ const ChickenPage: React.FC = () => {
     </IonModal>
   );
 
-  // Nouveau composant: panneau de sélection de bar
-  const ChangePositionPanel: React.FC = () => (
-    <IonModal isOpen={showPanel === 'changePosition'} onDidDismiss={() => setShowPanel(null)}>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Changer de position</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={() => setShowPanel(null)}>
-              <IonIcon slot="icon-only" icon={closeOutline} />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      
-      <IonContent>
-        <div className="p-4 bg-yellow-50">
-          <div className="flex items-center mb-2">
-            <IonIcon icon={locationOutline} color="warning" className="mr-2" size="large" />
-            <h2 className="text-lg font-bold text-orange-800">Sélectionner un bar</h2>
-          </div>
-          <p className="text-sm text-orange-700">
-            Choisissez le bar où vous vous cachez actuellement. Les équipes de chasseurs doivent vous trouver à cet endroit.
-          </p>
-        </div>
-        
-        <div className="p-4">
-          <IonSearchbar
-            placeholder="Rechercher un bar..."
-            value={searchText}
-            onIonChange={e => setSearchText(e.detail.value || '')}
-          />
-        </div>
-        
-        <IonList>
-          {gameState.barOptions
-            .filter(bar => !searchText || bar.name.toLowerCase().includes(searchText.toLowerCase()))
-            .map(bar => (
-              <IonItem key={bar.id} detail={false} button onClick={() => {
-                changeCurrentBar(bar.id);
-                setShowPanel(null);
-              }}>
-                <div className="mr-3">
-                  <div className="w-14 h-14 rounded-md overflow-hidden bg-gray-200">
-                    <img 
-                      src={bar.photoUrl} 
-                      alt={bar.name} 
-                      className="w-full h-full object-cover"
-                      onError={(e) => (e.target as HTMLImageElement).src = 'https://source.unsplash.com/random/100x100/?bar'}
-                    />
-                  </div>
-                </div>
-                <IonLabel>
-                  <h2 className="font-medium">{bar.name}</h2>
-                  <p className="text-xs text-gray-500">{bar.address}</p>
-                  <p className="text-xs text-gray-600 mt-1">{bar.description}</p>
-                </IonLabel>
-                {gameState.currentBar?.id === bar.id && (
-                  <IonIcon slot="end" icon={checkmarkCircleOutline} color="success" />
-                )}
-              </IonItem>
-            ))}
-        </IonList>
-      </IonContent>
-    </IonModal>
-  );
-
   return (
     <IonPage id="main">
       <SideMenu />
@@ -705,7 +684,7 @@ const ChickenPage: React.FC = () => {
           <IonTitle>Mode Poulet</IonTitle>
           <div slot="end" className="time-chip">
             <IonIcon icon={timeOutline} />
-            <span>2:15:00</span>
+            <span>{gameState.timeLeft}</span>
           </div>
         </IonToolbar>
         
@@ -727,10 +706,10 @@ const ChickenPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       
-      <IonContent className={activeTab === 'chat' ? 'chat-content-padding' : ''}>
+      <IonContent className={activeTab === 'chat' ? 'chat-content-padding' : ''} scrollY={activeTab !== 'map'}>
         {activeTab === 'map' && <MapTabContent />}
         {activeTab === 'challenges' && <ChallengesTabContent />}
-        {activeTab === 'chat' && (
+        {activeTab === 'chat' && 
           <ChatInterface 
             gameState={gameState} 
             setShowPanel={setShowPanel} 
@@ -738,16 +717,21 @@ const ChickenPage: React.FC = () => {
             newMessage={newMessage} 
             setNewMessage={setNewMessage} 
           />
-        )}
+        }
         {activeTab === 'teams' && <TeamsTabContent />}
       </IonContent>
       
-      {/* Modales */}
       <ChallengesManagerPanel />
       <CluePanel />
-      <ChangePositionPanel />
       
-      {/* Loading & Toast */}
+      <SelectHidingSpotModal 
+        isOpen={showSelectBarModal}
+        barOptions={gameState.barOptions}
+        currentBar={gameState.currentBar || null}
+        onClose={() => setShowSelectBarModal(false)}
+        onSelectBar={changeCurrentBar}
+      />
+      
       <IonLoading isOpen={isLoading} message="Chargement..." />
       <IonToast
         isOpen={showToast}
@@ -758,7 +742,6 @@ const ChickenPage: React.FC = () => {
         color="dark"
       />
       
-      {/* Footer de saisie pour le Chat (Conditionnel) */}
       {activeTab === 'chat' && (
         <IonFooter>
           <IonToolbar className="chat-input-toolbar">
@@ -782,7 +765,6 @@ const ChickenPage: React.FC = () => {
         </IonFooter>
       )}
       
-      {/* Tab Bar */}
       <IonTabBar slot="bottom">
         <IonTabButton tab="map" selected={activeTab === 'map'} onClick={() => setActiveTab('map')}>
           <IonIcon icon={locationOutline} />

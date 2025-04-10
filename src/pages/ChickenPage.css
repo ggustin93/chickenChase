@@ -232,4 +232,54 @@
 /* Styles pour le composant Leaflet lui-même (si nécessaire) */
 .leaflet-container {
   /* Styles spécifiques à Leaflet si besoin */
+}
+
+/* Styles pour la nouvelle mise en page de l'onglet carte (MapTabContent) */
+.map-tab-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Prend toute la hauteur de IonContent */
+  overflow: hidden; /* Empêche le débordement du conteneur principal */
+}
+
+.map-view {
+  flex: 0 0 50vh; /* Hauteur fixe pour la carte (50% de la hauteur de la vue) */
+  min-height: 200px; /* Hauteur minimale pour la carte */
+  position: relative; /* Contexte pour les éléments enfants */
+  background-color: #eee; /* Couleur de fond pendant le chargement */
+}
+
+.bar-list-view {
+  flex: 1 1 auto; /* Prend l'espace restant */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Empêche le débordement de cette zone */
+}
+
+.bar-list-header {
+  flex-shrink: 0; /* Empêche le header de rétrécir */
+}
+
+.bar-list-scroll {
+  flex: 1 1 auto; /* Prend l'espace restant dans bar-list-view */
+  overflow-y: auto; /* Active le défilement vertical UNIQUEMENT pour la liste */
+  background: var(--ion-background-color, #fff); /* Fond pour la zone de défilement */
+}
+
+/* Ajustements pour IonItem dans la liste des bars du poulet */
+.bar-list-chicken .bar-list-item-chicken {
+  --inner-padding-end: 10px; /* Ajustement du padding interne */
+}
+
+.bar-thumbnail-chicken {
+  width: 50px;
+  height: 50px;
+  --border-radius: 4px;
+  margin-right: 12px;
+}
+
+.bar-search-chicken {
+  --background: var(--ion-color-light, #f4f5f8); /* Fond cohérent avec le header */
+  --box-shadow: none;
+  padding: 5px 10px; 
 } 

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -87,7 +89,7 @@ ion-tab-button ion-label {
 }
 
 /* Styles pour le mode sombre */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   ion-content {
     --background: var(--ion-background-color);
   }
@@ -99,7 +101,7 @@ ion-tab-button ion-label {
     --color: var(--ion-color-step-600, #a0a0a0);
     --color-selected: var(--ion-color-primary);
   }
-}
+} */
 
 /* Fix pour les problèmes d'affichage sur iOS */
 ion-content {
@@ -117,6 +119,7 @@ ion-content {
 
 .main-toolbar ion-title {
   font-weight: bold;
+  font-family: var(--ion-font-fantasy); /* Utilisation de la variable de police */
 }
 
 .time-chip {

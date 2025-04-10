@@ -80,9 +80,12 @@ http://ionicframework.com/docs/theming/ */
   --chicken-brown: #8B4513;
   --bar-dark: #2C3E50;
   --bar-light: #F5F5DC;
+
+  /* Polices */
+  --ion-font-fantasy: 'Luckiest Guy', cursive;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   body {
     --ion-color-primary: #FFA333;
     --ion-color-primary-rgb: 255, 163, 51;
@@ -147,14 +150,12 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-light-shade: #1e2023;
     --ion-color-light-tint: #383a3e;
 
-    /* Couleurs spécifiques en mode sombre */
     --chicken-yellow: #FFE066;
     --chicken-brown: #B86E3C;
     --bar-dark: #34495E;
     --bar-light: #ECF0F1;
   }
   
-  /* Styles pour le mode sombre */
   .ios body {
     --ion-background-color: #121212;
     --ion-background-color-rgb: 18, 18, 18;
@@ -178,7 +179,7 @@ http://ionicframework.com/docs/theming/ */
     --ion-tab-bar-background: #1a1a1a;
     --ion-card-background: #1a1a1a;
   }
-}
+} */
 
 /* Classes CSS personnalisées pour les couleurs spécifiques à l'application */
 .ion-color-chicken-yellow {
@@ -215,4 +216,8 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-contrast-rgb: 0, 0, 0;
   --ion-color-shade: #d8d8c3;
   --ion-color-tint: #f6f6e0;
+}
+
+ion-title {
+  font-family: var(--ion-font-fantasy); /* Utilise 'Papyrus', fantasy par défaut */
 }
