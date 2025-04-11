@@ -1,0 +1,115 @@
+.game-status-card {
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.game-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+}
+
+.game-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin: 0 0 8px 0;
+}
+
+.location-section {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ion-color-light-shade);
+}
+
+.location-selector {
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+  margin-top: 8px;
+}
+
+.location-label h2 {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.location-label p {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+}
+
+.teams-section {
+  margin-bottom: 16px;
+}
+
+.teams-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.teams-count {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+}
+
+.teams-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.team-chip {
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+.chicken-run-btn {
+  --border-radius: 10px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.clue-button-container {
+  margin-top: 8px;
+}
+
+.clue-button {
+  --border-radius: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  font-weight: bold;
+}
+
+/* Optimisation pour petit écran */
+@media (max-width: 360px) {
+  .game-stats {
+    gap: 8px;
+  }
+  
+  .team-chip {
+    font-size: 0.75rem;
+  }
+  
+  .clue-button {
+    font-size: 0.9rem;
+  }
+} 

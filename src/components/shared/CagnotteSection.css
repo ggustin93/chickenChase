@@ -1,0 +1,113 @@
+/* Styles pour le composant CagnotteSection */
+
+.cagnotte-container {
+  padding: 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--ion-color-light-shade);
+}
+
+.cagnotte-card {
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--ion-color-light-shade);
+}
+
+.cagnotte-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.cagnotte-header ion-icon {
+  color: var(--ion-color-warning);
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.cagnotte-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.cagnotte-amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ion-color-warning-shade);
+  margin-bottom: 16px;
+}
+
+.cagnotte-info {
+  margin-top: 8px;
+}
+
+.cagnotte-progress-container {
+  height: 8px;
+  background-color: var(--ion-color-light-shade);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.cagnotte-progress-bar {
+  height: 100%;
+  background-color: var(--ion-color-warning);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.cagnotte-label {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  text-align: right;
+}
+
+.cagnotte-skeleton {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  padding: 0;
+}
+
+/* Variantes de couleur */
+.cagnotte-container.player .cagnotte-header ion-icon,
+.cagnotte-container.player .cagnotte-amount {
+  color: var(--ion-color-primary-shade);
+}
+
+.cagnotte-container.player .cagnotte-progress-bar {
+  background-color: var(--ion-color-primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .cagnotte-card {
+    padding: 16px;
+  }
+  
+  .cagnotte-amount {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cagnotte-container {
+    padding: 12px;
+  }
+  
+  .cagnotte-card {
+    padding: 14px;
+  }
+  
+  .cagnotte-amount {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .cagnotte-header h3 {
+    font-size: 14px;
+  }
+} 

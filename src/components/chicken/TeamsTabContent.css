@@ -1,0 +1,220 @@
+/* src/components/TeamsTabContent.css */
+
+/* Base styles for the tab content area */
+.teams-tab-content {
+  --ion-background-color: #f8f9fa; /* Light grey background for better contrast */
+}
+
+/* Style for the header toolbar */
+.teams-header ion-toolbar {
+  --background: var(--ion-color-light);
+  --border-color: var(--ion-color-medium-tint);
+  --border-width: 0 0 1px 0;
+}
+
+/* Teams section header */
+.teams-section-header {
+  padding: 16px 16px 8px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--ion-color-light-shade);
+}
+
+.teams-section-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+/* Empty teams state */
+.empty-teams-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  height: 200px;
+  background-color: #ffffff;
+  margin: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.empty-teams-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: var(--ion-color-medium-tint);
+}
+
+.empty-teams-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.empty-teams-subtitle {
+  font-size: 14px;
+  line-height: 1.4;
+  max-width: 250px;
+}
+
+/* Styling for the list */
+.teams-list {
+  background-color: var(--ion-background-color, #f8f9fa);
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+/* Styling for each list item */
+.team-list-item {
+  --background: #ffffff;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 16px;
+  --inner-padding-top: 16px;
+  --inner-padding-bottom: 16px;
+  margin: 0 0 8px 0;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.team-list-item.found {
+  --background: rgba(var(--ion-color-success-rgb), 0.08);
+  border-left: 4px solid var(--ion-color-success);
+}
+
+/* Make last item have no border */
+.teams-list ion-item:last-child {
+  margin-bottom: 16px;
+}
+
+.team-item-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.team-item-avatar {
+  width: 50px;
+  height: 50px;
+  margin-right: 16px;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.team-item-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-item-info {
+  flex: 1;
+  min-width: 0; /* Prevent text from overflowing container */
+}
+
+.team-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.team-item-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ion-color-dark-shade);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-item-score {
+  display: flex;
+  align-items: center;
+  background: var(--ion-color-primary-tint);
+  color: var(--ion-color-primary-contrast);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.team-item-score ion-icon {
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+.team-item-stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--ion-color-medium-shade);
+  font-size: 13px;
+}
+
+.team-stat {
+  display: flex;
+  align-items: center;
+}
+
+.team-stat ion-icon {
+  font-size: 16px;
+  color: var(--ion-color-primary-tint);
+  margin-right: 4px;
+}
+
+/* Action area below info */
+.team-item-action {
+  margin-top: 12px;
+  width: 100%;
+}
+
+/* Button to mark a team as found */
+.mark-found-button {
+  --background: var(--ion-color-secondary);
+  --background-hover: var(--ion-color-secondary-shade);
+  --background-focused: var(--ion-color-secondary-shade);
+  --color: var(--ion-color-secondary-contrast);
+  --border-radius: 8px;
+  --box-shadow: 0 2px 8px rgba(var(--ion-color-secondary-rgb), 0.3);
+  font-weight: 600;
+  text-transform: none; 
+  height: 40px;
+  width: 100%;
+  font-size: 14px;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+/* Message displayed when a team is found */
+.found-message {
+  background-color: var(--ion-color-success-tint);
+  color: var(--ion-color-success-shade); 
+  padding: 10px 14px; 
+  border-radius: 8px;
+  font-size: 14px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(var(--ion-color-success-rgb), 0.2);
+  width: 100%;
+}
+
+.found-message ion-icon {
+  margin-right: 8px;
+  font-size: 18px;
+  color: var(--ion-color-success); 
+} 

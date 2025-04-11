@@ -1,0 +1,55 @@
+.map-tab-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.map-container {
+  flex: 1;
+  height: 50vh;
+  position: relative;
+  z-index: 1;
+}
+
+.status-card-container {
+  z-index: 2;
+  margin-top: -20px;
+  padding: 0 12px;
+  margin-bottom: 12px;
+}
+
+/* Version tablette et desktop */
+@media (min-width: 768px) {
+  .map-container {
+    height: 60vh;
+  }
+  
+  .status-card-container {
+    margin-top: -30px;
+    padding: 0 20px;
+  }
+}
+
+/* Ajustements pour très grands écrans */
+@media (min-width: 1200px) {
+  .map-tab-container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .map-container {
+    height: 75vh;
+    flex: 2;
+  }
+  
+  .status-card-container {
+    flex: 1;
+    margin-top: 0;
+    margin-left: -50px;
+    margin-right: 20px;
+    padding: 0;
+    max-width: 400px;
+    align-self: center;
+  }
+} 
