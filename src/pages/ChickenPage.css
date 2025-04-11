@@ -341,4 +341,18 @@
   aspect-ratio: 1 / 1; /* Force un ratio carré */
   object-fit: cover; /* Couvre la zone carrée sans déformer l'image */
   border-radius: 8px; /* Coins arrondis pour l'image elle-même */
+}
+
+/* Styles spécifiques pour la page Poulet */
+
+/* Style pour l'en-tête */
+.chicken-header {
+  --background: #ff9800; /* Orange vif */
+  --color: white;
+  --border-color: transparent;
+}
+
+.chicken-header ion-title {
+  font-weight: bold;
+  text-transform: uppercase;
 } 

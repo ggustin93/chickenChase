@@ -33,6 +33,9 @@ export interface Challenge {
   description: string;
   points: number;
   active: boolean;
+  completed: boolean;
+  teams: string[];
+  pendingValidation?: boolean;
 }
 
 export interface ChallengeCompletion {

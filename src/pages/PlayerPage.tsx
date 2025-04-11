@@ -25,7 +25,7 @@ import { useCamera, UseCameraPhoto } from '../hooks/useCamera';
 import { useGeolocation } from '../hooks/useGeolocation';
 
 // Import new component
-import LeaderboardList from '../components/LeaderboardList';
+import LeaderboardList from '../components/player/LeaderboardList';
 import ChatMessageList from '../components/ChatMessageList';
 import SideMenu from '../components/SideMenu';
 

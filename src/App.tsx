@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import Home from './pages/Home';
 import ChickenPage from './pages/ChickenPage';
 import PlayerPage from './pages/PlayerPage';
+import AdminPage from './pages/AdminPage';
 import SideMenu from './components/SideMenu';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -64,7 +65,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
   // Determine mode based on path from props
   const currentPath = location.pathname;
   const mode = currentPath.startsWith('/chicken') ? 'chicken' : 
-               currentPath.startsWith('/player') ? 'player' : undefined;
+               currentPath.startsWith('/player') ? 'player' :
+               currentPath.startsWith('/admin') ? 'admin' : undefined;
 
   // Define quit game handler using router from props
   const handleQuitGame = () => {
@@ -97,6 +99,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
         </Route>
         <Route exact path="/player">
           <PlayerPage />
+        </Route>
+        <Route exact path="/admin">
+          <AdminPage />
         </Route>
         <Route exact path="/">
           <Redirect to="/home" />
