@@ -13,7 +13,11 @@ import {
   IonButton,
   IonNote,
   IonTitle,
-  IonBadge,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonImg,
 } from '@ionic/react';
 import { menuController } from '@ionic/core';
 import {
@@ -54,77 +58,56 @@ const SideMenu: React.FC<SideMenuProps> = ({ gameName, mode, onQuitGame, appVers
   return (
     <IonMenu side="start" menuId="main-menu" contentId="main-content" swipeGesture={true} type="overlay">
       <IonHeader className="ion-no-border">
-        <IonToolbar color="primary" className="ion-padding-vertical">
-          {/* Logo Placeholder Removed */}
-          {/* <div className="flex justify-center mb-2"> */}
-          {/*   <IonImg  */}
-          {/*     src="https://picsum.photos/seed/logo/60/60"  */}
-          {/*     alt="Chicken Chase Logo Placeholder" */}
-          {/*     style={{ width: '60px', height: '60px' }}  */}
-          {/*     className="rounded-md shadow-sm" */}
-          {/*   /> */}
-          {/* </div> */}
-          
-          {/* Use IonTitle for automatic font and centering */}
-          <IonTitle className="ion-text-center text-3xl"> 
-            CHICKEN CHASE 🐔
-          </IonTitle>
-          {/* Mode label below title - Centered with IonBadge using flex */}
-          <div className="flex justify-center mt-1"> {/* Use flex to center */}
-            <IonBadge color="secondary" className="px-2 py-1 text-xs font-semibold">
-              {currentModeConfig?.label || 'Mode Inconnu'}
-            </IonBadge>
-          </div>
-
-          <IonButtons slot="end" className="absolute right-2 top-1/2 transform -translate-y-1/2"> 
+        <IonToolbar color="primary" className="pt-2 pb-1">
+        
+          <IonButtons slot="end"> 
             <IonButton onClick={closeMenu} fill="clear" color="light">
               <IonIcon slot="icon-only" icon={closeOutline} />
             </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding-top">
-        {/* Game Info Section - Avatar removed, text centered */}
-        <IonItem lines="none" className="px-3 pt-2 pb-3" >
-          <div className="rounded-lg bg-gradient-to-br from-amber-300 to-orange-400 p-4 shadow-md flex items-center justify-center w-full"> {/* Centered content, more padding */}
-            {/* Avatar Placeholder Removed */}
-            {/* <IonAvatar slot="start" className="mr-3 border-2 border-white/50 shadow-sm">  */}
-            {/*   <IonImg src="https://picsum.photos/seed/avatar/50/50" alt="Team Avatar Placeholder"/> */}
-            {/* </IonAvatar> */}
-            {/* Centered Text content */} 
-            <div className="flex-grow text-center"> 
-                <IonLabel className="font-bold text-sm text-orange-950 !block mb-0.5">Partie en cours</IonLabel>
-                <IonNote className="text-xs font-medium text-orange-900 opacity-95 !block">{gameName}</IonNote>
-            </div>
-          </div>
-        </IonItem>
 
-        <IonList lines="none" className="ion-padding-top">
-          <IonListHeader className="text-xs font-bold uppercase text-gray-500 tracking-wide px-4 mb-1">Navigation</IonListHeader>
-          <IonItem button detail={false} routerLink="/home" onClick={closeMenu} className="ion-margin-horizontal mb-1 rounded-lg" lines="none">
+
+      <IonContent color="primary" className="pt-2">
+        <IonCard className="mx-3 my-3 rounded-lg shadow-sm" color="light">
+          <IonCardHeader className="ion-text-center ion-padding-bottom pt-4">
+            <div className="flex items-center justify-center mb-3">
+              <IonImg
+                src="https://picsum.photos/seed/chase_logo/60/60"
+                alt="Chicken Chase Logo Placeholder"
+                style={{ width: '80px', height: '80px', margin: '0 auto' }}
+                className="rounded-md"
+              />
+            </div>
+            <IonCardTitle className="text-base font-semibold text-gray-800" style={{ fontFamily: "var(--ion-font-fantasy)" }}>Chicken Chase</IonCardTitle>
+            <IonCardSubtitle className="text-xs font-medium text-gray-600 mt-1">{gameName}</IonCardSubtitle>
+          </IonCardHeader>
+        </IonCard>
+
+        <IonList lines="none" className="ion-no-padding">
+          <IonListHeader className="text-xs font-bold uppercase text-white/80 tracking-wide px-4 mb-2">Navigation</IonListHeader>
+          <IonItem button detail={false} routerLink="/home" onClick={closeMenu} lines="none" color="light" className="mx-3 mb-1 rounded-lg shadow-sm">
             <IonIcon slot="start" icon={homeOutline} color="medium" className="ion-margin-start"/>
             <IonLabel className="text-sm">Tableau de bord</IonLabel>
           </IonItem>
           
-          {/* About Link */}
-          <IonItem button detail={false} routerLink="/about" onClick={closeMenu} className="ion-margin-horizontal mb-1 rounded-lg" lines="none">
+          <IonItem button detail={false} routerLink="/about" onClick={closeMenu} lines="none" color="light" className="mx-3 mb-1 rounded-lg shadow-sm">
             <IonIcon slot="start" icon={informationCircleOutline} color="medium" className="ion-margin-start"/>
             <IonLabel className="text-sm">À propos</IonLabel>
           </IonItem>
           
-          {/* FAQ Link */}
-          <IonItem button detail={false} routerLink="/faq" onClick={closeMenu} className="ion-margin-horizontal mb-1 rounded-lg" lines="none">
+          <IonItem button detail={false} routerLink="/faq" onClick={closeMenu} lines="none" color="light" className="mx-3 mb-1 rounded-lg shadow-sm">
             <IonIcon slot="start" icon={helpCircleOutline} color="medium" className="ion-margin-start"/>
             <IonLabel className="text-sm">FAQ</IonLabel>
           </IonItem>
           
-          {/* Partner Link */}
-          <IonItem button detail={false} routerLink="/partner" onClick={closeMenu} className="ion-margin-horizontal mb-1 rounded-lg" lines="none">
+          <IonItem button detail={false} routerLink="/partner" onClick={closeMenu} lines="none" color="light" className="mx-3 mb-1 rounded-lg shadow-sm">
             <IonIcon slot="start" icon={storefrontOutline} color="medium" className="ion-margin-start"/>
             <IonLabel className="text-sm">Devenir bar partenaire</IonLabel>
           </IonItem>
           
-          <IonListHeader className="text-xs font-bold uppercase text-gray-500 tracking-wide px-4 mb-1 ion-margin-top">Changer de mode</IonListHeader>
+          <IonListHeader className="text-xs font-bold uppercase text-white/80 tracking-wide px-4 mb-2 mt-3">Changer de mode</IonListHeader>
           {modeConfigs.map((config) => {
             const isCurrentMode = mode === config.key;
             return (
@@ -134,38 +117,40 @@ const SideMenu: React.FC<SideMenuProps> = ({ gameName, mode, onQuitGame, appVers
                 detail={false}
                 routerLink={!isCurrentMode ? config.path : undefined}
                 onClick={!isCurrentMode ? closeMenu : undefined}
-                color={undefined}
-                className={`ion-margin-horizontal mb-1 rounded-lg ${isCurrentMode ? 'bg-orange-100 font-semibold' : ''}`}
+                color="light" 
+                className={`mx-3 mb-1 rounded-lg shadow-sm ${isCurrentMode ? '' : ''}`}
                 disabled={isCurrentMode}
                 lines="none" 
               >
                 <IonIcon slot="start" icon={config.icon} color={isCurrentMode ? 'primary' : 'medium'} className="ion-margin-start" />
-                <IonLabel className={`text-sm ${isCurrentMode ? 'text-primary' : ''}`}>{config.label}</IonLabel>
+                <IonLabel className={`text-sm ${isCurrentMode ? 'text-primary font-semibold' : ''}`}>{config.label}</IonLabel>
               </IonItem>
             );
           })}
 
-          <IonListHeader className="text-xs font-bold uppercase text-gray-500 tracking-wide px-4 mb-1 ion-margin-top">Actions</IonListHeader>
+          <IonListHeader className="text-xs font-bold uppercase text-white/80 tracking-wide px-4 mb-2 mt-3">Actions</IonListHeader>
           <IonItem 
             button 
-            color={undefined}
             detail={false} 
             onClick={() => {
               onQuitGame();
               closeMenu();
              }}
-            className="ion-margin-horizontal mb-1 rounded-lg text-red-600"
             lines="none"
+            color="light" 
+            className="mx-3 mb-1 rounded-lg shadow-sm"
            >
               <IonIcon slot="start" icon={logOutOutline} color="danger" className="ion-margin-start"/>
-              <IonLabel className="text-sm font-medium">Quitter la partie</IonLabel>
+              <IonLabel color="danger" className="text-sm font-medium">Quitter la partie</IonLabel>
           </IonItem>
         </IonList>
 
-        {/* App Version Display */}
         {appVersion && (
-          <div className="ion-padding-horizontal ion-padding-bottom ion-text-center mt-auto">
-            <IonNote className="text-xs text-gray-500">Version {appVersion}</IonNote>
+          <div className="flex flex-col h-full"> 
+            <div className="flex-grow"></div>
+            <div className="ion-padding-horizontal pb-3 pt-2 ion-text-center">
+              <IonNote color="light" className="text-xs opacity-80">Version {appVersion}</IonNote>
+            </div>
           </div>
         )}
       </IonContent>

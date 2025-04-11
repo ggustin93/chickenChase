@@ -66,6 +66,97 @@ const mockBars: Bar[] = [
     latitude: 48.8805,
     longitude: 2.3370
   },
+  // --- Add Placeholder Bars (6 to 25) ---
+  {
+    id: 'bar-006',
+    name: 'Placeholder Bar 6',
+    address: 'Placeholder Address 6',
+    description: 'Placeholder Description 6',
+    photoUrl: 'https://picsum.photos/seed/bar6/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-007',
+    name: 'Placeholder Bar 7',
+    address: 'Placeholder Address 7',
+    description: 'Placeholder Description 7',
+    photoUrl: 'https://picsum.photos/seed/bar7/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-008',
+    name: 'Placeholder Bar 8',
+    address: 'Placeholder Address 8',
+    description: 'Placeholder Description 8',
+    photoUrl: 'https://picsum.photos/seed/bar8/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-009',
+    name: 'Placeholder Bar 9',
+    address: 'Placeholder Address 9',
+    description: 'Placeholder Description 9',
+    photoUrl: 'https://picsum.photos/seed/bar9/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-010',
+    name: 'Placeholder Bar 10',
+    address: 'Placeholder Address 10',
+    description: 'Placeholder Description 10',
+    photoUrl: 'https://picsum.photos/seed/bar10/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-011',
+    name: 'Placeholder Bar 11',
+    address: 'Placeholder Address 11',
+    description: 'Placeholder Description 11',
+    photoUrl: 'https://picsum.photos/seed/bar11/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-012',
+    name: 'Placeholder Bar 12',
+    address: 'Placeholder Address 12',
+    description: 'Placeholder Description 12',
+    photoUrl: 'https://picsum.photos/seed/bar12/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-013',
+    name: 'Placeholder Bar 13',
+    address: 'Placeholder Address 13',
+    description: 'Placeholder Description 13',
+    photoUrl: 'https://picsum.photos/seed/bar13/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-014',
+    name: 'Placeholder Bar 14',
+    address: 'Placeholder Address 14',
+    description: 'Placeholder Description 14',
+    photoUrl: 'https://picsum.photos/seed/bar14/800/600',
+    latitude: 0,
+    longitude: 0
+  },
+  {
+    id: 'bar-015',
+    name: 'Placeholder Bar 15',
+    address: 'Placeholder Address 15',
+    description: 'Placeholder Description 15',
+    photoUrl: 'https://picsum.photos/seed/bar15/800/600',
+    latitude: 0,
+    longitude: 0
+  }
 ];
 
 // Données simulées pour les membres d'équipe

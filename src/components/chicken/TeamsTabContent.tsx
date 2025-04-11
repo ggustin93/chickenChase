@@ -1,8 +1,5 @@
 import React from 'react';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonList,
   IonContent,
   IonText,
@@ -77,11 +74,6 @@ const TeamsTabContent: React.FC<TeamsTabContentProps> = ({
 
   return (
     <IonContent className="teams-tab-content">
-      <IonHeader>
-        <IonToolbar color="light">
-          <IonTitle>Équipes en recherche</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       
       <CagnotteSection 
         currentAmount={currentCagnotte} 
