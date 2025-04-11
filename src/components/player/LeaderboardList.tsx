@@ -1,7 +1,7 @@
 import React from 'react';
 import { IonList, IonItem, IonLabel, IonAvatar, IonChip, IonIcon, IonNote } from '@ionic/react';
 import { mapOutline, checkmarkCircleOutline } from 'ionicons/icons';
-import { Team } from '../data/types'; // Adjust path if needed
+import { Team } from '../../data/types'; // Correct import path
 
 interface LeaderboardListProps {
   teams: Team[];

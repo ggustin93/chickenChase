@@ -217,42 +217,54 @@ const mockChallenges: Challenge[] = [
     title: 'Photo avec un inconnu',
     description: 'Trouvez quelqu\'un qui porte un vêtement rouge et prenez un selfie avec cette personne.',
     points: 50,
-    active: true
+    active: true,
+    completed: false,
+    teams: []
   },
   {
     id: 'challenge-002',
     title: 'Danse en public',
     description: 'Filmez un membre de votre équipe en train de faire une danse de poulet pendant 30 secondes.',
     points: 100,
-    active: true
+    active: true,
+    completed: false,
+    teams: []
   },
   {
     id: 'challenge-003',
     title: 'Cocktail mystère',
     description: 'Commandez un cocktail au bar et faites deviner ses ingrédients à votre équipe.',
     points: 75,
-    active: true
+    active: true,
+    completed: false,
+    teams: []
   },
   {
     id: 'challenge-004',
     title: 'Karaoké improvisé',
     description: 'Chantez une chanson avec les paroles modifiées pour inclure le mot "poulet" au moins 3 fois.',
     points: 125,
-    active: false
+    active: false,
+    completed: false,
+    teams: []
   },
   {
     id: 'challenge-005',
     title: 'Tour de magie',
     description: 'Réalisez un tour de magie simple pour un inconnu dans un bar.',
     points: 75,
-    active: true
+    active: true,
+    completed: false,
+    teams: []
   },
   {
     id: 'challenge-006',
     title: 'Photo de groupe',
     description: 'Prenez une photo avec au moins 5 inconnus dans un bar.',
     points: 100,
-    active: false
+    active: false,
+    completed: false,
+    teams: []
   }
 ];
 
