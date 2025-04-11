@@ -1,0 +1,45 @@
+---
+description: Flexible guidelines for "The Chicken Chase" Ionic React app
+globs: src/**/*.{tsx,ts,js,jsx}
+alwaysApply: false
+---
+
+- **Architecture**
+  - Consider feature-based organization (Game Setup, Chicken/Hunter Interfaces, Communication, Scoring)
+  - Suggested structure:
+    ```
+    src/
+      features/
+      shared/
+      pages/
+      services/
+    ```
+
+- **Supabase Integration**
+  - Consider custom hooks for auth, data access, and realtime features
+  - Type database interfaces when possible
+  - Compress images before upload
+
+- **Capacitor**
+  - Balance geolocation accuracy with battery optimization
+  - Handle permission fallbacks gracefully
+  - Centralize native API interactions
+
+- **UI Components**
+  - Consider custom hooks for maps and complex features
+  - Support role-based UI differences (chicken vs. hunter)
+  - Implement consistent feedback for user actions
+
+- **Performance**
+  - Use skeleton screens for loading states
+  - Consider offline support for critical features
+  - Be mindful of battery usage with background processes
+
+- **UX Guidelines**
+  - Implement large touch targets (users may be intoxicated)
+  - Provide clear visual/audio feedback for important events
+
+- **Considerations**
+  - Include responsible gaming messages
+  - Test with multiple concurrent users
+  - Respect user privacy with minimal data collection 

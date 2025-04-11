@@ -1,0 +1,71 @@
+---
+description: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
+globs: .cursor/rules/*.mdc
+alwaysApply: true
+---
+
+- **Required Rule Structure:**
+  ```markdown
+  ---
+  description: Clear, one-line description of what the rule enforces
+  globs: path/to/files/*.ext, other/path/**/*
+  alwaysApply: boolean
+  ---
+
+  - **Main Points in Bold**
+    - Sub-points with details
+    - Examples and explanations
+  ```
+
+- **File References:**
+  - Use `[filename](mdc:path/to/file)` ([filename](mdc:filename)) to reference files
+  - Example: [prisma.mdc](mdc:.cursor/rules/prisma.mdc) for rule references
+  - Example: [schema.prisma](mdc:prisma/schema.prisma) for code references
+
+- **Code Examples:**
+  - Use language-specific code blocks
+  ```typescript
+  // ✅ DO: Show good examples
+  const goodExample = true;
+  
+  // ❌ DON'T: Show anti-patterns
+  const badExample = false;
+  ```
+
+- **Rule Content Guidelines:**
+  - Start with high-level overview
+  - Include specific, actionable requirements
+  - Show examples of correct implementation
+  - Reference existing code when possible
+  - Keep rules DRY by referencing other rules
+  - **Refactoring Large Files:**
+    - If a file exceeds 200 lines, consider refactoring it.
+    - Apply best practices for modern web development, specifically focusing on Ionic React patterns:
+      - **Component Decomposition**: Break large components into smaller, focused components with single responsibilities
+      - **Custom Hooks**: Extract stateful logic into reusable custom hooks (`useMyFeature`)
+      - **Context API**: Use React Context for state that needs to be accessed by many components instead of prop drilling
+      - **Lazy Loading**: Implement route-based code splitting with React.lazy() and Suspense
+      - **Proper Ionic Components**: Use IonPage as root for all page components and follow Ionic component hierarchy (IonPage > IonHeader/IonContent)
+      - **Functional Components**: Prefer functional components with hooks over class components
+      - **Typed Props**: Use TypeScript interfaces for component props (React.FC<MyProps>)
+      - **Memoization**: Use React.memo() and useCallback() for performance optimization
+      - **Ionic Navigation**: Leverage IonRouterOutlet for navigation with proper history management
+      - **Slots Pattern**: Use slot attributes to position elements within Ionic components
+      - **Ionic Lifecycle**: Use ionViewWillEnter and similar lifecycle events via useIonViewDidEnter hook
+      - **Gesture Handling**: Use Ionic's gesture system for advanced touch interactions
+      - **Form Controls**: Prefer Ionic form components with React-compatible controlled component pattern
+      - **Styling Best Practices**: Use Ionic CSS utilities (padding, margin, flex) and CSS variables for theming
+    - Aim for smaller, reusable components and hooks to improve maintainability and readability.
+
+- **Rule Maintenance:**
+  - Update rules when new patterns emerge
+  - Add examples from actual codebase
+  - Remove outdated patterns
+  - Cross-reference related rules
+
+- **Best Practices:**
+  - Use bullet points for clarity
+  - Keep descriptions concise
+  - Include both DO and DON'T examples
+  - Reference actual code over theoretical examples
+  - Use consistent formatting across rules 
