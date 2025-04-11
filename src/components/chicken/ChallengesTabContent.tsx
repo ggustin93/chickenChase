@@ -12,7 +12,8 @@ import {
   IonBadge,
   IonRippleEffect,
   IonText,
-  IonSkeletonText
+  IonSkeletonText,
+  IonLabel
 } from '@ionic/react';
 import { 
   checkmarkCircleOutline, closeCircleOutline, ribbonOutline,
@@ -68,38 +69,34 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
         if (value === 'pending' || value === 'approved' || value === 'rejected' || value === 'all') {
           setSubmissionFilter(value);
         }
-      }} className="mb-3 challenge-segment" mode="ios">
-        <IonSegmentButton value="pending" className="challenge-segment-btn">
-          <div className="segment-content">
-            <IonIcon icon={timeOutline} className="segment-icon"></IonIcon>
-            {challengeCounts.pending > 0 && (
-              <IonBadge color="primary" className="count-badge">{challengeCounts.pending}</IonBadge>
-            )}
-          </div>
+      }}>
+        <IonSegmentButton value="pending">
+          <IonIcon icon={timeOutline} />
+          <IonLabel>En attente</IonLabel>
+          {challengeCounts.pending > 0 && (
+            <IonBadge color="primary">{challengeCounts.pending}</IonBadge>
+          )}
         </IonSegmentButton>
-        <IonSegmentButton value="approved" className="challenge-segment-btn">
-          <div className="segment-content">
-            <IonIcon icon={checkmarkCircleOutline} className="segment-icon"></IonIcon>
-            {challengeCounts.approved > 0 && (
-              <IonBadge color="success" className="count-badge">{challengeCounts.approved}</IonBadge>
-            )}
-          </div>
+        <IonSegmentButton value="approved">
+          <IonIcon icon={checkmarkCircleOutline} />
+          <IonLabel>Approuvés</IonLabel>
+          {challengeCounts.approved > 0 && (
+            <IonBadge color="success">{challengeCounts.approved}</IonBadge>
+          )}
         </IonSegmentButton>
-        <IonSegmentButton value="rejected" className="challenge-segment-btn">
-          <div className="segment-content">
-            <IonIcon icon={closeCircleOutline} className="segment-icon"></IonIcon>
-            {challengeCounts.rejected > 0 && (
-              <IonBadge color="danger" className="count-badge">{challengeCounts.rejected}</IonBadge>
-            )}
-          </div>
+        <IonSegmentButton value="rejected">
+          <IonIcon icon={closeCircleOutline} />
+          <IonLabel>Refusés</IonLabel>
+          {challengeCounts.rejected > 0 && (
+            <IonBadge color="danger">{challengeCounts.rejected}</IonBadge>
+          )}
         </IonSegmentButton>
-        <IonSegmentButton value="all" className="challenge-segment-btn">
-          <div className="segment-content">
-            <IonIcon icon={appsOutline} className="segment-icon"></IonIcon>
-            {challengeCounts.total > 0 && (
-              <IonBadge color="medium" className="count-badge">{challengeCounts.total}</IonBadge>
-            )}
-          </div>
+        <IonSegmentButton value="all">
+          <IonIcon icon={appsOutline} />
+          <IonLabel>Tous</IonLabel>
+          {challengeCounts.total > 0 && (
+            <IonBadge color="medium">{challengeCounts.total}</IonBadge>
+          )}
         </IonSegmentButton>
       </IonSegment>
       
