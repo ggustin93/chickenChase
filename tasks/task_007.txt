@@ -5,7 +5,7 @@
 # Priority: medium
 # Description: Create the interface for hunter teams to search for the chicken, visit bars, and complete challenges
 # Details:
-1. Intégrer et adapter le composant HunterTeamPage.tsx amélioré
+1. Intégrer et adapter le composant PlayerPage.tsx (anciennement HunterTeamPage.tsx) amélioré
 2. Implement bar visit tracking and history
 3. Create photo capture functionality using Capacitor Camera
 4. Build challenge list and completion interface
@@ -13,6 +13,11 @@
 6. Add bar marking system on map
 7. Implement bar visit counter and visualization
 8. Create found chicken reporting mechanism
+9. Break PlayerPage.tsx into smaller components (<200 lines each)
+10. Extract logic to custom hooks (useBarVisits, usePhotoCapture, etc.)
+11. Use Context API for hunter team state management
+12. Implement proper Ionic component hierarchy
+13. Use MockData for development and testing
 
 # Test Strategy:
-Test bar visit tracking for accuracy. Verify photo capture and upload works correctly. Test challenge completion flow. Confirm team chat messages are delivered properly. Test found chicken reporting mechanism.
+Test bar visit tracking for accuracy. Verify photo capture and upload works correctly. Test challenge completion flow. Confirm team chat messages are delivered properly. Test found chicken reporting mechanism. Verify component composition and state management with React DevTools.

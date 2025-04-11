@@ -13,6 +13,11 @@
 6. Create game history storage
 7. Add team statistics tracking
 8. Develop animations and visual feedback for score changes
+9. Break leaderboard and scoring components into smaller modules (<200 lines each)
+10. Create custom hooks for score calculation and leaderboard data
+11. Use Context API for sharing score and ranking state
+12. Optimize leaderboard rendering with React.memo()
+13. Use MockData for scoring and leaderboard testing
 
 # Test Strategy:
-Test scoring algorithm with various scenarios. Verify leaderboard updates in real-time. Test last team detection accuracy. Confirm game results are calculated and displayed correctly. Test history retrieval for past games.
+Test scoring algorithm with various scenarios. Verify leaderboard updates in real-time. Test last team detection accuracy. Confirm game results are calculated and displayed correctly. Test history retrieval for past games. Verify component rerendering efficiency with React DevTools.

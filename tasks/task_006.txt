@@ -13,6 +13,11 @@
 6. Add photo gallery to view team submissions
 7. Implement real-time updates for team movements/status
 8. Create specialized communication tools for chicken role
+9. Break ChickenPage.tsx into smaller components (<200 lines each)
+10. Extract logic to custom hooks (useTimer, useBarSelection, etc.)
+11. Use Context API for chicken role state management
+12. Implement proper Ionic component hierarchy
+13. Use MockData for development and testing
 
 # Test Strategy:
-Test timer functionality for accuracy. Verify challenge validation flow works correctly. Test hint broadcasting to all teams. Confirm real-time updates are received properly. Test photo gallery rendering and navigation.
+Test timer functionality for accuracy. Verify challenge validation flow works correctly. Test hint broadcasting to all teams. Confirm real-time updates are received properly. Test photo gallery rendering and navigation. Verify component composition and state management with React DevTools.

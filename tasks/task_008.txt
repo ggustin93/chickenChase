@@ -13,6 +13,11 @@
 6. Integrate Capacitor Push Notifications
 7. Create notification triggers for key game events
 8. Implement message persistence and history loading
+9. Break chat components into smaller modules (<200 lines each)
+10. Create custom hooks for chat functionality (useChat, useNotifications)
+11. Implement ChatContext using Context API
+12. Optimize message rendering with React.memo()
+13. Use MockData for chat and notification testing
 
 # Test Strategy:
-Test real-time message delivery in different chat channels. Verify notifications are received properly. Test hint broadcasting to specific teams. Measure performance with multiple active chats. Test offline message queuing and delivery.
+Test real-time message delivery in different chat channels. Verify notifications are received properly. Test hint broadcasting to specific teams. Measure performance with multiple active chats. Test offline message queuing and delivery. Verify component rerendering efficiency with React DevTools.

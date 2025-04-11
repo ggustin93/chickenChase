@@ -1,59 +1,83 @@
 # Task ID: 1
-# Title: Améliorer les maquettes existantes avec des données simulées
-# Status: pending
+# Title: Improve existing mockups with simulated data and refactor according to best practices
+# Status: done
 # Dependencies: None
 # Priority: high
-# Description: Raffiner et améliorer visuellement les composants ChickenPage.tsx et HunterTeamPage.tsx en utilisant des données simulées pour obtenir une expérience utilisateur complète
+# Description: Refine and visually improve ChickenPage.tsx and HunterTeamPage.tsx (renamed to PlayerPage.tsx) components using simulated data to achieve a complete user experience, while refactoring all files exceeding 200 lines according to cursor_rules.mdc guidelines
 # Details:
-1. Analyser les composants existants ChickenPage.tsx et HunterTeamPage.tsx
-2. Améliorer la mise en page et l'UI des composants en suivant les directives de design d'Ionic
-3. Créer des structures de données simulées complètes pour représenter toutes les fonctionnalités
-4. Implémenter les interactions utilisateur avec les données simulées
-5. Améliorer les composants visuels (cartes, listes, formulaires)
-6. Ajouter des animations et transitions pour améliorer l'expérience utilisateur
-7. Implémenter le mode sombre et la palette de couleurs du jeu
-8. Assurer la réactivité sur différentes tailles d'écran
+1. Analyze existing ChickenPage.tsx and HunterTeamPage.tsx (renamed to PlayerPage.tsx) components
+2. Improve layout and UI of components following Ionic design guidelines
+3. Create complete simulated data structures to represent all features
+4. Implement user interactions with simulated data
+5. Enhance visual components (cards, lists, forms)
+6. Add animations and transitions to improve user experience
+7. Implement dark mode and game color palette
+8. Ensure responsiveness across different screen sizes
+9. Refactor all files exceeding 200 lines following cursor_rules.mdc guidelines
+10. Break large components into smaller, focused components with single responsibilities
+11. Extract stateful logic into reusable custom hooks
+12. Use Context API for state that needs to be shared across multiple components
+13. Ensure proper Ionic component hierarchy (IonPage > IonHeader/IonContent)
+14. Prefer functional components with hooks over class components
+15. Use TypeScript interfaces for component props
+16. Optimize with React.memo() and useCallback() where appropriate
+17. Use MockData to load data in components and pages during this stage
 
 # Test Strategy:
-Tester les interfaces sur différentes tailles d'écran. Vérifier les interactions avec les données simulées. S'assurer que toutes les fonctionnalités visuelles fonctionnent correctement. Valider l'apparence en mode clair et sombre.
+Test interfaces on different screen sizes. Verify interactions with simulated data. Ensure all visual features work correctly. Validate appearance in light and dark modes. Verify that refactored components maintain functionality. Test component composition and hierarchy with React DevTools.
 
 # Subtasks:
-## 1. Créer des structures de données simulées pour ChickenPage et HunterTeamPage [pending]
+## 1. Create simulated data structures for ChickenPage and HunterTeamPage (PlayerPage) [done]
 ### Dependencies: None
-### Description: Définir et implémenter des structures de données simulées complètes pour les composants ChickenPage et HunterTeamPage qui représentent toutes les fonctionnalités nécessaires
+### Description: Define and implement complete simulated data structures for ChickenPage and PlayerPage components that represent all necessary features
 ### Details:
-1. Analyser les besoins en données des composants ChickenPage et HunterTeamPage
-2. Créer des interfaces TypeScript pour les modèles de données (poulets, équipes de chasseurs, statistiques, etc.)
-3. Implémenter des données simulées statiques dans des fichiers séparés (mockData.ts)
-4. Inclure toutes les propriétés nécessaires pour afficher les informations complètes
-5. Ajouter des variations dans les données simulées pour tester différents scénarios
-6. Documenter la structure des données et leur utilisation prévue
-7. Pour tester: Vérifier que les structures de données sont complètes et cohérentes en les important dans un composant simple et en affichant leur contenu
+1. Analyze data needs for ChickenPage and PlayerPage components
+2. Create TypeScript interfaces for data models (chickens, hunter teams, statistics, etc.)
+3. Implement static simulated data in separate files (mockData.ts)
+4. Include all necessary properties to display complete information
+5. Add variations in simulated data to test different scenarios
+6. Document data structure and intended use
+7. To test: Verify that data structures are complete and consistent by importing them into a simple component and displaying their content
 
-## 2. Améliorer la mise en page et les composants UI de ChickenPage [pending]
+## 2. Improve layout and UI components of ChickenPage [done]
 ### Dependencies: 1.1
-### Description: Raffiner l'interface utilisateur de ChickenPage en utilisant les données simulées et en suivant les directives de design d'Ionic
+### Description: Refine ChickenPage user interface using simulated data and following Ionic design guidelines
 ### Details:
-1. Intégrer les données simulées dans ChickenPage
-2. Restructurer la mise en page en utilisant IonGrid, IonRow et IonCol pour une meilleure réactivité
-3. Améliorer les cartes de poulets avec des images, des statistiques et des actions
-4. Ajouter des composants de filtrage et de tri pour la liste des poulets
-5. Implémenter des animations de transition lors du chargement et des interactions
-6. Ajouter le support du mode sombre en utilisant les variables CSS d'Ionic
-7. Optimiser l'affichage pour différentes tailles d'écran (mobile, tablette, desktop)
-8. Pour tester: Vérifier le rendu sur différentes tailles d'écran, tester les interactions utilisateur, vérifier la cohérence visuelle en mode clair et sombre
+1. Integrate simulated data into ChickenPage
+2. Restructure layout using IonGrid, IonRow, and IonCol for better responsiveness
+3. Enhance chicken cards with images, statistics, and actions
+4. Add filtering and sorting components for the chicken list
+5. Implement transition animations during loading and interactions
+6. Add dark mode support using Ionic CSS variables
+7. Optimize display for different screen sizes (mobile, tablet, desktop)
+8. To test: Verify rendering on different screen sizes, test user interactions, check visual consistency in light and dark modes
 
-## 3. Améliorer la mise en page et les composants UI de HunterTeamPage [pending]
+## 3. Improve layout and UI components of PlayerPage (formerly HunterTeamPage) [done]
 ### Dependencies: 1.1
-### Description: Raffiner l'interface utilisateur de HunterTeamPage en utilisant les données simulées et en ajoutant des interactions utilisateur avancées
+### Description: Refine PlayerPage user interface using simulated data and adding advanced user interactions
 ### Details:
-1. Intégrer les données simulées dans HunterTeamPage
-2. Restructurer la mise en page pour afficher efficacement les équipes de chasseurs
-3. Créer des cartes détaillées pour chaque membre de l'équipe avec avatar et statistiques
-4. Implémenter un tableau de bord récapitulatif des performances de l'équipe
-5. Ajouter des animations lors des interactions (sélection d'équipe, détails des membres)
-6. Implémenter des gestes tactiles pour les interactions sur mobile (swipe, pinch)
-7. Harmoniser la palette de couleurs avec le thème du jeu et supporter le mode sombre
-8. Assurer la cohérence visuelle avec ChickenPage
-9. Pour tester: Vérifier les interactions utilisateur, tester la réactivité sur différents appareils, valider l'affichage correct des données simulées
+1. Integrate simulated data into PlayerPage
+2. Restructure layout to efficiently display hunter teams
+3. Create detailed cards for each team member with avatar and statistics
+4. Implement a summary dashboard of team performance
+5. Add animations during interactions (team selection, member details)
+6. Implement touch gestures for mobile interactions (swipe, pinch)
+7. Harmonize color palette with game theme and support dark mode
+8. Ensure visual consistency with ChickenPage
+9. To test: Verify user interactions, test responsiveness on different devices, validate correct display of simulated data
+
+## 4. Refactor components exceeding 200 lines [done]
+### Dependencies: 1.2, 1.3
+### Description: Apply cursor_rules.mdc guidelines to break down large components and improve code quality
+### Details:
+1. Identify components exceeding 200 lines in the codebase
+2. Break large components into smaller, focused components
+3. Extract stateful logic into custom hooks (e.g., useChickenData, usePlayerData)
+4. Implement Context API for shared state management
+5. Ensure proper Ionic component hierarchy throughout the app
+6. Convert any class components to functional components with hooks
+7. Add TypeScript interfaces for all component props
+8. Apply React.memo() to prevent unnecessary re-renders
+9. Use useCallback() for optimizing event handlers
+10. To test: Verify all components maintain functionality after refactoring, check performance improvements with React DevTools
 

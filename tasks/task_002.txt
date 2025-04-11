@@ -12,6 +12,7 @@
 5. Configure RLS (Row Level Security) policies for data access
 6. Set up Storage buckets for photos with appropriate permissions
 7. Create initial Supabase Edge Functions for core functionality
+8. Create MockData files for development and testing
 
 # Test Strategy:
-Verify authentication flow works with test users. Test database queries for basic CRUD operations. Confirm storage bucket configuration with test uploads. Validate RLS policies with different user roles.
+Verify authentication flow works with test users. Test database queries for basic CRUD operations. Confirm storage bucket configuration with test uploads. Validate RLS policies with different user roles. Ensure MockData can be used in place of actual Supabase data.

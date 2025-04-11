@@ -13,6 +13,10 @@
 6. Create random chicken selection algorithm
 7. Develop game lobby UI showing participants and settings
 8. Add form validation and error handling
+9. Break large components (>200 lines) into smaller components following cursor_rules.mdc
+10. Create custom hooks for form logic and game creation
+11. Use Context API for sharing game creation state
+12. Use MockData for development and testing
 
 # Test Strategy:
-Test game creation with various parameters. Verify invitation links work correctly. Test joining games as different users. Confirm chicken selection randomization works properly. Validate form inputs handle edge cases.
+Test game creation with various parameters. Verify invitation links work correctly. Test joining games as different users. Confirm chicken selection randomization works properly. Validate form inputs handle edge cases. Test component hierarchy with React DevTools to ensure proper component composition.
