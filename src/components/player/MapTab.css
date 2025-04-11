@@ -1,0 +1,200 @@
+.map-tab-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f7f7f7;
+}
+
+.map-list-view-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.map-list-segment {
+  flex-shrink: 0;
+  margin-bottom: 5px;
+}
+
+.map-section,
+.list-section {
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-wrapper,
+.bar-list-container {
+  height: 100%;
+  width: 100%;
+}
+
+.map-wrapper {
+  position: relative;
+}
+
+.list-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.bars-list-header {
+  padding: 10px 16px 5px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--ion-color-step-150, #e0e0e0);
+}
+
+.bars-list-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ion-color-medium-shade);
+}
+
+.bar-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.bar-list-player {
+  padding: 0;
+}
+
+.bar-list-player ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 10px;
+  --min-height: 70px;
+}
+
+.visited-bar-item {
+  opacity: 0.7;
+  --background: var(--ion-color-light-tint);
+}
+
+.bar-thumbnail-player {
+  width: 50px;
+  height: 50px;
+  margin-right: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar-thumbnail-player img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.visit-status-icon {
+  font-size: 24px;
+  margin-right: 8px;
+}
+
+.distance-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+.distance-indicator ion-icon {
+  font-size: 16px;
+}
+
+.distance-value {
+  font-weight: 500;
+  color: var(--ion-color-primary);
+}
+
+.map-controls {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.map-control-button {
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.control-icon {
+  font-size: 20px;
+}
+
+.button-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  margin-top: 3px;
+  color: var(--ion-color-dark-tint);
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.loading-spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border-left-color: var(--ion-color-primary);
+  animation: spin 1s ease infinite;
+}
+
+.map-control-button.watching {
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-primary-contrast);
+}
+
+.position-indicator {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.position-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.position-icon {
+  font-size: 18px;
+  color: var(--ion-color-medium-shade);
+}
+
+.position-text {
+  font-size: 0.8rem;
+  color: var(--ion-color-dark);
+}
+
+.game-status-container {
+  flex-shrink: 0;
+  padding: 0 10px 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 

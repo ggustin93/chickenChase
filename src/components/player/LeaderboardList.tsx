@@ -1,7 +1,8 @@
 import React from 'react';
-import { IonList, IonItem, IonLabel, IonAvatar, IonChip, IonIcon, IonNote } from '@ionic/react';
-import { mapOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { IonList, IonItem, IonIcon } from '@ionic/react';
+import { mapOutline, checkmarkCircleOutline, trophyOutline } from 'ionicons/icons';
 import { Team } from '../../data/types'; // Correct import path
+import './LeaderboardList.css'; // Import the new CSS
 
 interface LeaderboardListProps {
   teams: Team[];
@@ -37,66 +38,57 @@ const LeaderboardList: React.FC<LeaderboardListProps> = ({ teams, currentPlayerT
         return (
           <IonItem
             key={team.id}
+            lines="none" // Remove default lines, use CSS border if needed
             detail={false}
-            color={isPlayerTeam ? 'light' : undefined} // Utiliser light au lieu de primary pour l'équipe courante
             className={`leaderboard-item ${isPlayerTeam ? 'player-team' : ''}`}
-            style={isPlayerTeam ? {
-              '--background': 'rgba(255, 244, 229, 0.8)', // Fond légèrement orangé
-              'borderLeft': '4px solid var(--ion-color-primary)',
-              'fontWeight': 'bold'
-            } : {}}
+            // Remove inline style for background, handle in CSS
           >
-            {/* Rank Number - More prominent */}
-            <div
-              slot="start"
-              className={`rank-badge ion-text-center ${isPlayerTeam ? '' : `ion-color-${rankColor} ion-color-contrast-${rankTextColor}`}`}
-              style={{
-                 width: '36px',
-                 height: '36px',
-                 borderRadius: '50%',
-                 display: 'flex',
-                 alignItems: 'center',
-                 justifyContent: 'center',
-                 fontWeight: 'bold',
-                 fontSize: '1rem',
-                 marginRight: '12px',
-                 backgroundColor: isPlayerTeam ? 'var(--ion-color-primary)' : undefined,
-                 color: isPlayerTeam ? 'white' : undefined,
-              }}
-             >
-              {index + 1}
-            </div>
+            <div className="leaderboard-item-content">
+              {/* Rank Number */}
+              <div
+                className={`leaderboard-item-rank ion-text-center ${isPlayerTeam ? '' : `ion-color-${rankColor} ion-color-contrast-${rankTextColor}`}`}
+                style={{
+                  backgroundColor: isPlayerTeam ? 'var(--ion-color-primary)' : undefined,
+                  color: isPlayerTeam ? 'white' : undefined,
+                  // Other styles are in CSS
+                }}
+              >
+                {index + 1}
+              </div>
 
-            {/* Avatar */}
-            <IonAvatar slot="start" className="leaderboard-avatar">
-              <img
+              {/* Avatar */}
+              <div className="leaderboard-item-avatar">
+                <img
                   src={team.avatarUrl || `https://source.unsplash.com/random/100x100/?animal&sig=${team.id}`}
                   alt={team.name}
                   onError={(e) => (e.currentTarget.src = 'https://ionicframework.com/docs/img/demos/avatar.svg')}
-              />
-            </IonAvatar>
+                />
+              </div>
 
-            {/* Team Info */}
-            <IonLabel className="leaderboard-label">
-              <h2 className={`truncate ${isPlayerTeam ? 'font-bold' : ''}`} style={isPlayerTeam ? { color: 'var(--ion-color-primary)' } : {}}>
-                {team.name} {isPlayerTeam ? '(Vous)' : ''}
-              </h2>
-              <IonNote color={isPlayerTeam ? 'primary' : 'medium'} className="ion-text-nowrap">
-                <IonIcon icon={mapOutline} size="small" className="align-middle mr-1" /> {team.barsVisited} bars
-                <span className="mx-2">|</span>
-                <IonIcon icon={checkmarkCircleOutline} size="small" className="align-middle mr-1" /> {team.challengesCompleted} défis
-              </IonNote>
-            </IonLabel>
-
-            {/* Score Chip */}
-            <IonChip 
-              slot="end" 
-              color={isPlayerTeam ? 'primary' : 'medium'} 
-              className="leaderboard-score-chip"
-              style={isPlayerTeam ? { fontWeight: 'bold' } : {}}
-            >
-              {team.score}
-            </IonChip>
+              {/* Team Info */}
+              <div className="leaderboard-item-info">
+                <div className="leaderboard-item-header">
+                  <h3 className={`leaderboard-item-name ${isPlayerTeam ? 'player-team-name' : ''}`}>
+                    {team.name} {isPlayerTeam ? '(Vous)' : ''}
+                  </h3>
+                  {/* Score - Replaces IonChip */}
+                  <div className={`leaderboard-item-score ${isPlayerTeam ? 'player-team-score' : ''}`}>
+                    <IonIcon icon={trophyOutline} />
+                    {team.score}
+                  </div>
+                </div>
+                
+                {/* Stats */}
+                <div className="leaderboard-item-stats">
+                  <div className="leaderboard-stat">
+                    <IonIcon icon={mapOutline} /> {team.barsVisited} bars
+                  </div>
+                  <div className="leaderboard-stat">
+                    <IonIcon icon={checkmarkCircleOutline} /> {team.challengesCompleted} défis
+                  </div>
+                </div>
+              </div>
+            </div>
           </IonItem>
         );
       })}

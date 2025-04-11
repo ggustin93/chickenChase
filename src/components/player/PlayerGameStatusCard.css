@@ -1,0 +1,167 @@
+.player-status-card {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+  background-color: #ffffff;
+  position: relative;
+}
+
+/* Compact overall padding */
+.compact-content {
+  padding: 10px !important;
+}
+
+/* Remove previous grid */
+/*
+.score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+*/
+
+/* New Grid Layout for Stats */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  gap: 8px; /* Reduced gap */
+}
+
+/* General Stat Item Styling */
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  background-color: #f8f8f8;
+  border-radius: 8px; /* Smaller radius */
+  padding: 8px 10px; /* Reduced padding */
+}
+
+.stat-item ion-icon {
+  font-size: 20px; /* Slightly smaller icon */
+  color: var(--ion-color-medium); /* Default icon color */
+}
+
+.stat-details {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.stat-value {
+  font-size: 1.1rem; /* Reduced value font size */
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.7rem; /* Reduced label font size */
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Specific Item Colors */
+.score-item ion-icon {
+  color: var(--ion-color-primary);
+}
+
+.time-item ion-icon {
+  color: var(--ion-color-warning);
+}
+
+.bars-item ion-icon {
+  color: #f57c00; /* Orange */
+}
+
+.challenges-item ion-icon {
+  color: var(--ion-color-secondary);
+}
+
+/* Critical Time Animation */
+.time-item.critical {
+  animation: pulse 2s infinite;
+}
+
+/* Remove old box styles */
+/*
+.score-box {
+  ...
+}
+.score-box.trophy {
+  ...
+}
+.score-box.time {
+ ...
+}
+.progress-counter {
+ ...
+}
+.progress-counter-header {
+ ...
+}
+.progress-counter-title {
+ ...
+}
+.progress-counter-value {
+  ...
+}
+*/
+
+/* Compact Cagnotte Wrapper */
+.cagnotte-wrapper-compact {
+  margin-top: 10px; /* Space above cagnotte */
+  grid-column: 1 / -1; /* Span full width */
+}
+
+/* Keep embedded styles */
+.embedded-cagnotte {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.embedded-cagnotte .cagnotte-card {
+  border-radius: 8px; /* Smaller radius */
+  padding: 10px; /* Reduced padding */
+  background-color: rgba(var(--ion-color-tertiary-rgb), 0.08); 
+  border-left: 3px solid var(--ion-color-tertiary); /* Thinner border */
+}
+
+.embedded-cagnotte .cagnotte-header {
+  margin-bottom: 4px; /* Reduce space */
+}
+
+.embedded-cagnotte .cagnotte-header ion-icon {
+  font-size: 18px; /* Smaller icon */
+}
+
+.embedded-cagnotte .cagnotte-header h3 {
+  font-size: 0.85rem; /* Smaller title */
+}
+
+.embedded-cagnotte .cagnotte-amount {
+  font-size: 1.1rem; /* Smaller amount */
+  margin-bottom: 4px;
+}
+
+.embedded-cagnotte .cagnotte-label {
+  font-size: 0.75rem; /* Smaller label */
+}
+
+.embedded-cagnotte .cagnotte-progress-container {
+  height: 6px; /* Thinner bar */
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-warning-rgb), 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(var(--ion-color-warning-rgb), 0); 
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-warning-rgb), 0);
+  }
+} 

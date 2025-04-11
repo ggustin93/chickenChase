@@ -1,0 +1,48 @@
+.game-map {
+  height: 100%;
+  width: 100%;
+  min-height: 300px;
+  z-index: 1;
+}
+
+/* Fixer un problème courant avec les icônes Leaflet */
+.leaflet-default-icon-path {
+  background-image: url("https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png");
+}
+
+.leaflet-control-container {
+  z-index: 400 !important;
+}
+
+.bar-popup {
+  text-align: center;
+  padding: 5px;
+}
+
+.bar-popup h3 {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.bar-popup p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.bar-popup ion-badge {
+  margin: 5px 0;
+  display: block;
+}
+
+.bar-popup ion-button {
+  margin-top: 10px;
+}
+
+.current-location-popup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+} 

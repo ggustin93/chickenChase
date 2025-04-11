@@ -1,0 +1,131 @@
+/* Styles adapted from TeamsTabContent.css for LeaderboardList items */
+
+.leaderboard-item-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* Align items vertically centered */
+  width: 100%;
+  padding: 8px 0; /* Add some vertical padding */
+}
+
+.leaderboard-item-rank {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-right: 12px;
+  flex-shrink: 0;
+  /* Colors will be applied inline based on rank/player */
+}
+
+.leaderboard-item-avatar {
+  width: 40px; /* Slightly smaller avatar */
+  height: 40px;
+  margin-right: 12px;
+  border-radius: 50%;
+  overflow: hidden;
+  /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */ /* Optional: subtle shadow */
+  flex-shrink: 0;
+}
+
+.leaderboard-item-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.leaderboard-item-info {
+  flex: 1;
+  min-width: 0; /* Prevent text overflow */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+}
+
+.leaderboard-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 4px; /* Reduced margin */
+}
+
+.leaderboard-item-name {
+  font-size: 1rem; /* Adjusted size */
+  font-weight: 600; /* Slightly less bold */
+  color: var(--ion-color-dark-shade);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-item-name.player-team-name {
+  color: var(--ion-color-primary);
+  font-weight: 700;
+}
+
+.leaderboard-item-score {
+  display: flex;
+  align-items: center;
+  color: var(--ion-color-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+  /* background: var(--ion-color-light-tint); */ /* Optional subtle background */
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.leaderboard-item-score.player-team-score {
+  color: var(--ion-color-primary);
+  font-weight: 700;
+}
+
+.leaderboard-item-score ion-icon {
+  margin-right: 4px;
+  font-size: 1.1em;
+  color: var(--ion-color-primary); /* Keep score icon primary */
+}
+
+.leaderboard-item-stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px; /* Slightly reduced gap */
+  color: var(--ion-color-medium-shade);
+  font-size: 0.8rem; /* Adjusted size */
+}
+
+.leaderboard-stat {
+  display: flex;
+  align-items: center;
+}
+
+.leaderboard-stat ion-icon {
+  font-size: 1em; /* Icon size relative to font */
+  color: var(--ion-color-medium-tint);
+  margin-right: 3px;
+}
+
+/* Player team specific highlighting */
+.leaderboard-list ion-item.player-team {
+  --background: rgba(255, 244, 229, 0.8); 
+  --border-color: transparent; /* Remove default border */
+  border-left: 4px solid var(--ion-color-primary);
+  margin-left: -4px; /* Compensate for border width */
+  padding-left: 4px; /* Add padding to align content */
+}
+
+/* Override default item padding if needed */
+.leaderboard-list ion-item {
+  --inner-padding-start: 12px; 
+  --inner-padding-end: 12px;
+  --padding-start: 0;
+  --padding-end: 0;
+} 
