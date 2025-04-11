@@ -299,7 +299,6 @@ const PlayerPage: React.FC = () => {
             handleGetCurrentLocation={handleGetCurrentLocation}
             handleToggleWatchLocation={handleToggleWatchLocation}
             handleBarVisitAttempt={handleBarVisitAttempt}
-            team={gameState.team}
             score={gameState.score}
             gameTime={displayTime}
             challengesCompleted={gameState.completedChallenges.length}

@@ -32,13 +32,11 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
     <div className="map-tab-container">
       <div className="map-container">
         <GameMap 
-          center={
+          currentLocation={
             gameState.currentBar 
               ? [gameState.currentBar.latitude, gameState.currentBar.longitude]
-              : [48.864716, 2.349014]
+              : undefined // Or provide a default location if appropriate
           }
-          zoom={15}
-          currentBar={gameState.currentBar}
           bars={gameState.barOptions}
         />
       </div>
