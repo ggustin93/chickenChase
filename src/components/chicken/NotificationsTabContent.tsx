@@ -10,18 +10,17 @@ import {
   IonIcon,
   IonButton,
   IonTextarea,
-  IonFab,
-  IonFabButton,
   IonBadge,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
   IonNote,
   IonActionSheet,
   IonRippleEffect,
   IonSkeletonText,
   IonToast,
-  IonText
+  IonText,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonChip
 } from '@ionic/react';
 import { 
   bulbOutline, 
@@ -32,11 +31,9 @@ import {
   informationCircleOutline,
   imageOutline,
   cameraOutline,
-  trashOutline,
+  closeCircle,
   walletOutline,
-  mapOutline,
-  copyOutline,
-  closeCircle
+  mapOutline
 } from 'ionicons/icons';
 import { ChickenGameState } from '../../data/types';
 import { useCamera } from '../../hooks/useCamera';
@@ -99,17 +96,6 @@ const NotificationsTabContent: React.FC<NotificationsTabContentProps> = ({
     takePhoto().then(() => takePhoto()).catch(console.error);
   };
 
-  const handleCopyEvent = (content: string) => {
-    navigator.clipboard.writeText(content)
-      .then(() => {
-        setToastMessage('Copié dans le presse-papier');
-        setShowToast(true);
-      })
-      .catch(err => {
-        console.error('Could not copy text: ', err);
-      });
-  };
-
   // Filter messages into different categories
   const clues = gameState.messages.filter(message => message.isClue);
   const cagnotteEvents = gameState.messages.filter(message => message.isCagnotteEvent);
@@ -119,117 +105,131 @@ const NotificationsTabContent: React.FC<NotificationsTabContentProps> = ({
   const sortedEvents = [...clues, ...cagnotteEvents, ...barRemovals]
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+  const handleRefresh = (event: CustomEvent) => {
+    // Dans une vraie app, on pourrait rafraîchir les données ici
+    console.log('Rafraîchissement des indices...');
+    
+    // Simuler un délai de chargement
+    setTimeout(() => {
+      event.detail.complete();
+    }, 1000);
+  };
+
   return (
-    <div className="notifications-container">
-      <div className="notifications-header">
-        <h2>
-          <IonIcon icon={notificationsOutline} className="header-icon" />
-          Notifications et Indices
-        </h2>
-        <p>Envoyez des informations à toutes les équipes</p>
-      </div>
-
-      {/* Formulaire pour envoyer un nouvel indice */}
-      {showClueForm ? (
-        <IonCard className="clue-form-card">
-          <IonCardHeader>
-            <IonCardTitle>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                Nouvel indice
-                <IonButton 
-                  fill="clear" 
-                  color="medium" 
-                  size="small"
-                  onClick={() => setShowClueForm(false)}
-                >
-                  <IonIcon icon={closeCircle} />
-                </IonButton>
-              </div>
-            </IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <IonTextarea
-              value={newClue}
-              onIonChange={e => setNewClue(e.detail.value || '')}
-              placeholder="Saisissez votre indice ici..."
-              autoGrow={true}
-              maxlength={150}
-              className="clue-textarea"
-              disabled={isSubmitting}
-            />
-            
-            {/* Character count indicator */}
-            <div style={{ textAlign: 'right', marginTop: '-10px', marginBottom: '10px' }}>
-              <IonText color={newClue.length > 120 ? "warning" : "medium"} className="character-count">
-                <small>{newClue.length}/150</small>
-              </IonText>
-            </div>
-
-            {photo?.webviewPath && (
-              <div className="photo-preview-container">
-                <img src={photo.webviewPath} alt="Preview" className="photo-preview" />
-                <IonButton 
-                  fill="clear" 
-                  color="danger" 
-                  className="remove-photo-button"
-                  onClick={handleClearPhoto}
-                  disabled={isSubmitting}
-                >
-                  <IonIcon icon={trashOutline} />
-                </IonButton>
-              </div>
-            )}
-
-            <div className="clue-form-actions">
-              <div className="photo-actions">
-                <IonButton 
-                  fill="clear" 
-                  color="medium"
-                  onClick={() => setShowPhotoOptions(true)}
-                  disabled={isSubmitting}
-                >
-                  <IonIcon icon={imageOutline} slot="start" />
-                  {photo?.webviewPath ? 'Changer' : 'Ajouter'} photo
-                </IonButton>
-              </div>
-              <div className="clue-actions">
-                <IonButton 
-                  fill="outline" 
-                  onClick={() => setShowClueForm(false)}
-                  size="default"
-                  disabled={isSubmitting}
-                >
-                  Annuler
-                </IonButton>
-                <IonButton 
-                  onClick={handleSendClue}
-                  disabled={!newClue.trim() || isSubmitting}
-                  size="default"
-                  color="primary"
-                  strong={true}
-                >
-                  {isSubmitting ? 
-                    <IonSkeletonText animated style={{ width: '80px', height: '16px' }} /> : 
-                    <>
-                      <IonIcon icon={sendOutline} slot="start" />
-                      Envoyer
-                    </>
-                  }
-                </IonButton>
-              </div>
-            </div>
-          </IonCardContent>
-        </IonCard>
-      ) : (
-        <div className="info-banner">
-          <IonIcon icon={informationCircleOutline} className="info-icon" />
-          <p>Les indices sont visibles par toutes les équipes pour les aider à vous trouver.</p>
+    <IonContent className="notifications-content">
+      <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
+      
+      <div className="notifications-container">
+        <div className="notifications-header">
+          <h2>
+            <IonIcon icon={notificationsOutline} className="header-icon" />
+            Notifications et Indices
+          </h2>
+          <p>Envoyez des informations à toutes les équipes</p>
         </div>
-      )}
 
-      {/* Liste des événements (indices, cagnotte, bars retirés) */}
-      <div className="events-list-container">
-        <div className="events-header">
+        {/* Formulaire pour envoyer un nouvel indice */}
+        {showClueForm ? (
+          <IonCard className="clue-form-card">
+            <IonCardHeader>
+              <IonCardTitle>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  Nouvel indice
+                  <IonButton 
+                    fill="clear" 
+                    color="medium" 
+                    size="small"
+                    onClick={() => setShowClueForm(false)}
+                  >
+                    <IonIcon icon={closeCircle} />
+                  </IonButton>
+                </div>
+              </IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <IonTextarea
+                value={newClue}
+                onIonChange={e => setNewClue(e.detail.value || '')}
+                placeholder="Saisissez votre indice ici..."
+                autoGrow={true}
+                maxlength={150}
+                className="clue-textarea"
+                disabled={isSubmitting}
+              />
+              
+              {/* Character count indicator */}
+              <div style={{ textAlign: 'right', marginTop: '-10px', marginBottom: '10px' }}>
+                <IonText color={newClue.length > 120 ? "warning" : "medium"} className="character-count">
+                  <small>{newClue.length}/150</small>
+                </IonText>
+              </div>
+
+              {photo?.webviewPath && (
+                <div className="photo-preview-container">
+                  <img src={photo.webviewPath} alt="Preview" className="photo-preview" />
+                  <IonButton 
+                    fill="clear" 
+                    color="danger" 
+                    className="remove-photo-button"
+                    onClick={handleClearPhoto}
+                    disabled={isSubmitting}
+                  >
+                    <IonIcon icon={closeCircle} />
+                  </IonButton>
+                </div>
+              )}
+
+              <div className="clue-form-actions">
+                <div className="photo-actions">
+                  <IonButton 
+                    fill="clear" 
+                    color="medium"
+                    onClick={() => setShowPhotoOptions(true)}
+                    disabled={isSubmitting}
+                  >
+                    <IonIcon icon={imageOutline} slot="start" />
+                    {photo?.webviewPath ? 'Changer' : 'Ajouter'} photo
+                  </IonButton>
+                </div>
+                <div className="clue-actions">
+                  <IonButton 
+                    fill="outline" 
+                    onClick={() => setShowClueForm(false)}
+                    size="default"
+                    disabled={isSubmitting}
+                  >
+                    Annuler
+                  </IonButton>
+                  <IonButton 
+                    onClick={handleSendClue}
+                    disabled={!newClue.trim() || isSubmitting}
+                    size="default"
+                    color="primary"
+                    strong={true}
+                  >
+                    {isSubmitting ? 
+                      <IonSkeletonText animated style={{ width: '80px', height: '16px' }} /> : 
+                      <>
+                        <IonIcon icon={sendOutline} slot="start" />
+                        Envoyer
+                      </>
+                    }
+                  </IonButton>
+                </div>
+              </div>
+            </IonCardContent>
+          </IonCard>
+        ) : (
+          <div className="info-banner">
+            <IonIcon icon={informationCircleOutline} className="info-icon" />
+            <p>Les indices sont visibles par toutes les équipes pour les aider à vous trouver.</p>
+          </div>
+        )}
+
+        {/* En-tête de la section indices avec bouton d'ajout */}
+        <div className="section-header">
           <h3>Activité ({sortedEvents.length})</h3>
           {!showClueForm && (
             <IonButton 
@@ -244,7 +244,8 @@ const NotificationsTabContent: React.FC<NotificationsTabContentProps> = ({
             </IonButton>
           )}
         </div>
-        
+
+        {/* Liste des événements simplifiée */}
         {sortedEvents.length === 0 ? (
           <div className="no-events-message">
             <p>Aucune activité pour le moment.</p>
@@ -258,83 +259,50 @@ const NotificationsTabContent: React.FC<NotificationsTabContentProps> = ({
             </IonButton>
           </div>
         ) : (
-          <IonList className="events-list">
+          <IonList lines="full" className="indices-list">
             {sortedEvents.map((event) => (
-              <IonItemSliding key={event.id}>
-                <IonItem className="event-item" detail={false}>
-                  <div className="ion-activatable ripple-parent" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                    <IonRippleEffect />
-                  </div>
-                  
-                  <div className="event-icon-container" style={{ 
-                    backgroundColor: event.isClue 
-                      ? 'rgba(255, 193, 7, 0.15)' 
-                      : event.isCagnotteEvent 
-                        ? 'rgba(76, 175, 80, 0.15)' 
-                        : 'rgba(82, 96, 255, 0.15)'
-                  }}>
-                    {event.isClue && (
-                      <IonIcon icon={bulbOutline} color="warning" className="event-icon" />
-                    )}
-                    {event.isCagnotteEvent && (
-                      <IonIcon icon={walletOutline} color="success" className="event-icon" />
-                    )}
-                    {event.isBarRemoval && (
-                      <IonIcon icon={mapOutline} color="tertiary" className="event-icon" />
-                    )}
-                  </div>
-                  
-                  <IonLabel className="event-content">
-                    <div className="event-timestamp">
-                      <IonIcon icon={timeOutline} />
-                      <IonNote color="medium">
-                        {new Date(event.timestamp).toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </IonNote>
-                    </div>
-                    
-                    <h2 className="event-text">{event.content}</h2>
-                    
-                    {/* Afficher la photo si elle existe */}
-                    {event.photoUrl && (
-                      <div className="event-photo-container">
-                        <img src={event.photoUrl} alt="Indice" className="event-photo" />
-                      </div>
-                    )}
-                  </IonLabel>
-                  
-                  <IonBadge slot="end" color={
-                    event.isClue ? "warning" : 
-                    event.isCagnotteEvent ? "success" : 
-                    "tertiary"
-                  }>
-                    {event.isClue ? "Indice" : 
-                     event.isCagnotteEvent ? "Cagnotte" : 
-                     "Bar retiré"}
-                  </IonBadge>
-                </IonItem>
+              <IonItem key={event.id} className="indice-item">
+                <div className="event-icon-container" style={{ 
+                  backgroundColor: event.isClue 
+                    ? 'rgba(255, 193, 7, 0.15)' 
+                    : event.isCagnotteEvent 
+                      ? 'rgba(76, 175, 80, 0.15)' 
+                      : 'rgba(82, 96, 255, 0.15)'
+                }}>
+                  {event.isClue && <IonIcon icon={bulbOutline} color="warning" />}
+                  {event.isCagnotteEvent && <IonIcon icon={walletOutline} color="success" />}
+                  {event.isBarRemoval && <IonIcon icon={mapOutline} color="tertiary" />}
+                </div>
                 
-                <IonItemOptions side="end">
-                  <IonItemOption color="tertiary" onClick={() => handleCopyEvent(event.content)}>
-                    <IonIcon slot="icon-only" icon={copyOutline} />
-                  </IonItemOption>
-                </IonItemOptions>
-              </IonItemSliding>
+                <IonLabel>
+                  <div className="event-header">
+                    <IonNote color="medium" className="event-time">
+                      <IonIcon icon={timeOutline} />
+                      {new Date(event.timestamp).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </IonNote>
+                    <IonChip 
+                      color={event.isClue ? "warning" : event.isCagnotteEvent ? "success" : "tertiary"} 
+                      className="event-type"
+                    >
+                      {event.isClue ? "Indice" : event.isCagnotteEvent ? "Cagnotte" : "Bar retiré"}
+                    </IonChip>
+                  </div>
+                  <p className="event-message">{event.content}</p>
+                  
+                  {event.photoUrl && (
+                    <div className="event-photo-container">
+                      <img src={event.photoUrl} alt="Indice" className="event-photo" />
+                    </div>
+                  )}
+                </IonLabel>
+              </IonItem>
             ))}
           </IonList>
         )}
       </div>
-
-      {/* FAB pour ajouter un nouvel indice */}
-      {!showClueForm && (
-        <IonFab vertical="bottom" horizontal="end" slot="fixed" className="add-clue-fab">
-          <IonFabButton onClick={() => setShowClueForm(true)} size="small" color="primary">
-            <IonIcon icon={addCircle} />
-          </IonFabButton>
-        </IonFab>
-      )}
 
       {/* Action sheet pour choisir la source de la photo */}
       <IonActionSheet
@@ -373,7 +341,7 @@ const NotificationsTabContent: React.FC<NotificationsTabContentProps> = ({
           }
         ]}
       />
-    </div>
+    </IonContent>
   );
 };
 

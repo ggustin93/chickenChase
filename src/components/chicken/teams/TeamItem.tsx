@@ -40,9 +40,8 @@ export const TeamItem: React.FC<TeamItemProps> = ({ team, onMarkFound }) => {
         <div className="team-item-info">
           <div className="team-item-header">
             <h3 className="team-item-name">{team.name}</h3>
-            
             <div className="team-item-score">
-              <IonIcon icon={trophyOutline} />
+              <IonIcon icon={trophyOutline} color="secondary" />
               {team.score}
             </div>
           </div>

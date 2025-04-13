@@ -20,6 +20,10 @@
   --transition-normal: all 0.3s ease;
 }
 
+.notifications-content {
+  --background: var(--theme-bg);
+}
+
 .notifications-container {
   display: flex;
   flex-direction: column;
@@ -84,27 +88,17 @@
   line-height: 1.4;
 }
 
-/* Events list container */
-.events-list-container {
-  flex: 1;
-  overflow-y: auto;
-  background-color: var(--theme-surface);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: 20px;
-  margin-bottom: 80px; /* Space for the FAB */
-}
-
-.events-header {
+/* Section header */
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--theme-divider);
+  margin-bottom: 16px;
   padding-bottom: 12px;
+  border-bottom: 1px solid var(--theme-divider);
 }
 
-.events-header h3 {
+.section-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
@@ -135,6 +129,10 @@
   padding: 40px 16px;
   text-align: center;
   color: var(--theme-text-light);
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
 }
 
 .no-events-message p {
@@ -151,80 +149,71 @@
   letter-spacing: 0;
 }
 
-/* Event list */
-.events-list {
-  padding: 0;
+/* Liste d'indices simplifiée */
+.indices-list {
+  background-color: var(--theme-surface);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
 }
 
-.event-item {
+.indice-item {
   --padding-start: 12px;
   --padding-end: 12px;
-  --inner-padding-end: 8px;
-  margin-bottom: 12px;
-  border-radius: var(--border-radius-md);
-  --background: #f9f9fb;
-  transition: var(--transition-normal);
-}
-
-.event-item:active {
-  --background: #f1f1f5;
+  --background: var(--theme-surface);
+  --background-activated: var(--theme-bg);
+  --background-hover: var(--theme-bg);
+  --border-color: var(--theme-divider);
 }
 
 .event-icon-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  margin-right: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  margin-right: 12px;
+  flex-shrink: 0;
 }
 
-.event-icon-container ion-icon[color="warning"] ~ & {
-  background-color: rgba(255, 193, 7, 0.15);
+.event-icon-container ion-icon {
+  font-size: 20px;
 }
 
-.event-icon-container ion-icon[color="success"] ~ & {
-  background-color: rgba(76, 175, 80, 0.15);
-}
-
-.event-icon-container ion-icon[color="tertiary"] ~ & {
-  background-color: rgba(82, 96, 255, 0.15);
-}
-
-.event-icon {
-  font-size: 22px;
-}
-
-.event-content {
+.event-header {
   display: flex;
-  flex-direction: column;
-  padding: 8px 0;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-.event-timestamp {
+.event-time {
   display: flex;
   align-items: center;
-  margin-bottom: 6px;
-}
-
-.event-timestamp ion-icon {
-  font-size: 14px;
-  margin-right: 4px;
-  color: var(--theme-text-light);
-}
-
-.event-timestamp ion-note {
   font-size: 13px;
+}
+
+.event-time ion-icon {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.event-type {
+  --background: transparent;
+  margin: 0;
+  height: 24px;
+  font-size: 12px;
   font-weight: 500;
 }
 
-.event-text {
+.event-message {
   margin: 0;
   font-size: 16px;
-  font-weight: 500;
-  color: var(--theme-text);
   line-height: 1.4;
+  color: var(--theme-text);
+  margin-bottom: 8px;
 }
 
 /* Photo styling */
@@ -249,25 +238,25 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  --padding-start: 8px;
-  --padding-end: 8px;
-  --padding-top: 8px;
-  --padding-bottom: 8px;
+  margin: 0;
   --border-radius: 50%;
-  --background: rgba(0, 0, 0, 0.6);
-  --color: white;
-  transition: var(--transition-normal);
+  width: 32px;
+  height: 32px;
+  --background: rgba(0, 0, 0, 0.5);
+  --padding-start: 0;
+  --padding-end: 0;
 }
 
-.remove-photo-button:hover {
-  --background: rgba(220, 53, 69, 0.8);
+.remove-photo-button ion-icon {
+  font-size: 18px;
 }
 
 .event-photo-container {
-  margin-top: 10px;
-  border-radius: var(--border-radius-md);
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border-radius: var(--border-radius-sm);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--theme-divider);
   max-width: 100%;
 }
 
@@ -278,86 +267,70 @@
   display: block;
 }
 
-/* Form styling */
 .clue-form-card {
   margin-bottom: 24px;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
-  animation: slideUpFade 0.3s ease-out;
-  overflow: hidden;
+  animation: slideUpFade 0.3s ease;
 }
 
 .clue-form-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  margin-top: 16px;
 }
 
 .photo-actions {
+  margin-bottom: 16px;
   display: flex;
-  align-items: center;
+  justify-content: flex-start;
 }
 
 .clue-textarea {
-  --padding-start: 14px;
-  --padding-end: 14px;
-  --padding-top: 14px;
-  --padding-bottom: 14px;
-  --background: #f9f9fb;
-  margin-bottom: 18px;
-  border-radius: var(--border-radius-md);
   border: 1px solid var(--theme-divider);
+  border-radius: var(--border-radius-md);
+  --background: var(--theme-bg);
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .clue-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
 }
 
 .clue-actions ion-button {
   height: 40px;
-  text-transform: none;
-  letter-spacing: 0;
   font-weight: 500;
   --border-radius: 8px;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
-/* Badge styling */
-ion-badge {
-  padding: 6px 10px;
-  height: auto;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 6px;
-  opacity: 0.9;
+.character-count {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: var(--theme-bg);
 }
 
-/* FAB styling */
-.add-clue-fab {
-  bottom: 80px; /* Cleared for navigation menu */
-  right: 16px;
-}
-
-.add-clue-fab ion-fab-button {
-  --box-shadow: var(--shadow-lg);
-  box-shadow: 0 0 0 rgba(235, 116, 0, 0.4);
-  animation: pulse 2s infinite;
-  --background: var(--theme-primary);
-}
-
-/* Enhanced animations */
+/* Animations */
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(235, 116, 0, 0.4);
+    transform: scale(1);
+    opacity: 0.8;
   }
-  70% {
-    box-shadow: 0 0 0 12px rgba(235, 116, 0, 0);
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(235, 116, 0, 0);
+    transform: scale(1);
+    opacity: 0.8;
   }
 }
 
@@ -367,17 +340,17 @@ ion-badge {
 }
 
 @keyframes slideUpFade {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Improved responsive adjustments */
+/* Responsive design */
 @media (max-width: 576px) {
   .notifications-header h2 {
     font-size: 20px;
@@ -391,20 +364,39 @@ ion-badge {
     font-size: 14px;
   }
   
-  .events-list-container {
-    padding: 16px;
-  }
-  
-  .event-content h2 {
-    font-size: 15px;
-  }
-  
-  .event-icon-container {
-    width: 40px;
-    height: 40px;
+  .event-message {
+    font-size: 14px;
   }
   
   .add-clue-button {
     font-size: 13px;
+  }
+  
+  .clue-actions {
+    flex-direction: column;
+  }
+  
+  .clue-actions ion-button {
+    width: 100%;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .clue-form-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .photo-actions {
+    margin-bottom: 0;
+  }
+  
+  .indices-list {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
   }
 } 
