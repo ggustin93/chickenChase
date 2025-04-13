@@ -3,7 +3,7 @@ import { IonToast, IonActionSheet, IonFab, IonFabButton, IonIcon, IonBadge, IonC
 import { ChickenGameState, Bar } from '../../data/types';
 import GameMap from '../GameMap';
 import GameStatusCard from './GameStatusCard';
-import { eyeOutline, eyeOffOutline, trashOutline, informationCircleOutline, timeOutline } from 'ionicons/icons';
+import { trashOutline, informationCircleOutline, timeOutline } from 'ionicons/icons';
 import { useBarManagement } from '../../hooks/useBarManagement';
 import useGameTimerDisplay from '../../hooks/useGameTimerDisplay';
 import useCagnotteConsumption from '../../hooks/useCagnotteConsumption';
@@ -31,7 +31,7 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
 }) => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [showTeamsOnMap, setShowTeamsOnMap] = useState(true); // Affiche les équipes par défaut
+  const [showBarsOnMap, setShowBarsOnMap] = useState(true); // Affiche les bars par défaut
   const [selectedBar, setSelectedBar] = useState<string | null>(null);
   const [showBarActionSheet, setShowBarActionSheet] = useState(false);
   
@@ -123,9 +123,9 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
     }
   };
 
-  const handleToggleTeamsVisibility = () => {
-    setShowTeamsOnMap(!showTeamsOnMap);
-    setToastMessage(`Positions des équipes ${!showTeamsOnMap ? 'affichées' : 'masquées'} sur la carte`);
+  const handleToggleBarsVisibility = () => {
+    setShowBarsOnMap(!showBarsOnMap);
+    setToastMessage(`Positions des bars ${!showBarsOnMap ? 'affichées' : 'masquées'} sur la carte`);
     setShowToast(true);
   };
 
@@ -154,17 +154,12 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
   // Filtrer et préparer les équipes pour l'affichage sur la carte
   const getTeamsWithLocations = () => {
     // Ne renvoyer que les équipes qui ont une position connue
-    if (!showTeamsOnMap) return [];
-
     return gameState.teams.filter(team => 
       team.lastLocation && 
       team.lastLocation.latitude && 
       team.lastLocation.longitude
     );
   };
-
-  // Calculer le nombre d'équipes visibles sur la carte
-  const visibleTeamsCount = getTeamsWithLocations().length;
   
   // Calculer le nombre de bars retirés
   const removedBarsCount = removedBars.length;
@@ -184,7 +179,7 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
     return '🕵️'; // Détective pour toutes les équipes
   };
 
-  // Préparer les icônes custom pour les équipes (cowboys)
+  // Préparer les icônes custom pour les équipes (détectives)
   const teamsWithCustomIcons = getTeamsWithLocations().map(team => ({
     ...team,
     useCustomMarker: true,
@@ -224,10 +219,11 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
               ? [gameState.currentBar.latitude, gameState.currentBar.longitude]
               : undefined
           }
-          bars={barsWithBeerEmoji}
+          bars={showBarsOnMap ? barsWithBeerEmoji : []}
           teamLocations={teamsWithCustomIcons}
           onBarClick={handleBarClick}
           isChicken={true}
+          centerOnCurrentLocation={false}
         />
         
         {/* Timer display in corner of map - avec classe différente selon la taille */}
@@ -239,12 +235,16 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
           <div className="timer-label">{timerDisplay.timerLabel}</div>
         </div>
         
-        {/* Bouton de contrôle d'affichage des équipes sur la carte - position ajustée */}
+        {/* Bouton de contrôle d'affichage des bars sur la carte - position ajustée */}
         <IonFab vertical="top" horizontal="end" slot="fixed" className="teams-visibility-fab">
-          <IonFabButton size="small" onClick={handleToggleTeamsVisibility} color={showTeamsOnMap ? "primary" : "medium"}>
-            <IonIcon icon={showTeamsOnMap ? eyeOutline : eyeOffOutline} />
-            {showTeamsOnMap && visibleTeamsCount > 0 && (
-              <IonBadge color="danger" className="teams-count-badge">{visibleTeamsCount}</IonBadge>
+          <IonFabButton size="small" onClick={handleToggleBarsVisibility} color={showBarsOnMap ? "primary" : "medium"}>
+            {showBarsOnMap ? (
+              <div className="beer-icon-container">🍺</div>
+            ) : (
+              <div className="beer-icon-container beer-icon-hidden">🍺</div>
+            )}
+            {showBarsOnMap && barsWithBeerEmoji.length > 0 && (
+              <IonBadge color="danger" className="teams-count-badge">{barsWithBeerEmoji.length}</IonBadge>
             )}
           </IonFabButton>
         </IonFab>

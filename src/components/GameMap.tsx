@@ -52,6 +52,7 @@ interface GameMapProps {
   teamLocations?: Team[]; // Teams with their current locations
   onBarClick?: (barId: string) => void; // New prop for bar interaction
   isChicken?: boolean; // New prop to identify chicken role
+  centerOnCurrentLocation?: boolean; // New prop to control automatic centering
 }
 
 // Extended Bar interface to support custom markers
@@ -69,18 +70,19 @@ interface ExtendedTeam extends Team {
 // Enhanced RecenterAutomatically component
 const RecenterAutomatically: React.FC<{
   position?: [number, number];
-}> = ({ position }) => {
+  shouldCenter?: boolean;
+}> = ({ position, shouldCenter }) => {
   const map = useMap();
   
   React.useEffect(() => {
-    if (position) {
+    if (position && shouldCenter) {
       map.setView(position, map.getZoom());
     }
     // Force a map redraw to ensure all tiles are loaded
     setTimeout(() => {
       map.invalidateSize();
     }, 100);
-  }, [position, map]);
+  }, [position, map, shouldCenter]);
   
   return null;
 };
@@ -109,7 +111,8 @@ const GameMap: React.FC<GameMapProps> = ({
   onNavigateToBar,
   teamLocations = [], // Default to empty array
   onBarClick,
-  isChicken = false
+  isChicken = false,
+  centerOnCurrentLocation = false // Default to false so map navigation is free
 }) => {
   // Default position (center of Brussels)
   const defaultPosition: [number, number] = [50.8503, 4.3517]; // Updated coordinates
@@ -284,7 +287,7 @@ const GameMap: React.FC<GameMapProps> = ({
           return null;
         })}
         
-        <RecenterAutomatically position={currentLocation} />
+        <RecenterAutomatically position={currentLocation} shouldCenter={centerOnCurrentLocation} />
         <MapInitializer />
       </MapContainer>
     </div>

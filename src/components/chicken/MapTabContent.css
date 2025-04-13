@@ -352,4 +352,17 @@ ion-modal.cagnotte-modal {
 
 .status-card-container.ultra-compact .status-content {
   padding: 12px;
+}
+
+/* Styles for beer icon toggle button */
+.beer-icon-container {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beer-icon-container.beer-icon-hidden {
+  opacity: 0.5;
+  filter: grayscale(1);
 } 

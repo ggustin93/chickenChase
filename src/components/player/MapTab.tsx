@@ -133,6 +133,7 @@ const MapTab: React.FC<MapTabProps> = ({
                 visitedBars={visitedBarIds}
                 currentLocation={currentPosition ? [currentPosition.coords.latitude, currentPosition.coords.longitude] : undefined}
                 onBarClick={handleBarVisitAttempt}
+                centerOnCurrentLocation={false}
               />
               
               {/* Position indicator - Bottom left with icon */}
