@@ -255,23 +255,20 @@ const TeamsTabContent: React.FC<TeamsTabContentProps> = ({
       </IonRefresher>
 
       {/* Filtres */}
-      <div className="teams-filters-container">
-        <IonSegment 
-          value={activeFilter} 
-          onIonChange={e => setActiveFilter(e.detail.value as FilterType)}
-          className="teams-filter-segment"
-        >
-          <IonSegmentButton value="all" className="filter-segment-button">
-            <IonLabel>Tous</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="searching" className="filter-segment-button">
-            <IonLabel>En chasse</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="found" className="filter-segment-button">
-            <IonLabel>Finito</IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
-      </div>
+      <IonSegment 
+        value={activeFilter} 
+        onIonChange={e => setActiveFilter(e.detail.value as FilterType)}
+      >
+        <IonSegmentButton value="all">
+          <IonLabel>Tous</IonLabel>
+        </IonSegmentButton>
+        <IonSegmentButton value="searching">
+          <IonLabel>En chasse</IonLabel>
+        </IonSegmentButton>
+        <IonSegmentButton value="found">
+          <IonLabel>Finito</IonLabel>
+        </IonSegmentButton>
+      </IonSegment>
 
       {isLoading ? (
         // Show skeleton loaders while loading

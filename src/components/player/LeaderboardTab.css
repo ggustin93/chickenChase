@@ -9,60 +9,14 @@
   --padding-end: 10px;
 }
 
-/* Filtres */
-.leaderboard-filters-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px 14px;
-  flex-wrap: wrap;
-  gap: 10px;
-  width: 100%;
-}
-
-.filter-title {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.85rem;
-  color: var(--ion-color-medium);
-}
-
-.filter-title ion-icon {
-  font-size: 1.1rem;
-}
-
-/* Style du IonSegment */
-.leaderboard-filter-segment {
-  margin-top: 5px;
-  max-width: 100%;
-  width: auto;
-  font-size: medium;
-}
-
-/* Override des styles IonSegmentButton */
-.filter-segment-button {
-  text-transform: none;
-}
-
 /* Styles spécifiques au leaderboard pour les médias queries */
 @media (max-width: 359px) {
-  .leaderboard-filters-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .leaderboard-filter-segment {
-    width: 100%;
-    margin-top: 8px;
-  }
+  /* Styles simplifiés pour petits écrans */
 }
 
 /* Petits écrans */
 @media (min-width: 360px) and (max-width: 480px) {
-  .leaderboard-filters-container {
-    padding: 0 4px 12px;
-  }
+  /* Styles simplifiés pour écrans moyens */
 }
 
 /* Medium screens */
@@ -77,11 +31,5 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-  
-  .leaderboard-filters-container {
-    width: 100%;
-    max-width: 800px;
-    justify-content: center;
   }
 } 

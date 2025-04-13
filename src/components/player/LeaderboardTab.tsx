@@ -52,23 +52,20 @@ const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ leaderboard, currentPla
       </IonRefresher>
 
       {/* Filtres */}
-      <div className="leaderboard-filters-container">
-        <IonSegment 
-          value={activeFilter} 
-          onIonChange={e => setActiveFilter(e.detail.value as FilterType)}
-          className="leaderboard-filter-segment"
-        >
-          <IonSegmentButton value="all" className="filter-segment-button">
-            <IonLabel>Tous</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="found" className="filter-segment-button">
-            <IonLabel>A trouvé</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="notFound" className="filter-segment-button">
-            <IonLabel>Pas trouvé</IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
-      </div>
+      <IonSegment 
+        value={activeFilter} 
+        onIonChange={e => setActiveFilter(e.detail.value as FilterType)}
+      >
+        <IonSegmentButton value="all">
+          <IonLabel>Tous</IonLabel>
+        </IonSegmentButton>
+        <IonSegmentButton value="found">
+          <IonLabel>A trouvé</IonLabel>
+        </IonSegmentButton>
+        <IonSegmentButton value="notFound">
+          <IonLabel>Pas trouvé</IonLabel>
+        </IonSegmentButton>
+      </IonSegment>
 
       <LeaderboardList
         teams={displayedTeams}
