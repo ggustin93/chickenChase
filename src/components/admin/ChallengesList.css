@@ -1,0 +1,50 @@
+.challenge-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.challenge-content {
+  width: 100%;
+}
+
+.challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.challenge-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.challenge-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.validation-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .challenge-actions {
+    flex-wrap: nowrap;
+  }
+  
+  .validation-buttons {
+    margin-top: 0;
+  }
+} 

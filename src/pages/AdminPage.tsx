@@ -15,7 +15,6 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonToggle,
   IonIcon,
   IonSegment,
   IonSegmentButton,
@@ -31,7 +30,7 @@ import {
   arrowBackOutline
 } from 'ionicons/icons';
 import useChickenGameState from '../hooks/useChickenGameState';
-import ChallengesManagerPanel from '../components/admin/ChallengesManagerPanel';
+import ChallengesPanel from '../components/admin/ChallengesPanel';
 import { Challenge } from '../data/types';
 import './AdminPage.css';
 
@@ -88,65 +87,12 @@ const AdminPage: React.FC = () => {
 
       <IonContent>
         {activeSegment === 'challenges' && (
-          <>
-            <IonCard className="admin-card">
-              <IonCardHeader>
-                <IonCardTitle>Défis de la partie</IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <IonList>
-                  {gameState.challenges.map(challenge => (
-                    <IonItem key={challenge.id} className="challenge-item">
-                      <div className="challenge-content">
-                        <div className="challenge-header">
-                          <h2>{challenge.title}</h2>
-                          <IonBadge color="primary">{challenge.points} points</IonBadge>
-                        </div>
-                        <p>{challenge.description}</p>
-
-                        <div className="challenge-actions">
-                          <IonToggle
-                            checked={challenge.active}
-                            onIonChange={() => toggleChallengeStatus(challenge.id)}
-                            labelPlacement="start"
-                          >
-                            {challenge.active ? 'Actif' : 'Inactif'}
-                          </IonToggle>
-
-                          {challenge.pendingValidation && (
-                            <div className="validation-buttons">
-                              <IonButton 
-                                color="success" 
-                                size="small"
-                                onClick={() => handleChallengeValidation(challenge.id, true)}
-                              >
-                                Approuver
-                              </IonButton>
-                              <IonButton 
-                                color="danger" 
-                                size="small"
-                                onClick={() => handleChallengeValidation(challenge.id, false)}
-                              >
-                                Refuser
-                              </IonButton>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </IonItem>
-                  ))}
-                </IonList>
-              </IonCardContent>
-            </IonCard>
-
-            <ChallengesManagerPanel
-              onClose={() => {}}
-              challenges={gameState.challenges}
-              onToggleChallengeStatus={toggleChallengeStatus}
-              hideHeader={true}
-              onAddChallenge={handleNewChallenge}
-            />
-          </>
+          <ChallengesPanel
+            challenges={gameState.challenges}
+            onToggleChallengeStatus={toggleChallengeStatus}
+            onChallengeValidation={handleChallengeValidation}
+            onAddChallenge={handleNewChallenge}
+          />
         )}
 
         {activeSegment === 'teams' && (
