@@ -19,12 +19,15 @@ import {
   checkmarkCircleOutline, closeCircleOutline, ribbonOutline,
   peopleOutline, imageOutline, timeOutline, appsOutline
 } from 'ionicons/icons';
-import { ChickenGameState } from '../../data/types';
+import { ChickenGameState, Challenge } from '../../data/types';
 import './ChallengesTabContent.css';
 
 interface ChallengesTabContentProps {
   gameState: ChickenGameState;
-  onChallengeValidation: (id: string, approve: boolean) => void;
+  onChallengeValidation?: (id: string, approve: boolean) => void;
+  toggleChallengeStatus?: (id: string) => void;
+  handleChallengeValidation?: (id: string, approve: boolean) => void;
+  addChallenge?: (challenge: Omit<Challenge, 'id'>) => Challenge;
 }
 
 const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
@@ -164,18 +167,17 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
                         expand="block" 
                         color="success"
                         size="large"
-                        className="validation-button"
-                        onClick={() => onChallengeValidation(completion.id, true)}
+                        className="validation-button approve-button"
+                        onClick={() => onChallengeValidation?.(completion.id, true)}
                       >
                         <IonIcon icon={checkmarkCircleOutline} />
                       </IonButton>
                       <IonButton 
                         expand="block" 
-                        fill="outline"
                         color="danger"
                         size="large"
-                        className="validation-button"
-                        onClick={() => onChallengeValidation(completion.id, false)}
+                        className="validation-button reject-button"
+                        onClick={() => onChallengeValidation?.(completion.id, false)}
                       >
                         <IonIcon icon={closeCircleOutline} />
                       </IonButton>
