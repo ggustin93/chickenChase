@@ -333,6 +333,7 @@ const PlayerPage: React.FC = () => {
             cagnotteCurrentAmount={mockChickenGameState.currentCagnotte}
             cagnotteInitialAmount={mockChickenGameState.initialCagnotte}
             isCagnotteLoading={false}
+            error={locationError}
           />
         )}
         {activeTab === 'challenges' && (

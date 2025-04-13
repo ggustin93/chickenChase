@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   IonIcon, IonFabButton, IonList, IonItem, IonThumbnail, IonLabel, IonNote,
-  IonSegment, IonSegmentButton
+  IonSegment, IonSegmentButton, IonButton, IonAlert
 } from '@ionic/react';
 import { 
   locateOutline, refreshOutline, checkmarkCircle, ellipseOutline,
@@ -30,6 +30,7 @@ interface MapTabProps {
   cagnotteCurrentAmount?: number;
   cagnotteInitialAmount?: number;
   isCagnotteLoading?: boolean;
+  error?: GeolocationPositionError | Error | null;
 }
 
 const MapTab: React.FC<MapTabProps> = ({ 
@@ -47,9 +48,18 @@ const MapTab: React.FC<MapTabProps> = ({
   totalChallenges,
   cagnotteCurrentAmount,
   cagnotteInitialAmount,
-  isCagnotteLoading
+  isCagnotteLoading,
+  error
 }) => {
   const [activeSegment, setActiveSegment] = useState<'map' | 'list'>('map');
+  const [showLocationHelp, setShowLocationHelp] = useState<boolean>(false);
+
+  // Show help alert when permission errors occur
+  useEffect(() => {
+    if (error && error.message.includes('Permissions refusées')) {
+      setShowLocationHelp(true);
+    }
+  }, [error]);
 
   // Calculer les distances pour chaque bar si la position est disponible
   const barsWithDistance = bars.map(bar => {
@@ -169,6 +179,21 @@ const MapTab: React.FC<MapTabProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Add this to the map section */}
+            {!currentPosition && error && error.message.includes('Permissions refusées') && (
+              <div className="location-error-banner">
+                <IonIcon icon={locateOutline} />
+                <p>Position non disponible. Vous devez autoriser la géolocalisation.</p>
+                <IonButton 
+                  size="small" 
+                  fill="outline" 
+                  onClick={() => setShowLocationHelp(true)}
+                >
+                  Comment faire ?
+                </IonButton>
+              </div>
+            )}
           </div>
         )}
 
@@ -248,6 +273,32 @@ const MapTab: React.FC<MapTabProps> = ({
           isCagnotteLoading={isCagnotteLoading}
         />
       </div>
+
+      {/* Add a help alert */}
+      <IonAlert
+        isOpen={showLocationHelp}
+        onDidDismiss={() => setShowLocationHelp(false)}
+        header="Activer la géolocalisation"
+        message={`
+          Pour participer au jeu, vous devez autoriser la géolocalisation:
+          
+          ${error && error.message.includes('Permissions refusées') 
+            ? error.message.split('Permissions refusées.')[1].trim() 
+            : `
+              - Sur iPhone: Réglages > Safari > Position
+              - Sur Android: Paramètres > Site web > Localisation
+              - Sur ordinateur: Cliquez sur l'icône de cadenas dans la barre d'adresse
+            `}
+          
+          Après avoir modifié les paramètres, revenez à l'application et appuyez sur "Actualiser".
+        `}
+        buttons={[
+          {
+            text: 'J\'ai compris',
+            role: 'cancel'
+          }
+        ]}
+      />
 
     </div>
   );

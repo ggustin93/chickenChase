@@ -25,6 +25,16 @@ export function useGeolocation(): UseGeolocationResult {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
+  const getPermissionInstructions = (): string => {
+    if (isIOS) {
+      return 'Allez dans Réglages > Safari > Permissions > Position et activez pour ce site.';
+    } else if (/android/i.test(navigator.userAgent)) {
+      return 'Allez dans Paramètres > Site web > Localisation (ou dans les paramètres du navigateur).';
+    } else {
+      return 'Vérifiez les paramètres de localisation dans votre navigateur et autorisez ce site.';
+    }
+  };
+
   const checkPermissions = async () => {
     try {
       const status = await Geolocation.checkPermissions();
@@ -62,7 +72,7 @@ export function useGeolocation(): UseGeolocationResult {
         const requestStatus = await requestPermissions();
         
         if (requestStatus?.location !== 'granted') {
-          throw new Error('Permissions refusées. Veuillez activer la géolocalisation dans les paramètres.');
+          throw new Error(`Permissions refusées. ${getPermissionInstructions()}`);
         }
       }
       
@@ -84,7 +94,7 @@ export function useGeolocation(): UseGeolocationResult {
       
       // Improved error categorization for user feedback
       if (typedError.message && typedError.message.includes('denied')) {
-        setError(new Error('Permissions refusées. Veuillez activer la géolocalisation dans les paramètres.'));
+        setError(new Error(`Permissions refusées. ${getPermissionInstructions()}`));
       } else if (typedError.code === 3 || (typedError.message && typedError.message.includes('timeout'))) {
         setError(new Error('Délai d\'attente dépassé. Essayez encore.'));
         
@@ -128,7 +138,7 @@ export function useGeolocation(): UseGeolocationResult {
         const requestStatus = await requestPermissions();
         
         if (requestStatus?.location !== 'granted') {
-          throw new Error('Permissions refusées pour le suivi. Veuillez activer la géolocalisation dans les paramètres.');
+          throw new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`);
         }
       }
 
@@ -147,7 +157,7 @@ export function useGeolocation(): UseGeolocationResult {
             
             // Categorize watch errors
             if (err.message && err.message.includes('denied')) {
-              setError(new Error('Permissions refusées pour le suivi.'));
+              setError(new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`));
             } else if (err.code === 3) {
               setError(new Error('Délai d\'attente dépassé pour le suivi.'));
             } else if (err.code === 2) {
