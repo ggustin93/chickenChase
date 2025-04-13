@@ -120,7 +120,15 @@ const MapTab: React.FC<MapTabProps> = ({
                 <div className="position-display">
                   <IonIcon icon={locateOutline} className="position-icon" />
                   <span className="position-text">
-                    {currentPosition ? `${currentPosition.coords.latitude.toFixed(4)}, ${currentPosition.coords.longitude.toFixed(4)}` : 'Position inconnue'}
+                    {currentPosition ? (
+                      `${currentPosition.coords.latitude.toFixed(4)}, ${currentPosition.coords.longitude.toFixed(4)}`
+                    ) : isGettingLocation ? (
+                      'Recherche de la position...'
+                    ) : isWatchingLocation ? (
+                      'Suivi de position actif...'
+                    ) : (
+                      'Position inconnue. Appuyez sur "Actualiser"'
+                    )}
                   </span>
                 </div>
               </div>
@@ -142,7 +150,7 @@ const MapTab: React.FC<MapTabProps> = ({
                     )}
                   </IonFabButton>
                   <div className="button-label">
-                    ACTUALISER
+                    {isGettingLocation ? 'RECHERCHE...' : 'ACTUALISER'}
                   </div>
                 </div>
                 

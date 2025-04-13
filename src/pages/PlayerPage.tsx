@@ -94,14 +94,21 @@ const PlayerPage: React.FC = () => {
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [challengeToComplete, setChallengeToComplete] = useState<string | null>(null);
   const [isWatchingLocation, setIsWatchingLocation] = useState<string | undefined>(undefined);
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState<'success' | 'danger' | 'warning' | 'medium'>('medium');
 
   // --- Instantiate Hooks ---
   const { photo, takePhoto } = useCamera();
-  const { currentPosition, getCurrentLocation, watchLocation, clearWatch } = useGeolocation();
+  const { 
+    currentPosition, 
+    getCurrentLocation, 
+    watchLocation, 
+    clearWatch, 
+    error: locationError, 
+    isGeolocationAvailable,
+    isGettingPosition
+  } = useGeolocation();
 
   // --- Timer Effect ---
   useEffect(() => {
@@ -150,6 +157,26 @@ const PlayerPage: React.FC = () => {
       }
     };
   }, [gameState.game?.endTime]); // Re-run if game end time changes
+
+  // --- Geolocation Error Effect ---
+  useEffect(() => {
+    // Show toast message for geolocation errors
+    if (locationError) {
+      setToastMessage(locationError.message);
+      setToastColor('warning');
+      setShowToast(true);
+      console.log('Geolocation error:', locationError);
+    }
+  }, [locationError]);
+
+  // --- Geolocation Availability Effect ---
+  useEffect(() => {
+    if (!isGeolocationAvailable) {
+      setToastMessage('La géolocalisation n\'est pas disponible sur votre appareil.');
+      setToastColor('warning');
+      setShowToast(true);
+    }
+  }, [isGeolocationAvailable]);
 
   // --- Event Handlers ---
   const handleTabChange = (tab: 'map' | 'challenges' | 'chat' | 'leaderboard') => {
@@ -245,9 +272,9 @@ const PlayerPage: React.FC = () => {
   
   // --- Geolocation Actions ---
   const handleGetCurrentLocation = async () => {
-    setIsGettingLocation(true);
+    // No need to manage isGettingLocation state here anymore,
+    // it's handled inside the hook
     await getCurrentLocation();
-    setIsGettingLocation(false);
   }
 
   const handleToggleWatchLocation = async () => {
@@ -294,7 +321,7 @@ const PlayerPage: React.FC = () => {
             bars={gameState.bars}
             visitedBars={gameState.visitedBars}
             currentPosition={currentPosition}
-            isGettingLocation={isGettingLocation}
+            isGettingLocation={isGettingPosition}
             isWatchingLocation={isWatchingLocation}
             handleGetCurrentLocation={handleGetCurrentLocation}
             handleToggleWatchLocation={handleToggleWatchLocation}
