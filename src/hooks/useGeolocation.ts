@@ -64,24 +64,35 @@ export function useGeolocation(): UseGeolocationResult {
     setIsGettingPosition(true);
     
     try {
-      // First check permissions
-      const status = await checkPermissions();
-      
-      if (status?.location !== 'granted') {
-        // Request permissions explicitly
+      // For iOS we need to directly request permissions first
+      // since just calling getCurrentPosition can fail silently
+      if (isIOS) {
         const requestStatus = await requestPermissions();
         
         if (requestStatus?.location !== 'granted') {
           throw new Error(`Permissions refusées. ${getPermissionInstructions()}`);
         }
+      } else {
+        // For other platforms, check permissions first
+        const status = await checkPermissions();
+        
+        if (status?.location !== 'granted') {
+          const requestStatus = await requestPermissions();
+          
+          if (requestStatus?.location !== 'granted') {
+            throw new Error(`Permissions refusées. ${getPermissionInstructions()}`);
+          }
+        }
       }
       
-      // Now get position with explicit timeout and high accuracy
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
+      // iOS Safari needs different options
+      const positionOptions = {
+        enableHighAccuracy: !isIOS || !isSafari, // False for iOS Safari to improve reliability
+        timeout: isIOS ? 20000 : 10000, // Longer timeout for iOS
         maximumAge: 0  // Don't use cached positions
-      });
+      };
+      
+      const position = await Geolocation.getCurrentPosition(positionOptions);
       
       setCurrentPosition(position);
       console.log('Current position:', position);
@@ -105,7 +116,7 @@ export function useGeolocation(): UseGeolocationResult {
           // Special handling for iOS Safari which can be problematic
           const options = {
             enableHighAccuracy: false,
-            timeout: 10000
+            timeout: 20000 // Longer timeout for fallback
           };
           
           const position = await Geolocation.getCurrentPosition(options);
@@ -130,27 +141,40 @@ export function useGeolocation(): UseGeolocationResult {
     setError(null);
     
     try {
-      // First check permissions
-      const status = await checkPermissions();
-      
-      if (status?.location !== 'granted') {
-        // Request permissions explicitly
+      // For iOS we need to directly request permissions first
+      // since just calling watchPosition can fail silently
+      if (isIOS) {
         const requestStatus = await requestPermissions();
         
         if (requestStatus?.location !== 'granted') {
           throw new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`);
+        }
+      } else {
+        // For other platforms, check permissions first
+        const status = await checkPermissions();
+        
+        if (status?.location !== 'granted') {
+          // Request permissions explicitly
+          const requestStatus = await requestPermissions();
+          
+          if (requestStatus?.location !== 'granted') {
+            throw new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`);
+          }
         }
       }
 
       // Clear any existing watch first
       await clearWatch();
 
+      // iOS Safari needs different options
+      const watchOptions = {
+        enableHighAccuracy: !isIOS || !isSafari, // False for iOS Safari to improve reliability
+        timeout: isIOS ? 30000 : 20000, // Longer timeout for iOS
+      };
+
       // Start watching location
       const id = await Geolocation.watchPosition(
-        {
-          enableHighAccuracy: true,
-          timeout: 20000,
-        },
+        watchOptions,
         (position, err) => {
           if (err) {
             console.error('Error watching position:', err);
@@ -160,15 +184,22 @@ export function useGeolocation(): UseGeolocationResult {
               setError(new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`));
             } else if (err.code === 3) {
               setError(new Error('Délai d\'attente dépassé pour le suivi.'));
+              
+              // On timeout, don't stop watching on iOS as it might recover
+              if (!isIOS) {
+                clearWatch(id); // Stop watching on error for non-iOS
+                setWatchId(undefined);
+              }
             } else if (err.code === 2) {
               setError(new Error('Position indisponible pour le suivi.'));
             } else {
               setError(err);
             }
             
-            setCurrentPosition(null);
-            clearWatch(id); // Stop watching on error
-            setWatchId(undefined);
+            // Don't clear position on iOS temporary errors
+            if (!isIOS || (err.code !== 3 && err.code !== 2)) {
+              setCurrentPosition(null);
+            }
           } else if (position) {
             setCurrentPosition(position);
             setError(null);
@@ -214,18 +245,19 @@ export function useGeolocation(): UseGeolocationResult {
       return;
     }
     
+    // For iOS, only check permissions but don't request automatic location
+    // to prevent permission prompt not triggered by user interaction
+    if (isIOS) {
+      checkPermissions();
+      return;
+    }
+    
     // Check permissions
     checkPermissions();
 
     // Automatically try to get initial location with a slight delay
     // This helps ensure any UI is rendered first
     const initTimer = setTimeout(() => {
-      // For iOS Safari, we need to make sure we request location from a user interaction
-      // or with a slight delay after page load
-      if (isIOS && isSafari) {
-        console.log('iOS Safari detected - waiting for user interaction is recommended');
-        // We still attempt to get location but warn that user interaction might be needed
-      }
       getCurrentLocation();
     }, 1000);
 

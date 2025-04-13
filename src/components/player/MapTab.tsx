@@ -5,7 +5,7 @@ import {
 } from '@ionic/react';
 import { 
   locateOutline, refreshOutline, checkmarkCircle, ellipseOutline,
-  navigateOutline, mapOutline, listOutline
+  navigateOutline, mapOutline, listOutline, helpCircleOutline
 } from 'ionicons/icons';
 import GameMap from '../GameMap';
 import { Bar } from '../../data/types';
@@ -53,6 +53,9 @@ const MapTab: React.FC<MapTabProps> = ({
 }) => {
   const [activeSegment, setActiveSegment] = useState<'map' | 'list'>('map');
   const [showLocationHelp, setShowLocationHelp] = useState<boolean>(false);
+  
+  // Check for iOS device
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   // Show help alert when permission errors occur
   useEffect(() => {
@@ -142,6 +145,21 @@ const MapTab: React.FC<MapTabProps> = ({
                   </span>
                 </div>
               </div>
+              
+              {/* Special iOS help button - Bottom middle if no position and iOS */}
+              {isIOS && !currentPosition && (
+                <div className="ios-help-button">
+                  <IonButton 
+                    size="small" 
+                    fill="solid" 
+                    color="tertiary"
+                    onClick={() => setShowLocationHelp(true)}
+                  >
+                    <IonIcon slot="start" icon={helpCircleOutline} />
+                    Aide iOS
+                  </IonButton>
+                </div>
+              )}
               
               {/* Geolocation FAB buttons - Bottom RIGHT of map */}
               <div className="map-controls">
@@ -274,7 +292,7 @@ const MapTab: React.FC<MapTabProps> = ({
         />
       </div>
 
-      {/* Add a help alert */}
+      {/* Add a help alert with iOS-specific instructions */}
       <IonAlert
         isOpen={showLocationHelp}
         onDidDismiss={() => setShowLocationHelp(false)}
@@ -282,13 +300,19 @@ const MapTab: React.FC<MapTabProps> = ({
         message={`
           Pour participer au jeu, vous devez autoriser la géolocalisation:
           
-          ${error && error.message.includes('Permissions refusées') 
-            ? error.message.split('Permissions refusées.')[1].trim() 
-            : `
-              - Sur iPhone: Réglages > Safari > Position
-              - Sur Android: Paramètres > Site web > Localisation
-              - Sur ordinateur: Cliquez sur l'icône de cadenas dans la barre d'adresse
-            `}
+          ${isIOS ? `
+            Sur iPhone/iPad:
+            1. Allez dans Réglages > Safari > Position
+            2. Sélectionnez "Demander" ou "Autoriser"
+            3. Retournez dans le jeu et cliquez sur "Actualiser"
+            4. Si vous utilisez Safari, acceptez la demande de position
+            
+            Note: Si vous utilisez l'app dans l'écran d'accueil, allez dans Réglages > 
+            Confidentialité > Service de localisation > Safari Websites (ou votre navigateur)
+          ` : `
+            - Sur Android: Paramètres > Site web > Localisation
+            - Sur ordinateur: Cliquez sur l'icône de cadenas dans la barre d'adresse
+          `}
           
           Après avoir modifié les paramètres, revenez à l'application et appuyez sur "Actualiser".
         `}
