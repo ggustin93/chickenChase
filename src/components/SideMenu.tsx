@@ -29,6 +29,8 @@ import {
   helpCircleOutline,
   storefrontOutline,
 } from 'ionicons/icons';
+// Import the logo
+import logo from '../assets/images/logo.png';
 
 // Définition des types
 interface SideMenuProps {
@@ -58,7 +60,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
   mode, 
   onQuitGame, 
   appVersion,
-  logoSrc = "/src/assets/images/logo.png" 
+  logoSrc = logo 
 }) => {
   // Fonction pour fermer le menu
   const closeMenu = () => menuController.close('main-menu');
