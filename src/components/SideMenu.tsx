@@ -135,45 +135,38 @@ const SideMenu: React.FC<SideMenuProps> = ({
 
       <IonContent color="primary" className="pt-2">
         {/* Carte d'en-tête */}
-        <IonCard className="mx-3 my-3 rounded-lg shadow-md overflow-hidden" color="light">
-          <IonCardHeader className="ion-text-center ion-padding-bottom pt-4">
-            <div className="flex items-center justify-center mb-4">
+        <div className="flex flex-col items-center justify-center text-center mb-4">
               <IonImg
                 src={logoSrc}
                 alt="Chicken Chase Logo"
-                style={{ width: '90px', height: '90px', margin: '0 auto' }}
+                style={{ width: '140px', height: '140px', margin: '0 auto' }}
                 className="rounded-md shadow-sm transform transition-transform hover:scale-105 duration-300"
               />
-            </div>
-            <IonCardTitle 
-              className="text-lg font-bold text-gray-800 ion-text-default" 
+          <h1
+              className="text-2xl text-white ion-text-default" 
               style={{ fontFamily: "var(--ion-font-fantasy)" }}
             >
               Chicken Chase
-            </IonCardTitle>
-            <IonCardSubtitle className="text-xs font-medium text-gray-600 mt-2 ion-text-default">
-              {gameName}
-            </IonCardSubtitle>
-          </IonCardHeader>
-        </IonCard>
+            </h1>
+        </div>
 
         {/* Section de navigation */}
         <IonList lines="none" className="ion-no-padding mt-2">
-          <IonListHeader className="text-xs font-bold uppercase text-white/90 tracking-wide px-4 mb-2 ion-text-default">
+          <IonListHeader className="text-md uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)" }}>
             Navigation
           </IonListHeader>
           
           {renderNavItems()}
           
           {/* Section des modes */}
-          <IonListHeader className="text-xs font-bold uppercase text-white/90 tracking-wide px-4 mb-2 mt-4 ion-text-default">
+          <IonListHeader className="text-md uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)" }}>
             Changer de mode
           </IonListHeader>
           
           {renderModeSelectors()}
 
           {/* Section des actions */}
-          <IonListHeader className="text-xs font-bold uppercase text-white/90 tracking-wide px-4 mb-2 mt-4 ion-text-default">
+          <IonListHeader className="text-md uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)" }}>
             Actions
           </IonListHeader>
           
@@ -186,10 +179,10 @@ const SideMenu: React.FC<SideMenuProps> = ({
             }}
             lines="none"
             color="light" 
-            className="mx-3 mb-1 rounded-lg shadow-sm hover:bg-danger-tint transition-all duration-200 group"
+            className="mx-3 mb-1 rounded-lg shadow-sm hover:bg-gray-200 transition-all duration-200 group"
           >
-            <IonIcon slot="start" icon={logOutOutline} color="danger" className="ion-margin-start group-hover:animate-pulse"/>
-            <IonLabel color="danger" className="text-sm font-medium ion-text-default">Quitter la partie</IonLabel>
+            <IonIcon slot="start" icon={logOutOutline} color="medium" className="ion-margin-start group-hover:animate-pulse"/>
+            <IonLabel color="medium" className="text-sm font-medium ion-text-default">Quitter la partie</IonLabel>
           </IonItem>
         </IonList>
 
