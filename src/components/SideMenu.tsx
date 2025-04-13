@@ -33,6 +33,8 @@ interface SideMenuProps {
   mode: 'chicken' | 'player' | 'admin';
   appVersion?: string;
   logoSrc?: string;
+  gameName?: string;
+  onQuitGame?: () => void;
 }
 
 // Configuration des modes
@@ -52,7 +54,9 @@ const NAV_ITEMS = [
 const SideMenu: React.FC<SideMenuProps> = ({ 
   mode, 
   appVersion,
-  logoSrc = logo 
+  logoSrc = logo,
+  gameName,
+  onQuitGame
 }) => {
   // Ensure menu closes properly when clicking outside
   useEffect(() => {
@@ -143,18 +147,23 @@ const SideMenu: React.FC<SideMenuProps> = ({
       <IonContent color="primary" className="pt-2">
         {/* Carte d'en-tête */}
         <div className="flex flex-col items-center justify-center text-center mb-4">
-              <IonImg
-                src={logoSrc}
-                alt="Chicken Chase Logo"
-                style={{ width: '140px', height: '140px', margin: '0 auto' }}
-                className="rounded-md shadow-sm transform transition-transform hover:scale-105 duration-300"
-              />
+          <IonImg
+            src={logoSrc}
+            alt="Chicken Chase Logo"
+            style={{ width: '140px', height: '140px', margin: '0 auto' }}
+            className="rounded-md shadow-sm transform transition-transform hover:scale-105 duration-300"
+          />
           <h1
-              className="text-2xl text-white ion-text-default" 
-              style={{ fontFamily: "var(--ion-font-fantasy)" }}
-            >
-              Chicken Chase
-            </h1>
+            className="text-2xl text-white ion-text-default" 
+            style={{ fontFamily: "var(--ion-font-fantasy)" }}
+          >
+            Chicken Chase
+          </h1>
+          {gameName && (
+            <h2 className="text-lg text-white ion-text-default mt-1 opacity-80">
+              {gameName}
+            </h2>
+          )}
         </div>
 
         {/* Section de navigation */}
@@ -172,6 +181,26 @@ const SideMenu: React.FC<SideMenuProps> = ({
           
           {renderModeSelectors()}
 
+          {/* Quit Game Button */}
+          {onQuitGame && (
+            <>
+              <IonListHeader className="text-md uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)" }}>
+                Actions
+              </IonListHeader>
+              <IonMenuToggle autoHide={false}>
+                <IonItem 
+                  button 
+                  detail={false}
+                  lines="none" 
+                  color="light" 
+                  className="mx-3 mb-2 rounded-lg shadow-sm bg-danger-shade opacity-90"
+                  onClick={onQuitGame}
+                >
+                  <IonIcon slot="start" icon={closeOutline} color="light" className="ion-margin-start"/>
+                  <IonLabel color="light" className="text-sm font-medium ion-text-default">Quitter la partie</IonLabel>
+                </IonItem>
+              </IonMenuToggle>
+            </>
       
         </IonList>
 
