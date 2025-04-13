@@ -1,51 +1,84 @@
 .game-status-card {
   margin: 0;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+  background-color: #ffffff;
+  position: relative;
   overflow: hidden;
 }
 
-.game-status-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 8px;
+.status-content {
+  padding: 12px !important;
 }
 
-.game-stats {
-  display: flex;
-  gap: 16px;
+/* Main stats grid layout */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
+/* General stat item styling */
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: bold;
+  gap: 8px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  padding: 8px 10px;
 }
 
-.section-title {
-  font-size: 1rem;
-  font-weight: 600;
+.stat-item ion-icon {
+  font-size: 20px;
+  color: var(--ion-color-medium);
+}
+
+.stat-details {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--ion-color-dark);
-  margin: 0 0 8px 0;
+  line-height: 1.2;
 }
 
-.location-section {
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--ion-color-light-shade);
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* Specific item colors */
+.time-item ion-icon {
+  color: var(--ion-color-warning);
+}
+
+.teams-count-item ion-icon {
+  color: var(--ion-color-primary);
+}
+
+/* Critical time animation */
+.time-item.critical {
+  animation: pulse 2s infinite;
+}
+
+/* Location selector */
 .location-selector {
   --border-radius: 8px;
   --background: var(--ion-color-light);
-  margin-top: 8px;
+  margin-bottom: 12px;
 }
 
 .location-label h2 {
-  font-weight: bold;
-  font-size: 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
 }
 
 .location-label p {
@@ -53,63 +86,245 @@
   color: var(--ion-color-medium);
 }
 
-.teams-section {
-  margin-bottom: 16px;
+/* Hide button */
+.hide-button-container {
+  margin-bottom: 12px;
 }
 
-.teams-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+.hide-button {
+  --border-radius: 8px;
+  height: 44px;
+  font-size: 0.95rem;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.teams-count {
-  font-size: 0.8rem;
+.hide-button ion-icon {
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+/* Toggle teams visibility */
+.map-options {
+  margin-bottom: 12px;
+}
+
+.toggle-item {
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+}
+
+.toggle-item h2 {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+.toggle-item p {
+  font-size: 0.75rem;
   color: var(--ion-color-medium);
+  margin: 0;
 }
 
+/* Game info */
+.game-info {
+  background-color: rgba(var(--ion-color-warning-rgb), 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.game-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ion-color-warning-shade);
+  text-align: center;
+}
+
+/* Teams list */
 .teams-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .team-chip {
   border-radius: 12px;
-  padding: 4px 8px;
-  font-size: 0.85rem;
+  height: 28px;
+  font-size: 0.8rem;
 }
 
-.chicken-run-btn {
-  --border-radius: 10px;
-  font-weight: bold;
-  margin-bottom: 16px;
+/* Action buttons */
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
-.clue-button-container {
-  margin-top: 8px;
-}
-
+.chicken-run-btn,
 .clue-button {
-  --border-radius: 12px;
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-  font-weight: bold;
+  --border-radius: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+  height: 36px;
 }
 
 /* Optimisation pour petit écran */
 @media (max-width: 360px) {
-  .game-stats {
-    gap: 8px;
+  .action-buttons {
+    grid-template-columns: 1fr;
   }
   
   .team-chip {
     font-size: 0.75rem;
   }
+}
+
+/* Tablets and larger */
+@media (min-width: 768px) {
+  .stat-value {
+    font-size: 1.2rem;
+  }
   
-  .clue-button {
+  .location-label h2 {
+    font-size: 1rem;
+  }
+  
+  .toggle-item h2 {
+    font-size: 0.95rem;
+  }
+  
+  .game-info p {
     font-size: 0.9rem;
   }
+  
+  .chicken-run-btn,
+  .clue-button {
+    font-size: 0.9rem;
+    height: 40px;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-warning-rgb), 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(var(--ion-color-warning-rgb), 0); 
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-warning-rgb), 0);
+  }
+}
+
+/* Styles pour la cagnotte compacte */
+.cagnotte-container.compact {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+}
+
+.cagnotte-header {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.cagnotte-header h3 {
+  margin: 0 8px;
+  font-size: 14px;
+}
+
+.cagnotte-amount {
+  font-weight: bold;
+  font-size: 18px;
+  margin: 0 10px;
+  color: var(--ion-color-primary);
+}
+
+.cagnotte-mini-progress {
+  flex: 1;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  max-width: 100px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--ion-color-primary);
+  transition: width 0.3s ease;
+}
+
+.consume-cagnotte-button {
+  margin: 0;
+  height: 30px;
+  font-size: 12px;
+}
+
+.status-card-container.compact .game-status-card {
+  margin: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.game-status-card {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cagnotte-modal .cagnotte-status {
+  margin: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.cagnotte-modal .cagnotte-status ion-icon {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.cagnotte-modal .cagnotte-status h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.cagnotte-modal .amount-input-container {
+  margin: 20px 16px;
+}
+
+.cagnotte-modal .amount-input {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-radius: 8px;
+  --background: #f4f5f8;
+  margin-bottom: 16px;
+}
+
+.cagnotte-modal .consumption-info {
+  margin: 20px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ion-color-medium);
+}
+
+.cagnotte-modal .cagnotte-footer {
+  padding: 16px;
+}
+
+.cagnotte-modal .validate-button {
+  margin: 0;
+  --border-radius: 28px;
+  height: 56px;
+  font-weight: 600;
+  text-transform: uppercase;
 } 

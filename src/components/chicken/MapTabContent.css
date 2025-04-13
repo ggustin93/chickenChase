@@ -7,26 +7,127 @@
 
 .map-container {
   flex: 1;
-  height: 50vh;
   position: relative;
-  z-index: 1;
+  overflow: hidden;
+}
+
+.large-map {
+  flex: 2; /* Increase the map size proportion */
 }
 
 .status-card-container {
-  z-index: 2;
-  margin-top: -20px;
-  padding: 0 12px;
-  margin-bottom: 12px;
+  position: relative;
+  min-height: 160px;
+  z-index: 1;
+}
+
+.compact {
+  min-height: 120px;
+}
+
+/* Styling for the teams visibility FAB */
+.teams-visibility-fab {
+  margin-top: 12px;
+  margin-right: 12px;
+  z-index: 100;
+}
+
+.teams-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  border-radius: 50%;
+  font-size: 10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  z-index: 101;
+}
+
+/* Removed bars notification */
+.removed-bars-notification {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 4px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-width: 70%;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.removed-bars-notification ion-chip {
+  margin: 0;
+  font-weight: 500;
+}
+
+.removed-bar-name {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.removed-bar-name ion-icon {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+@media (max-width: 576px) {
+  .removed-bars-notification {
+    max-width: 60%;
+  }
+  
+  .removed-bar-name {
+    max-width: 100px;
+  }
+}
+
+/* Force immediate rendering of map */
+.map-container .leaflet-container {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Styles pour le bouton de visibilité des équipes */
+.teams-visibility-fab {
+  margin-top: 12px;
+  margin-right: 12px;
+  z-index: 1000;
+}
+
+.teams-count-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 10px;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 /* Version tablette et desktop */
 @media (min-width: 768px) {
   .map-container {
-    height: 60vh;
+    height: 50vh; /* Maintenir la cohérence sur tablette */
   }
   
   .status-card-container {
-    margin-top: -30px;
+    margin-top: -20px;
     padding: 0 20px;
   }
 }
@@ -39,17 +140,32 @@
   }
   
   .map-container {
-    height: 75vh;
-    flex: 2;
+    height: 50vh; /* Maintenir la cohérence sur grands écrans */
+    flex: 1;
+    min-height: 350px; /* Ensure minimum height on large screens */
   }
   
   .status-card-container {
     flex: 1;
     margin-top: 0;
-    margin-left: -50px;
+    margin-left: -30px;
     margin-right: 20px;
     padding: 0;
     max-width: 400px;
     align-self: center;
   }
+}
+
+.map-container.large-map {
+  flex: 1;
+  min-height: 50vh; /* Réduit pour prendre exactement la moitié de l'écran */
+  max-height: 50vh; /* S'assure que la hauteur reste fixe */
+  position: relative;
+}
+
+.status-card-container.compact {
+  flex: 0 0 auto;
+  max-height: 40vh; /* Augmenté pour profiter de l'espace supplémentaire */
+  overflow-y: auto; /* Permet de scroller si nécessaire */
+  padding-bottom: 60px; /* Ajoute de l'espace pour le menu de navigation */
 } 
