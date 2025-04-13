@@ -1,23 +1,80 @@
-import React from 'react';
-import { IonContent } from '@ionic/react';
+import React, { useMemo, useState } from 'react';
+import { 
+  IonContent, 
+  IonRefresher, 
+  IonRefresherContent,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel
+} from '@ionic/react';
 import LeaderboardList from './LeaderboardList';
 import { Team } from '../../data/types';
+import './LeaderboardTab.css';
 
 interface LeaderboardTabProps {
   leaderboard: Team[];
   currentPlayerTeamId: string;
 }
 
+type FilterType = 'all' | 'found' | 'notFound';
+
 const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ leaderboard, currentPlayerTeamId }) => {
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+
+  // Filtrer et trier les équipes selon le filtre actif
+  const displayedTeams = useMemo(() => {
+    const sortedTeams = [...leaderboard].sort((a, b) => b.score - a.score);
+    
+    switch (activeFilter) {
+      case 'found':
+        return sortedTeams.filter(team => team.foundChicken);
+      case 'notFound':
+        return sortedTeams.filter(team => !team.foundChicken);
+      case 'all':
+      default:
+        return sortedTeams;
+    }
+  }, [leaderboard, activeFilter]);
+
+  const handleRefresh = (event: CustomEvent) => {
+    // Logique de rafraîchissement - à implémenter
+    console.log('Rafraîchissement du classement...');
+    
+    setTimeout(() => {
+      event.detail.complete();
+    }, 1000);
+  };
+
   return (
-    <>
-      <IonContent>
-        <LeaderboardList
-          teams={leaderboard}
-          currentPlayerTeamId={currentPlayerTeamId}
-        />
-      </IonContent>
-    </>
+    <IonContent className="leaderboard-tab-content">
+      <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
+
+      {/* Filtres */}
+      <div className="leaderboard-filters-container">
+        <IonSegment 
+          value={activeFilter} 
+          onIonChange={e => setActiveFilter(e.detail.value as FilterType)}
+          className="leaderboard-filter-segment"
+        >
+          <IonSegmentButton value="all" className="filter-segment-button">
+            <IonLabel>Tous</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="found" className="filter-segment-button">
+            <IonLabel>A trouvé</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="notFound" className="filter-segment-button">
+            <IonLabel>Pas trouvé</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+      </div>
+
+      <LeaderboardList
+        teams={displayedTeams}
+        currentPlayerTeamId={currentPlayerTeamId}
+      />
+    </IonContent>
   );
 };
 

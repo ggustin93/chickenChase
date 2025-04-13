@@ -1,0 +1,87 @@
+/* LeaderboardTab.css */
+/* Styles adaptés de TeamsTabContent.css */
+
+.leaderboard-tab-content {
+  --background: var(--ion-background-color);
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --padding-start: 10px;
+  --padding-end: 10px;
+}
+
+/* Filtres */
+.leaderboard-filters-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+}
+
+.filter-title ion-icon {
+  font-size: 1.1rem;
+}
+
+/* Style du IonSegment */
+.leaderboard-filter-segment {
+  margin-top: 5px;
+  max-width: 100%;
+  width: auto;
+  font-size: medium;
+}
+
+/* Override des styles IonSegmentButton */
+.filter-segment-button {
+  text-transform: none;
+}
+
+/* Styles spécifiques au leaderboard pour les médias queries */
+@media (max-width: 359px) {
+  .leaderboard-filters-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .leaderboard-filter-segment {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+/* Petits écrans */
+@media (min-width: 360px) and (max-width: 480px) {
+  .leaderboard-filters-container {
+    padding: 0 4px 12px;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 481px) and (max-width: 767px) {
+  /* Styles for medium screens */
+}
+
+/* Large screens */
+@media (min-width: 768px) {
+  /* Centered layout for larger screens */
+  .leaderboard-tab-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .leaderboard-filters-container {
+    width: 100%;
+    max-width: 800px;
+    justify-content: center;
+  }
+} 
