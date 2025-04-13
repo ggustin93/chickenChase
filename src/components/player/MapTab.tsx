@@ -4,7 +4,7 @@ import {
   IonSegment, IonSegmentButton, IonButton, IonAlert
 } from '@ionic/react';
 import { 
-  locateOutline, refreshOutline, checkmarkCircle, ellipseOutline,
+  locateOutline, checkmarkCircle, ellipseOutline,
   navigateOutline, mapOutline, listOutline, helpCircleOutline
 } from 'ionicons/icons';
 import GameMap from '../GameMap';
@@ -132,6 +132,7 @@ const MapTab: React.FC<MapTabProps> = ({
                 }))}
                 visitedBars={visitedBarIds}
                 currentLocation={currentPosition ? [currentPosition.coords.latitude, currentPosition.coords.longitude] : undefined}
+                onBarClick={handleBarVisitAttempt}
               />
               
               {/* Position indicator - Bottom left with icon */}
@@ -152,9 +153,9 @@ const MapTab: React.FC<MapTabProps> = ({
                 </div>
               </div>
               
-              {/* Special iOS help button - Bottom middle if no position and iOS */}
+              {/* Location Help Button for iOS */}
               {isIOS && (
-                <div className="ios-help-button">
+                <div className="ios-help-button-container">
                   <IonButton 
                     size="small" 
                     fill="solid" 
@@ -167,40 +168,29 @@ const MapTab: React.FC<MapTabProps> = ({
                 </div>
               )}
               
-              {/* Geolocation FAB buttons - Bottom RIGHT of map */}
-              <div className="map-controls">
-                {/* Actualiser Button */}
-                <div className="button-container">
-                  <IonFabButton 
-                    size="small"
-                    disabled={isGettingLocation}
-                    onClick={handleGetCurrentLocation}
-                    className="map-control-button"
-                  >
-                    {isGettingLocation ? (
-                      <div className="loading-spinner"></div>
-                    ) : (
-                      <IonIcon icon={refreshOutline} className="control-icon" />
-                    )}
-                  </IonFabButton>
-                  <div className="button-label">
-                    {isGettingLocation ? 'RECHERCHE...' : 'ACTUALISER'}
-                  </div>
-                </div>
-                
-                {/* Suivre Button */}
-                <div className="button-container">
-                  <IonFabButton 
-                    size="small"
-                    onClick={handleToggleWatchLocation}
-                    className={`map-control-button ${isWatchingLocation ? 'watching' : ''}`}
-                  >
-                    <IonIcon icon={locateOutline} className="control-icon" />
-                  </IonFabButton>
-                  <div className="button-label">
-                    {isWatchingLocation ? 'ARRÊTER' : 'SUIVRE'}
-                  </div>
-                </div>
+              {/* Center-on-position button (bottom right) */}
+              <div className="center-position-button-container">
+                <IonFabButton 
+                  size="small"
+                  className="center-position-button"
+                  disabled={!currentPosition && !isGettingLocation}
+                  onClick={() => {
+                    if (!currentPosition || isWatchingLocation) {
+                      // Si pas de position ou déjà en mode suivi, actualiser/arrêter
+                      if (isWatchingLocation) {
+                        handleToggleWatchLocation();
+                      } else {
+                        handleGetCurrentLocation();
+                      }
+                    } else {
+                      // Sinon, simplement centrer la carte (fonctionnalité à implémenter)
+                      console.log('Centrer la carte sur:', currentPosition.coords);
+                    }
+                  }}
+                >
+                  <IonIcon icon={!currentPosition || isGettingLocation ? locateOutline : navigateOutline} />
+                  {isGettingLocation && <div className="loading-spinner-small"></div>}
+                </IonFabButton>
               </div>
             </div>
 
@@ -283,21 +273,23 @@ const MapTab: React.FC<MapTabProps> = ({
         )}
       </div> {/* End of map-list-view-wrapper */}
 
-      {/* Game Status Card (Stays at the bottom) */}
-      <div className="game-status-container">
-        <PlayerGameStatusCard
-          score={score}
-          gameTime={gameTime}
-          barsVisited={visitedBars.length}
-          totalBars={bars.length}
-          challengesCompleted={challengesCompleted}
-          totalChallenges={totalChallenges}
-          cagnotteCurrentAmount={cagnotteCurrentAmount}
-          cagnotteInitialAmount={cagnotteInitialAmount}
-          isCagnotteLoading={isCagnotteLoading}
-          onCagnotteConsumption={onCagnotteConsumption}
-        />
-      </div>
+      {/* Game Status Card (Stays at the bottom) - Only visible in map view */}
+      {activeSegment === 'map' && (
+        <div className="game-status-container">
+          <PlayerGameStatusCard
+            score={score}
+            gameTime={gameTime}
+            barsVisited={visitedBars.length}
+            totalBars={bars.length}
+            challengesCompleted={challengesCompleted}
+            totalChallenges={totalChallenges}
+            cagnotteCurrentAmount={cagnotteCurrentAmount}
+            cagnotteInitialAmount={cagnotteInitialAmount}
+            isCagnotteLoading={isCagnotteLoading}
+            onCagnotteConsumption={onCagnotteConsumption}
+          />
+        </div>
+      )}
 
       {/* Add a help alert with iOS-specific instructions */}
       <IonAlert

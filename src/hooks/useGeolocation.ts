@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Geolocation, Position, PermissionStatus } from '@capacitor/geolocation';
+import { useGeolocated } from 'react-geolocated';
+import { Position, PermissionStatus } from '@capacitor/geolocation';
+import type { PermissionState } from '@capacitor/core';
 
 export interface UseGeolocationResult {
   currentPosition: Position | null;
@@ -13,297 +15,133 @@ export interface UseGeolocationResult {
 }
 
 export function useGeolocation(): UseGeolocationResult {
-  const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
-  const [error, setError] = useState<GeolocationPositionError | Error | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<PermissionStatus | null>(null);
-  const [watchId, setWatchId] = useState<string | undefined>(undefined);
-  const [isGeolocationAvailable, setIsGeolocationAvailable] = useState(true);
   const [isGettingPosition, setIsGettingPosition] = useState(false);
+  const [watchId, setWatchId] = useState<string | undefined>(undefined);
+  
+  // We'll use react-geolocated hook
+  const {
+    coords,
+    timestamp,
+    isGeolocationAvailable,
+    isGeolocationEnabled,
+    positionError,
+    getPosition
+  } = useGeolocated({
+    positionOptions: {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 10000,
+    },
+    watchPosition: false,
+    userDecisionTimeout: 10000,
+    suppressLocationOnMount: false,
+  });
 
-  // We'll actually use these constants in conditional logic
-  // based on browser detection for specialized handling
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-  const getPermissionInstructions = (): string => {
-    if (isIOS) {
-      return 'Allez dans Réglages > Safari > Permissions > Position et activez pour ce site.';
-    } else if (/android/i.test(navigator.userAgent)) {
-      return 'Allez dans Paramètres > Site web > Localisation (ou dans les paramètres du navigateur).';
-    } else {
-      return 'Vérifiez les paramètres de localisation dans votre navigateur et autorisez ce site.';
-    }
+  // Map react-geolocated coords to Capacitor Position format
+  const mapToCapacitorPosition = (): Position | null => {
+    if (!coords) return null;
+    
+    return {
+      coords: {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        accuracy: coords.accuracy,
+        altitude: coords.altitude,
+        altitudeAccuracy: coords.altitudeAccuracy,
+        heading: coords.heading,
+        speed: coords.speed,
+      },
+      timestamp: timestamp || Date.now(),
+    };
   };
 
-  const checkPermissions = async () => {
-    try {
-      const status = await Geolocation.checkPermissions();
+  // Convert the current position to Capacitor format
+  const currentPosition = mapToCapacitorPosition();
+
+  // Map errors to maintain the same interface
+  const error = positionError || null;
+
+  // Update permission status when geolocation enabled status changes
+  useEffect(() => {
+    if (isGeolocationEnabled) {
+      const status: PermissionStatus = {
+        location: 'granted' as PermissionState,
+        coarseLocation: 'granted' as PermissionState
+      };
       setPermissionStatus(status);
-      return status;
-    } catch (err) {
-      console.error('Error checking geolocation permissions:', err);
-      setError(err as Error);
-      return null;
+    } else if (isGeolocationEnabled === false) {
+      const status: PermissionStatus = {
+        location: 'denied' as PermissionState,
+        coarseLocation: 'denied' as PermissionState
+      };
+      setPermissionStatus(status);
     }
-  };
+  }, [isGeolocationEnabled]);
 
-  const requestPermissions = async () => {
-     try {
-       const status = await Geolocation.requestPermissions();
-       setPermissionStatus(status);
-       return status;
-     } catch (err) {
-       console.error('Error requesting geolocation permissions:', err);
-       setError(err as Error);
-       return null;
-     }
-   };
-
-  const getCurrentLocation = async () => {
-    setError(null);
+  // Get current location function (uses react-geolocated's getPosition)
+  const getCurrentLocation = async (): Promise<void> => {
     setIsGettingPosition(true);
-    
     try {
-      // For iOS we need to directly request permissions first
-      // since just calling getCurrentPosition can fail silently
-      if (isIOS) {
-        const requestStatus = await requestPermissions();
-        
-        if (requestStatus?.location !== 'granted') {
-          throw new Error(`Permissions refusées. ${getPermissionInstructions()}`);
-        }
-        
-        // For iOS, use watchPosition and clear it after the first position
-        // This is more reliable than getCurrentPosition which can return cached positions
-        console.log('iOS: Using watchPosition for more reliable positioning');
-        const watchId = await Geolocation.watchPosition(
-          {
-            enableHighAccuracy: false, // False for iOS Safari to improve reliability
-            timeout: 20000, // Longer timeout for iOS
-          },
-          (position, err) => {
-            if (err) {
-              console.error('Error watching position:', err);
-              setError(err);
-              setCurrentPosition(null);
-            } else if (position) {
-              console.log('Position from watch:', position);
-              setCurrentPosition(position);
-              
-              // Clear watch after getting position
-              if (watchId) {
-                Geolocation.clearWatch({ id: watchId }).catch(err => {
-                  console.error("Error clearing temporary watch:", err);
-                });
-              }
-            }
-            setIsGettingPosition(false);
-          }
-        );
-        
-        // Return early as position will be set by the watchPosition callback
-        return;
-      } else {
-        // For other platforms, check permissions first
-        const status = await checkPermissions();
-        
-        if (status?.location !== 'granted') {
-          const requestStatus = await requestPermissions();
-          
-          if (requestStatus?.location !== 'granted') {
-            throw new Error(`Permissions refusées. ${getPermissionInstructions()}`);
-          }
-        }
-      }
-      
-      // iOS Safari needs different options
-      const positionOptions = {
-        enableHighAccuracy: !isIOS || !isSafari, // False for iOS Safari to improve reliability
-        timeout: isIOS ? 20000 : 10000, // Longer timeout for iOS
-        maximumAge: 0  // Don't use cached positions
-      };
-      
-      const position = await Geolocation.getCurrentPosition(positionOptions);
-      
-      setCurrentPosition(position);
-      console.log('Current position:', position);
-      
-    } catch (err: unknown) {
+      await getPosition();
+    } catch (err) {
       console.error('Error getting location:', err);
-      
-      // Cast to type with message property for error handling
-      const typedError = err as Error & { code?: number };
-      
-      // Improved error categorization for user feedback
-      if (typedError.message && typedError.message.includes('denied')) {
-        setError(new Error(`Permissions refusées. ${getPermissionInstructions()}`));
-      } else if (typedError.code === 3 || (typedError.message && typedError.message.includes('timeout'))) {
-        setError(new Error('Délai d\'attente dépassé. Essayez encore.'));
-        
-        // Try with lower accuracy as fallback
-        try {
-          console.log('Trying with lower accuracy...');
-          
-          // Special handling for iOS Safari which can be problematic
-          const options = {
-            enableHighAccuracy: false,
-            timeout: 20000 // Longer timeout for fallback
-          };
-          
-          const position = await Geolocation.getCurrentPosition(options);
-          setCurrentPosition(position);
-          setError(null); // Clear error since fallback succeeded
-        } catch (fallbackErr) {
-          console.error('Fallback location also failed:', fallbackErr);
-        }
-      } else if (typedError.code === 2 || (typedError.message && typedError.message.includes('unavailable'))) {
-        setError(new Error('Position indisponible. Vérifiez que la géolocalisation est activée.'));
-      } else {
-        setError(typedError);
-      }
-      
-      setCurrentPosition(null);
     } finally {
-      if (!isIOS) { // For non-iOS, set isGettingPosition to false here
-        setIsGettingPosition(false);
-      }
+      setIsGettingPosition(false);
     }
   };
 
+  // Watch location (simplified implementation using the browser's navigator.geolocation)
   const watchLocation = async (): Promise<string | undefined> => {
-    setError(null);
+    if (!isGeolocationAvailable) {
+      throw new Error('La géolocalisation n\'est pas prise en charge par ce navigateur.');
+    }
     
-    try {
-      // For iOS we need to directly request permissions first
-      // since just calling watchPosition can fail silently
-      if (isIOS) {
-        const requestStatus = await requestPermissions();
-        
-        if (requestStatus?.location !== 'granted') {
-          throw new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`);
-        }
-      } else {
-        // For other platforms, check permissions first
-        const status = await checkPermissions();
-        
-        if (status?.location !== 'granted') {
-          // Request permissions explicitly
-          const requestStatus = await requestPermissions();
-          
-          if (requestStatus?.location !== 'granted') {
-            throw new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`);
-          }
-        }
-      }
+    // Clear any existing watch first
+    await clearWatch();
 
-      // Clear any existing watch first
-      await clearWatch();
-
-      // iOS Safari needs different options
-      const watchOptions = {
-        enableHighAccuracy: !isIOS || !isSafari, // False for iOS Safari to improve reliability
-        timeout: isIOS ? 30000 : 20000, // Longer timeout for iOS
-      };
-
-      // Start watching location
-      const id = await Geolocation.watchPosition(
-        watchOptions,
-        (position, err) => {
-          if (err) {
-            console.error('Error watching position:', err);
-            
-            // Categorize watch errors
-            if (err.message && err.message.includes('denied')) {
-              setError(new Error(`Permissions refusées pour le suivi. ${getPermissionInstructions()}`));
-            } else if (err.code === 3) {
-              setError(new Error('Délai d\'attente dépassé pour le suivi.'));
-              
-              // On timeout, don't stop watching on iOS as it might recover
-              if (!isIOS) {
-                clearWatch(id); // Stop watching on error for non-iOS
-                setWatchId(undefined);
-              }
-            } else if (err.code === 2) {
-              setError(new Error('Position indisponible pour le suivi.'));
-            } else {
-              setError(err);
-            }
-            
-            // Don't clear position on iOS temporary errors
-            if (!isIOS || (err.code !== 3 && err.code !== 2)) {
-              setCurrentPosition(null);
-            }
-          } else if (position) {
-            setCurrentPosition(position);
-            setError(null);
-            console.log('Watched position update:', position);
-          } else {
-            console.warn('Watch callback received null position without error');
-          }
+    if (navigator.geolocation) {
+      const id = String(navigator.geolocation.watchPosition(
+        () => {
+          // This is handled by react-geolocated when watchPosition: true
+          // We're just returning the ID for compatibility
+        },
+        (error) => {
+          console.error('Watch position error:', error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0
         }
-      );
+      ));
       
       setWatchId(id);
-      console.log('Started watching position with ID:', id);
       return id;
-    } catch (err) {
-      console.error('Failed to start watching position:', err);
-      setError(err as Error);
-      setWatchId(undefined);
-      return undefined;
     }
+    
+    return undefined;
   };
 
-  const clearWatch = async (id?: string) => {
+  // Clear watch function
+  const clearWatch = async (id?: string): Promise<void> => {
     const idToClear = id || watchId;
-    if (idToClear) {
-      try {
-        await Geolocation.clearWatch({ id: idToClear });
-        console.log('Cleared position watch with ID:', idToClear);
-        if (idToClear === watchId) {
-          setWatchId(undefined);
-        }
-      } catch (err) {
-        console.error('Error clearing watch:', err);
+    if (idToClear && navigator.geolocation) {
+      navigator.geolocation.clearWatch(Number(idToClear));
+      if (idToClear === watchId) {
+        setWatchId(undefined);
       }
     }
   };
 
-  // Check if geolocation is available and initialize on mount
+  // Clean up on unmount
   useEffect(() => {
-    // Check if geolocation is available
-    if (!('geolocation' in navigator)) {
-      setIsGeolocationAvailable(false);
-      setError(new Error('La géolocalisation n\'est pas prise en charge par ce navigateur.'));
-      return;
-    }
-    
-    // For iOS, only check permissions but don't request automatic location
-    // to prevent permission prompt not triggered by user interaction
-    if (isIOS) {
-      checkPermissions();
-      return;
-    }
-    
-    // Check permissions
-    checkPermissions();
-
-    // Automatically try to get initial location with a slight delay
-    // This helps ensure any UI is rendered first
-    const initTimer = setTimeout(() => {
-      getCurrentLocation();
-    }, 1000);
-
-    // Cleanup function - clear watch and timer
     return () => {
-      clearTimeout(initTimer);
       if (watchId) {
-        Geolocation.clearWatch({ id: watchId }).catch(err => {
-          console.error("Error clearing watch on unmount:", err);
-        });
+        navigator.geolocation.clearWatch(Number(watchId));
       }
     };
-  }, []); // Empty dependency array runs only on mount and unmount
+  }, [watchId]);
 
   return {
     currentPosition,
