@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   IonMenu,
   IonHeader,
@@ -12,16 +12,12 @@ import {
   IonButtons,
   IonButton,
   IonNote,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
   IonImg,
+  IonMenuToggle,
 } from '@ionic/react';
 import { menuController } from '@ionic/core';
 import {
   closeOutline,
-  logOutOutline,
   personOutline,
   constructOutline,
   settingsOutline,
@@ -34,9 +30,7 @@ import logo from '../assets/images/logo.png';
 
 // Définition des types
 interface SideMenuProps {
-  gameName: string;
   mode: 'chicken' | 'player' | 'admin';
-  onQuitGame: () => void;
   appVersion?: string;
   logoSrc?: string;
 }
@@ -56,30 +50,41 @@ const NAV_ITEMS = [
 ];
 
 const SideMenu: React.FC<SideMenuProps> = ({ 
-  gameName, 
   mode, 
-  onQuitGame, 
   appVersion,
   logoSrc = logo 
 }) => {
-  // Fonction pour fermer le menu
-  const closeMenu = () => menuController.close('main-menu');
+  // Ensure menu closes properly when clicking outside
+  useEffect(() => {
+    const handleBackdropClick = () => {
+      menuController.close('main-menu');
+    };
+    
+    // Add event listener for backdrop clicks
+    document.addEventListener('ionBackdrop-click', handleBackdropClick);
+    
+    return () => {
+      // Cleanup event listener on component unmount
+      document.removeEventListener('ionBackdrop-click', handleBackdropClick);
+    };
+  }, []);
   
   // Rendu des items de navigation
   const renderNavItems = () => (
     NAV_ITEMS.map(item => (
-      <IonItem 
-        key={item.id}
-        button 
-        detail={false}
-        lines="none" 
-        color="light" 
-        className="mx-3 mb-2 rounded-lg shadow-sm opacity-80"
-        disabled
-      >
-        <IonIcon slot="start" icon={item.icon} color="medium" className="ion-margin-start"/>
-        <IonLabel className="text-sm font-medium ion-text-default">{item.label}</IonLabel>
-      </IonItem>
+      <IonMenuToggle key={item.id} autoHide={false}>
+        <IonItem 
+          button 
+          detail={false}
+          lines="none" 
+          color="light" 
+          className="mx-3 mb-2 rounded-lg shadow-sm opacity-80"
+          routerLink={item.path}
+        >
+          <IonIcon slot="start" icon={item.icon} color="medium" className="ion-margin-start"/>
+          <IonLabel className="text-sm font-medium ion-text-default">{item.label}</IonLabel>
+        </IonItem>
+      </IonMenuToggle>
     ))
   );
 
@@ -88,28 +93,28 @@ const SideMenu: React.FC<SideMenuProps> = ({
     MENU_MODES.map(config => {
       const isCurrentMode = mode === config.key;
       return (
-        <IonItem
-          key={config.key}
-          button
-          detail={false}
-          routerLink={!isCurrentMode ? config.path : undefined}
-          onClick={!isCurrentMode ? closeMenu : undefined}
-          color={isCurrentMode ? 'light' : 'light'} 
-          className={`mx-3 mb-2 rounded-lg shadow-sm transition-all duration-200 ${isCurrentMode ? 'bg-primary-tint' : 'hover:bg-light-shade'}`}
-          disabled={false}
-          lines="none" 
-        >
-          <IonIcon 
-            slot="start" 
-            icon={config.icon} 
-            color={isCurrentMode ? 'primary' : 'medium'} 
-            className="ion-margin-start transition-colors duration-200" 
-          />
-          <IonLabel className={`text-sm ion-text-default transition-colors duration-200 ${isCurrentMode ? 'text-primary font-semibold' : 'font-medium'}`}>
-            {config.label}
-          </IonLabel>
-          {isCurrentMode && <div className="absolute left-0 top-1/2 w-1 h-2/3 bg-primary rounded-r-full transform -translate-y-1/2"></div>}
-        </IonItem>
+        <IonMenuToggle key={config.key} autoHide={false}>
+          <IonItem
+            button
+            detail={false}
+            routerLink={!isCurrentMode ? config.path : undefined}
+            color={isCurrentMode ? 'light' : 'light'} 
+            className={`mx-3 mb-2 rounded-lg shadow-sm transition-all duration-200 ${isCurrentMode ? 'bg-primary-tint' : 'hover:bg-light-shade'}`}
+            disabled={isCurrentMode}
+            lines="none" 
+          >
+            <IonIcon 
+              slot="start" 
+              icon={config.icon} 
+              color={isCurrentMode ? 'primary' : 'medium'} 
+              className="ion-margin-start transition-colors duration-200" 
+            />
+            <IonLabel className={`text-sm ion-text-default transition-colors duration-200 ${isCurrentMode ? 'text-primary font-semibold' : 'font-medium'}`}>
+              {config.label}
+            </IonLabel>
+            {isCurrentMode && <div className="absolute left-0 top-1/2 w-1 h-2/3 bg-primary rounded-r-full transform -translate-y-1/2"></div>}
+          </IonItem>
+        </IonMenuToggle>
       );
     })
   );
@@ -126,9 +131,11 @@ const SideMenu: React.FC<SideMenuProps> = ({
       <IonHeader className="ion-no-border">
         <IonToolbar color="primary" className="pt-3 pb-2">
           <IonButtons slot="end"> 
-            <IonButton onClick={closeMenu} fill="clear" color="light">
-              <IonIcon slot="icon-only" icon={closeOutline} />
-            </IonButton>
+            <IonMenuToggle autoHide={false}>
+              <IonButton fill="clear" color="light">
+                <IonIcon slot="icon-only" icon={closeOutline} />
+              </IonButton>
+            </IonMenuToggle>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -182,4 +189,4 @@ const SideMenu: React.FC<SideMenuProps> = ({
   );
 };
 
-export default SideMenu;// Update the SideMenu with fantasy font
+export default SideMenu;
