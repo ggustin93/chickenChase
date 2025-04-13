@@ -3,6 +3,43 @@
   width: 100%;
   min-height: 300px;
   z-index: 1;
+  visibility: visible !important; /* Ensure visibility during load */
+  opacity: 1 !important; /* Ensure opacity during load */
+}
+
+/* Ensure the map container is fully visible and sized properly */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  z-index: 1;
+}
+
+/* Map loading indicator */
+.map-loading-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+
+.map-loading-container ion-spinner {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  color: var(--ion-color-primary);
+}
+
+.map-loading-container p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ion-color-dark);
 }
 
 /* Fixer un problème courant avec les icônes Leaflet */
@@ -21,12 +58,12 @@
 
 .bar-popup h3 {
   margin: 5px 0;
-  font-size: 16px;
+  font-size: 1rem; /* Changed to responsive unit */
 }
 
 .bar-popup p {
   margin: 5px 0;
-  font-size: 14px;
+  font-size: 0.875rem; /* Changed to responsive unit */
   color: #666;
 }
 
@@ -39,10 +76,65 @@
   margin-top: 10px;
 }
 
+/* Team popup styles */
+.team-popup {
+  text-align: center;
+  padding: 5px;
+}
+
+.team-popup h3 {
+  margin: 5px 0;
+  font-size: 1rem;
+  color: var(--ion-color-dark);
+}
+
+.team-popup p {
+  margin: 3px 0;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+}
+
+.team-popup .timestamp {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--ion-color-medium-shade);
+  margin-bottom: 6px;
+}
+
+.team-popup ion-badge {
+  margin: 5px 0;
+  display: block;
+  font-size: 0.8rem;
+  padding: 5px;
+}
+
 .current-location-popup {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
   padding: 5px;
+}
+
+/* Fix for map not loading completely */
+.leaflet-tile-container img {
+  width: 256px !important;
+  height: 256px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .bar-popup h3,
+  .team-popup h3 {
+    font-size: 0.9rem;
+  }
+  
+  .bar-popup p,
+  .team-popup p {
+    font-size: 0.8rem;
+  }
+  
+  .team-popup .timestamp {
+    font-size: 0.7rem;
+  }
 } 
