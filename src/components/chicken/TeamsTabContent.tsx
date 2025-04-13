@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   IonList,
   IonContent,
   IonText,
   IonItem,
   IonIcon,
-  IonSkeletonText
+  IonSkeletonText,
+  IonBadge
 } from '@ionic/react';
 import { peopleOutline } from 'ionicons/icons';
 
 import { ChickenGameState } from '../../data/types';
 import { TeamItem } from './teams';
-import CagnotteSection from '../shared/CagnotteSection';
 import './TeamsTabContent.css';
 
 interface TeamsTabContentProps {
@@ -68,23 +68,13 @@ const TeamsTabContent: React.FC<TeamsTabContentProps> = ({
   markTeamFound,
   isLoading = false
 }) => {
-  // Safely get cagnotte values, default to 0 if invalid or missing
-  const initialCagnotte = typeof gameState.initialCagnotte === 'number' ? gameState.initialCagnotte : 0;
-  const currentCagnotte = typeof gameState.currentCagnotte === 'number' ? gameState.currentCagnotte : 0;
+  // Trier les équipes par ordre décroissant de points
+  const sortedTeams = useMemo(() => {
+    return [...gameState.teams].sort((a, b) => b.score - a.score);
+  }, [gameState.teams]);
 
   return (
     <IonContent className="teams-tab-content">
-      
-      <CagnotteSection 
-        currentAmount={currentCagnotte} 
-        initialAmount={initialCagnotte} 
-        isLoading={isLoading}
-      />
-      
-      <div className="teams-section-header">
-        <h4>Équipes participantes</h4>
-      </div>
-      
       <IonList lines="full" className="teams-list">
         {isLoading ? (
           // Show skeleton loaders while loading
@@ -93,14 +83,23 @@ const TeamsTabContent: React.FC<TeamsTabContentProps> = ({
             <TeamItemSkeleton />
             <TeamItemSkeleton />
           </>
-        ) : gameState.teams.length > 0 ? (
-          // Show teams when available
-          gameState.teams.map((team) => (
-            <TeamItem 
-              key={team.id}
-              team={team} 
-              onMarkFound={markTeamFound} 
-            />
+        ) : sortedTeams.length > 0 ? (
+          // Show teams when available, sorted by score
+          sortedTeams.map((team, index) => (
+            <div 
+              key={team.id} 
+              className={`team-item-wrapper ${team.foundChicken ? 'found-wrapper' : ''}`}
+            >
+              <div className="team-rank">
+                <IonBadge color={index < 3 ? "warning" : "medium"} className="rank-badge">
+                  {index + 1}
+                </IonBadge>
+              </div>
+              <TeamItem 
+                team={team} 
+                onMarkFound={markTeamFound} 
+              />
+            </div>
           ))
         ) : (
           // Show empty state when no teams

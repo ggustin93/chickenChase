@@ -17,6 +17,7 @@
   padding: 16px 16px 8px 16px;
   background: #ffffff;
   border-bottom: 1px solid var(--ion-color-light-shade);
+  display: flex;
 }
 
 .teams-section-header h4 {
@@ -24,6 +25,14 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--ion-color-dark);
+  display: flex;
+  align-items: center;
+}
+
+.ranking-icon {
+  margin-right: 8px;
+  color: var(--ion-color-warning);
+  font-size: 20px;
 }
 
 /* Empty teams state */
@@ -62,7 +71,7 @@
 /* Styling for the list */
 .teams-list {
   background-color: var(--ion-background-color, #f8f9fa);
-  padding: 0;
+  padding: 12px;
   margin: 0;
   width: 100%;
 }
@@ -80,14 +89,34 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+/* Équipe qui a trouvé le poulet */
 .team-list-item.found {
   --background: rgba(var(--ion-color-success-rgb), 0.08);
   border-left: 4px solid var(--ion-color-success);
 }
 
-/* Make last item have no border */
-.teams-list ion-item:last-child {
-  margin-bottom: 16px;
+/* Style pour les wrappers des équipes */
+.team-item-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+/* Définit un fond d'arrière-plan spécifique pour les équipes qui ont trouvé */
+.team-item-wrapper:nth-child(2n+1) {
+  background-color: #f9fff9;
+}
+
+/* Fond vert clair pour les équipes qui ont trouvé */
+.team-item-wrapper.found-wrapper {
+  background-color: rgba(var(--ion-color-success-rgb), 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.team-item-wrapper .team-list-item {
+  --padding-start: 40px;
+  width: 100%;
 }
 
 .team-item-content {
@@ -217,4 +246,43 @@
   margin-right: 8px;
   font-size: 18px;
   color: var(--ion-color-success); 
+}
+
+/* Team rank styling */
+.team-rank {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.rank-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  margin: 0;
+}
+
+/* Gold, Silver, Bronze for top 3 */
+.team-item-wrapper:nth-child(1) .rank-badge {
+  --ion-color-base: #FFD700;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+}
+
+.team-item-wrapper:nth-child(2) .rank-badge {
+  --ion-color-base: #C0C0C0;
+}
+
+.team-item-wrapper:nth-child(3) .rank-badge {
+  --ion-color-base: #CD7F32;
 } 
