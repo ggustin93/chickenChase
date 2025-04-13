@@ -1,0 +1,109 @@
+.cagnotte-fullscreen-modal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+  --backdrop-opacity: 0.8;
+}
+
+.cagnotte-header {
+  margin-bottom: 20px;
+}
+
+.cagnotte-header-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.cagnotte-header-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.cagnotte-amount-input {
+  margin: 20px 0;
+  --background: transparent;
+  --border-color: var(--ion-color-medium);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.amount-input {
+  font-size: 1.5rem;
+  font-weight: bold;
+  background-color: rgba(var(--ion-color-light-rgb), 0.7);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  text-align: center;
+  --padding-end: 8px;
+  --padding-start: 8px;
+}
+
+.error-message {
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.notification-info {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.validate-button {
+  margin: 10px 0;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  height: auto;
+}
+
+/* Style spécifique pour le modal de cagnotte */
+ion-modal.cagnotte-fullscreen-modal ion-content {
+  --background: #f8f8f8;
+}
+
+ion-modal.cagnotte-fullscreen-modal ion-footer {
+  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+}
+
+ion-modal.cagnotte-fullscreen-modal .cagnotte-section-wrapper {
+  margin: 10px 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* Assurer que les sélecteurs numériques s'affichent correctement */
+ion-modal.cagnotte-fullscreen-modal ion-input {
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+/* Spécifique pour les petits écrans */
+@media (max-width: 380px) {
+  .cagnotte-header-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  
+  .cagnotte-header-title {
+    font-size: 20px;
+  }
+  
+  .amount-input {
+    font-size: 1.3rem;
+  }
+  
+  ion-modal.cagnotte-fullscreen-modal ion-footer ion-button {
+    font-size: 14px;
+  }
+  
+  .cagnotte-amount-input {
+    margin: 15px 0;
+  }
+}
+
+/* Fix pour iOS Safari */
+.ios ion-modal.cagnotte-fullscreen-modal {
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+} 
