@@ -98,6 +98,12 @@ const PlayerPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState<'success' | 'danger' | 'warning' | 'medium'>('medium');
 
+  // Ajout d'un état pour gérer la cagnotte
+  const [cagnotte, setCagnotte] = useState({
+    current: mockChickenGameState.currentCagnotte,
+    initial: mockChickenGameState.initialCagnotte
+  });
+
   // --- Instantiate Hooks ---
   const { photo, takePhoto } = useCamera();
   const { 
@@ -287,6 +293,22 @@ const PlayerPage: React.FC = () => {
     }
   }
 
+  // Fonction pour gérer la consommation de la cagnotte
+  const handleCagnotteConsumption = (amount: number, reason: string) => {
+    // Mettre à jour la valeur de la cagnotte
+    setCagnotte(prev => ({
+      ...prev,
+      current: Math.max(0, prev.current - amount)
+    }));
+    
+    // Afficher un toast de confirmation
+    setToastMessage(`${amount}€ utilisés de la cagnotte ! (${reason})`);
+    setToastColor('success');
+    setShowToast(true);
+    
+    console.log(`Cagnotte réduite de ${amount}€ pour: ${reason}. Nouveau montant: ${cagnotte.current - amount}€`);
+  };
+
   // --- Main Render ---
   return (
     <IonPage id="main-content">
@@ -330,8 +352,9 @@ const PlayerPage: React.FC = () => {
             gameTime={displayTime}
             challengesCompleted={gameState.completedChallenges.length}
             totalChallenges={gameState.challenges.length}
-            cagnotteCurrentAmount={mockChickenGameState.currentCagnotte}
-            cagnotteInitialAmount={mockChickenGameState.initialCagnotte}
+            cagnotteCurrentAmount={cagnotte.current}
+            cagnotteInitialAmount={cagnotte.initial}
+            onCagnotteConsumption={handleCagnotteConsumption}
             isCagnotteLoading={false}
             error={locationError}
           />

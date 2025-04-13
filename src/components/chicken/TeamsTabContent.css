@@ -168,7 +168,7 @@
 .team-item-score {
   display: flex;
   align-items: center;
-  background: var(--ion-color-primary-tint);
+  background: var(--ion-color-secondary);
   color: var(--ion-color-primary-contrast);
   font-weight: 700;
   font-size: 14px;
@@ -284,5 +284,5 @@
 }
 
 .team-item-wrapper:nth-child(3) .rank-badge {
-  --ion-color-base: #CD7F32;
+  --ion-color-base: #cdbe32;
 } 

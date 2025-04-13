@@ -58,7 +58,7 @@ const ChickenPage: React.FC = () => {
   };
 
   // Handler for sending a clue to all teams
-  const handleSendClue = (clueText: string, photoUrl?: string) => {
+  const handleSendClue = (clueText: string) => {
     // Using photoUrl in a real implementation would send it with the clue
     sendClue(clueText);
     setToastMessage(`Indice envoyé à toutes les équipes: "${clueText}"`);
@@ -129,6 +129,20 @@ const ChickenPage: React.FC = () => {
     }
   };
 
+  // Handler for sending a notification
+  const handleSendNotification = (content: string, type: 'clue' | 'barRemoval' | 'cagnotteEvent') => {
+    if (type === 'clue') {
+      sendClue(content);
+    } else if (type === 'barRemoval') {
+      sendGameMessage(content);
+    } else if (type === 'cagnotteEvent') {
+      sendGameMessage(content);
+    }
+    
+    setToastMessage('Notification envoyée!');
+    setShowToast(true);
+  };
+
   // Handler for pot consumption
   const handleCagnotteConsumption = (amount: number, reason: string) => {
     if (!gameState.isChickenHidden) {
@@ -146,22 +160,8 @@ const ChickenPage: React.FC = () => {
     setShowToast(true);
   };
 
-  // Handler for sending a notification
-  const handleSendNotification = (content: string, type: 'clue' | 'barRemoval' | 'cagnotteEvent') => {
-    if (type === 'clue') {
-      sendClue(content);
-    } else if (type === 'barRemoval') {
-      sendGameMessage(content);
-    } else if (type === 'cagnotteEvent') {
-      sendGameMessage(content);
-    }
-    
-    setToastMessage('Notification envoyée!');
-    setShowToast(true);
-  };
-
   return (
-    <IonPage>
+    <IonPage className="chicken-page">
       <IonHeader>
         <IonToolbar color="warning" className="chicken-header">
           <IonButtons slot="start">
@@ -171,7 +171,7 @@ const ChickenPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       
-      <IonContent fullscreen className="ion-padding-bottom">
+      <IonContent fullscreen scrollY={activeTab !== 'map'} className="chicken-content">
         {/* The active tab content */}
         {activeTab === 'map' && (
           <MapTabContent 
@@ -180,6 +180,7 @@ const ChickenPage: React.FC = () => {
             onHideChicken={handleHideChicken}
             onRemoveBar={handleRemoveBar}
             onSendNotification={handleSendNotification}
+            onCagnotteConsumption={handleCagnotteConsumption}
           />
         )}
         
