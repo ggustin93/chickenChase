@@ -1,0 +1,95 @@
+/* Ajouter ces styles à votre fichier global.css ou dans un fichier dédié au SideMenu */
+
+/* Styles pour le menu */
+.menu-container {
+  --ion-background-color: var(--ion-color-primary);
+  --ion-text-color: var(--ion-color-light);
+}
+
+/* Animation pour les items du menu */
+ion-item.item-menu {
+  transition: all 0.2s ease;
+}
+
+ion-item.item-menu:hover {
+  --background: rgba(255, 255, 255, 0.07);
+  margin-left: 0.5rem;
+}
+
+/* Effet d'ombre pour la carte d'en-tête */
+ion-card.menu-header-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+ion-card.menu-header-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Effet pour le logo */
+.logo-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.05);
+}
+
+/* Animation pour l'icône de fermeture */
+.close-button {
+  transition: transform 0.2s ease;
+}
+
+.close-button:hover {
+  transform: rotate(90deg);
+}
+
+/* Style pour les séparateurs des sections */
+.section-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background: var(--ion-color-light);
+  opacity: 0.4;
+}
+
+/* Version du footer */
+.app-version {
+  position: relative;
+  text-align: center;
+  margin-top: auto;
+  padding: 1rem 0;
+}
+
+.app-version::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 1px;
+  background: var(--ion-color-light);
+  opacity: 0.2;
+}
+
+/* Style pour le bouton de déconnexion */
+.logout-button {
+  --background-hover: rgba(var(--ion-color-danger-rgb), 0.08);
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  --color: var(--ion-color-danger);
+}
