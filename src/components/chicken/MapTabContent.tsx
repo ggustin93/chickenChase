@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { IonToast, IonActionSheet, IonFab, IonFabButton, IonIcon, IonBadge, IonChip } from '@ionic/react';
+import { IonToast, IonActionSheet, IonFab, IonFabButton, IonIcon, IonChip } from '@ionic/react';
 import { ChickenGameState, Bar } from '../../data/types';
 import GameMap from '../GameMap';
 import GameStatusCard from './GameStatusCard';
-import { trashOutline, informationCircleOutline, timeOutline } from 'ionicons/icons';
+import { trashOutline, informationCircleOutline, timeOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import { useBarManagement } from '../../hooks/useBarManagement';
 import useGameTimerDisplay from '../../hooks/useGameTimerDisplay';
 import useCagnotteConsumption from '../../hooks/useCagnotteConsumption';
@@ -235,17 +235,10 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
           <div className="timer-label">{timerDisplay.timerLabel}</div>
         </div>
         
-        {/* Bouton de contrôle d'affichage des bars sur la carte - position ajustée */}
+        {/* Bouton de filtrage des bars - avec un design distinctif */}
         <IonFab vertical="top" horizontal="end" slot="fixed" className="teams-visibility-fab">
-          <IonFabButton size="small" onClick={handleToggleBarsVisibility} color={showBarsOnMap ? "primary" : "medium"}>
-            {showBarsOnMap ? (
-              <div className="beer-icon-container">🍺</div>
-            ) : (
-              <div className="beer-icon-container beer-icon-hidden">🍺</div>
-            )}
-            {showBarsOnMap && barsWithBeerEmoji.length > 0 && (
-              <IonBadge color="danger" className="teams-count-badge">{barsWithBeerEmoji.length}</IonBadge>
-            )}
+          <IonFabButton size="small" onClick={handleToggleBarsVisibility} color="secondary">
+            <IonIcon icon={showBarsOnMap ? eyeOutline : eyeOffOutline} />
           </IonFabButton>
         </IonFab>
       </div>
