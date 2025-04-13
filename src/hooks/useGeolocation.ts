@@ -72,6 +72,37 @@ export function useGeolocation(): UseGeolocationResult {
         if (requestStatus?.location !== 'granted') {
           throw new Error(`Permissions refusées. ${getPermissionInstructions()}`);
         }
+        
+        // For iOS, use watchPosition and clear it after the first position
+        // This is more reliable than getCurrentPosition which can return cached positions
+        console.log('iOS: Using watchPosition for more reliable positioning');
+        const watchId = await Geolocation.watchPosition(
+          {
+            enableHighAccuracy: false, // False for iOS Safari to improve reliability
+            timeout: 20000, // Longer timeout for iOS
+          },
+          (position, err) => {
+            if (err) {
+              console.error('Error watching position:', err);
+              setError(err);
+              setCurrentPosition(null);
+            } else if (position) {
+              console.log('Position from watch:', position);
+              setCurrentPosition(position);
+              
+              // Clear watch after getting position
+              if (watchId) {
+                Geolocation.clearWatch({ id: watchId }).catch(err => {
+                  console.error("Error clearing temporary watch:", err);
+                });
+              }
+            }
+            setIsGettingPosition(false);
+          }
+        );
+        
+        // Return early as position will be set by the watchPosition callback
+        return;
       } else {
         // For other platforms, check permissions first
         const status = await checkPermissions();
@@ -133,7 +164,9 @@ export function useGeolocation(): UseGeolocationResult {
       
       setCurrentPosition(null);
     } finally {
-      setIsGettingPosition(false);
+      if (!isIOS) { // For non-iOS, set isGettingPosition to false here
+        setIsGettingPosition(false);
+      }
     }
   };
 

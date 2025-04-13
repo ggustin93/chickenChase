@@ -156,7 +156,7 @@ const MapTab: React.FC<MapTabProps> = ({
                     onClick={() => setShowLocationHelp(true)}
                   >
                     <IonIcon slot="start" icon={helpCircleOutline} />
-                    Aide iOS
+                    Activer localisation iOS
                   </IonButton>
                 </div>
               )}
