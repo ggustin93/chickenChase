@@ -17,6 +17,20 @@
 .map-list-segment {
   flex-shrink: 0;
   margin-bottom: 5px;
+  --background: transparent;
+  max-width: 120px;
+  margin: 8px auto;
+}
+
+.map-list-segment ion-segment-button {
+  --indicator-color: var(--ion-color-primary);
+  --color-checked: var(--ion-color-primary);
+  --color: var(--ion-color-medium);
+  min-height: 40px;
+}
+
+.map-list-segment ion-segment-button ion-icon {
+  font-size: 22px;
 }
 
 .map-section,
@@ -66,10 +80,19 @@
 }
 
 .bar-list-player ion-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --inner-padding-end: 10px;
-  --min-height: 70px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --inner-padding-end: 8px;
+  --min-height: 60px;
+}
+
+.bar-list-player ion-item h2 {
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.bar-list-player ion-item ion-note {
+  font-size: 0.75rem;
 }
 
 .visited-bar-item {
@@ -78,9 +101,9 @@
 }
 
 .bar-thumbnail-player {
-  width: 50px;
-  height: 50px;
-  margin-right: 12px;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -92,20 +115,20 @@
 }
 
 .visit-status-icon {
-  font-size: 24px;
-  margin-right: 8px;
+  font-size: 20px;
+  margin-right: 6px;
 }
 
 .distance-indicator {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  font-size: 0.85rem;
+  gap: 3px;
+  margin-top: 3px;
+  font-size: 0.75rem;
 }
 
 .distance-indicator ion-icon {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .distance-value {
@@ -236,12 +259,12 @@
 /* iOS Help Button */
 .ios-help-button {
   position: absolute;
-  bottom: 50px; 
+  bottom: 70px; 
   left: 50%;
   transform: translateX(-50%);
   z-index: 900;
   padding: 8px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   animation: pulse 2s infinite;

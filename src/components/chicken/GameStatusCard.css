@@ -581,6 +581,14 @@
   .cagnotte-section-wrapper {
     margin-top: 12px;
   }
+  
+  .status-content {
+    padding: 8px;
+  }
+  
+  .location-label h2 {
+    font-size: 14px;
+  }
 }
 
 /* Assurer que ça s'affiche bien sur petit écran */
@@ -599,5 +607,156 @@
   
   .stat-label {
     font-size: 10px;
+  }
+}
+
+.status-card-container {
+  width: 100%;
+}
+
+.status-card-container.compact .game-status-card {
+  margin: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.game-status-card {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.status-content {
+  padding: 12px;
+}
+
+/* Stats grid */
+.stat-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+  border-radius: 10px;
+  flex: 1;
+}
+
+.stat-item ion-icon {
+  font-size: 24px;
+  margin-right: 10px;
+  color: var(--ion-color-primary);
+}
+
+.stat-item.time-item.critical {
+  background-color: rgba(var(--ion-color-warning-rgb), 0.15);
+}
+
+.stat-item.time-item.critical ion-icon,
+.stat-item.time-item.critical .stat-value {
+  color: var(--ion-color-warning);
+}
+
+.stat-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ion-text-color);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
+/* Location selector */
+.location-selector {
+  --background: rgba(var(--ion-color-light-rgb), 0.5);
+  --color: var(--ion-text-color);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.location-label h2 {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.location-label p {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
+/* Hide Button */
+.hide-button-container {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.hide-button {
+  --border-radius: 20px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Cagnotte section */
+.cagnotte-section-wrapper {
+  cursor: pointer;
+  margin-top: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  display: block;
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+.clickable-cagnotte {
+  width: 100%;
+  display: block;
+}
+
+.cagnotte-section-wrapper:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive styles */
+@media (max-width: 400px) {
+  .stat-grid {
+    flex-direction: column;
+  }
+  
+  .stat-item {
+    width: 100%;
+    margin: 0 0 8px 0;
+  }
+  
+  .time-item, .teams-count-item {
+    margin: 0 0 8px 0;
+    max-width: none;
+  }
+  
+  .cagnotte-section-wrapper {
+    margin-top: 12px;
+  }
+  
+  .status-content {
+    padding: 8px;
+  }
+  
+  .location-label h2 {
+    font-size: 14px;
   }
 } 

@@ -9,7 +9,7 @@ import {
 } from 'ionicons/icons';
 import GameMap from '../GameMap';
 import { Bar } from '../../data/types';
-import { GeolocationPosition } from '@capacitor/geolocation';
+import { Position } from '@capacitor/geolocation';
 import PlayerGameStatusCard from './PlayerGameStatusCard';
 import { calculateDistance, formatDistance } from '../../utils/distanceUtils';
 import './MapTab.css';
@@ -17,7 +17,7 @@ import './MapTab.css';
 interface MapTabProps {
   bars: Bar[];
   visitedBars: Bar[];
-  currentPosition: GeolocationPosition | null;
+  currentPosition: Position | null;
   isGettingLocation: boolean;
   isWatchingLocation: string | undefined;
   handleGetCurrentLocation: () => void;
@@ -110,11 +110,9 @@ const MapTab: React.FC<MapTabProps> = ({
           className="map-list-segment"
         >
           <IonSegmentButton value="map">
-            <IonLabel>Carte</IonLabel>
             <IonIcon icon={mapOutline} />
           </IonSegmentButton>
           <IonSegmentButton value="list">
-            <IonLabel>Liste</IonLabel>
             <IonIcon icon={listOutline} />
           </IonSegmentButton>
         </IonSegment>
@@ -155,12 +153,12 @@ const MapTab: React.FC<MapTabProps> = ({
               </div>
               
               {/* Special iOS help button - Bottom middle if no position and iOS */}
-              {isIOS && !currentPosition && (
+              {isIOS && (
                 <div className="ios-help-button">
                   <IonButton 
                     size="small" 
                     fill="solid" 
-                    color="tertiary"
+                    color="warning"
                     onClick={() => setShowLocationHelp(true)}
                   >
                     <IonIcon slot="start" icon={helpCircleOutline} />
@@ -310,14 +308,16 @@ const MapTab: React.FC<MapTabProps> = ({
           Pour participer au jeu, vous devez autoriser la géolocalisation:
           
           ${isIOS ? `
-            Sur iPhone/iPad:
+            Sur iPhone/iPad (Safari):
             1. Allez dans Réglages > Safari > Position
-            2. Sélectionnez "Demander" ou "Autoriser"
-            3. Retournez dans le jeu et cliquez sur "Actualiser"
-            4. Si vous utilisez Safari, acceptez la demande de position
+            2. Sélectionnez "Autoriser" (pas "Demander") 
+            3. Fermez complètement Safari (swiper l'app vers le haut)
+            4. Rouvrez Safari et revenez au jeu
+            5. Cliquez sur "Actualiser" en bas à droite
             
-            Note: Si vous utilisez l'app dans l'écran d'accueil, allez dans Réglages > 
-            Confidentialité > Service de localisation > Safari Websites (ou votre navigateur)
+            Si cela ne fonctionne toujours pas:
+            - Vérifiez que Safari a accès à la position dans Réglages > Confidentialité > Service de localisation > Safari
+            - Essayez d'utiliser Chrome sur iOS qui peut mieux fonctionner
           ` : `
             - Sur Android: Paramètres > Site web > Localisation
             - Sur ordinateur: Cliquez sur l'icône de cadenas dans la barre d'adresse
