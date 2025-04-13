@@ -205,4 +205,4 @@ const SideMenu: React.FC<SideMenuProps> = ({
   );
 };
 
-export default SideMenu;
+export default SideMenu;// Update the SideMenu with fantasy font
