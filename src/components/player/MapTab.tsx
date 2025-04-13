@@ -155,7 +155,7 @@ const MapTab: React.FC<MapTabProps> = ({
               </div>
               
               {/* Location Help Button for iOS */}
-              {isIOS && (
+              {isIOS && (!currentPosition || (error && error.message.includes('Permissions'))) && (
                 <div className="ios-help-button-container">
                   <IonButton 
                     size="small" 
