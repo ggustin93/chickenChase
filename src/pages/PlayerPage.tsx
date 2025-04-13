@@ -93,11 +93,12 @@ const PlayerPage: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [challengeToComplete, setChallengeToComplete] = useState<string | null>(null);
+  const [barToVisit, setBarToVisit] = useState<string | null>(null);
   const [isWatchingLocation, setIsWatchingLocation] = useState<string | undefined>(undefined);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [toastColor, setToastColor] = useState<'success' | 'danger' | 'warning' | 'medium'>('medium');
-
+  const [toastColor, setToastColor] = useState<'success' | 'danger' | 'warning' | 'medium'>('success');
+  
   // Ajout d'un état pour gérer la cagnotte
   const [cagnotte, setCagnotte] = useState({
     current: mockChickenGameState.currentCagnotte,
@@ -221,32 +222,22 @@ const PlayerPage: React.FC = () => {
       console.log(`Bar ${barId} not found or already visited. Aborting.`);
       return;
     }
-    handleMarkBarVisited(bar.id);
+    // Ouvrir le modal de caméra pour prendre une photo de justification
+    setBarToVisit(barId);
+    setChallengeToComplete(null); // S'assurer qu'aucun défi n'est sélectionné
+    setShowCameraModal(true);
   }
-
-  const handleMarkBarVisited = (barId: string) => {
-    const bar = gameState.bars.find(b => b.id === barId);
-    if (bar && !gameState.visitedBars.some(vb => vb.id === barId)) {
-      setGameState(prev => ({
-        ...prev,
-        visitedBars: [...prev.visitedBars, bar],
-        team: { ...prev.team, barsVisited: prev.team.barsVisited + 1 },
-      }));
-      console.log(`Bar ${barId} marked as visited`);
-      setToastMessage(`${bar.name} visité !`);
-      setToastColor('success');
-      setShowToast(true);
-    }
-  };
 
   const handlePhotoProofSubmit = (capturedPhoto: UseCameraPhoto | null) => {
     if (!capturedPhoto?.webviewPath) {
       console.error("No photo captured to submit.");
       setShowCameraModal(false);
       setChallengeToComplete(null);
+      setBarToVisit(null);
       return;
     }
 
+    // Gestion des défis
     if (challengeToComplete) {
       console.log("Submitting photo proof for challenge:", challengeToComplete, capturedPhoto.webviewPath);
       const challenge = gameState.challenges.find(c => c.id === challengeToComplete);
@@ -262,7 +253,37 @@ const PlayerPage: React.FC = () => {
         setToastColor('success');
         setShowToast(true);
       }
-    } else {
+    } 
+    // Gestion des visites de bar
+    else if (barToVisit) {
+      console.log("Submitting photo proof for bar visit:", barToVisit, capturedPhoto.webviewPath);
+      const bar = gameState.bars.find(b => b.id === barToVisit);
+      if (bar && !gameState.visitedBars.some(vb => vb.id === barToVisit)) {
+        // Stocker la photo et la position avec le bar visité
+        const visitedBar = {
+          ...bar,
+          photoProof: capturedPhoto.webviewPath,
+          locationProof: currentPosition ? {
+            latitude: currentPosition.coords.latitude,
+            longitude: currentPosition.coords.longitude,
+            accuracy: currentPosition.coords.accuracy
+          } : null,
+          visitTimestamp: new Date().toISOString()
+        };
+        
+        setGameState(prev => ({
+          ...prev,
+          visitedBars: [...prev.visitedBars, visitedBar],
+          team: { ...prev.team, barsVisited: prev.team.barsVisited + 1 },
+        }));
+        console.log(`Bar ${barToVisit} marked as visited with photo proof`);
+        setToastMessage(`${bar.name} visité !`);
+        setToastColor('success');
+        setShowToast(true);
+      }
+    }
+    // Preuve générique
+    else {
       console.log("Submitting generic photo proof:", capturedPhoto.webviewPath);
       setToastMessage('Preuve générique envoyée (simulation)');
       setToastColor('medium');
@@ -270,6 +291,7 @@ const PlayerPage: React.FC = () => {
     }
 
     setChallengeToComplete(null);
+    setBarToVisit(null);
     setShowCameraModal(false);
   };
 
@@ -330,13 +352,6 @@ const PlayerPage: React.FC = () => {
     <IonPage id="main-content">
       <SideMenu 
         mode="player" 
-        gameName={gameState.game.name} 
-        onQuitGame={() => {
-          console.log("Quitting game from Player Page...");
-          setToastMessage("Partie quittée (simulation)");
-          setToastColor('medium');
-          setShowToast(true);
-        }} 
       />
       {/* Main Header */}
       <IonHeader>
@@ -425,12 +440,14 @@ const PlayerPage: React.FC = () => {
         onDidDismiss={() => {
           setShowCameraModal(false);
           setChallengeToComplete(null);
+          setBarToVisit(null);
         }}
         photo={photo}
         takePhoto={takePhoto}
         onPhotoProofSubmit={handlePhotoProofSubmit}
         challengeToComplete={challengeToComplete}
         challenges={gameState.challenges}
+        barToVisit={barToVisit ? gameState.bars.find(b => b.id === barToVisit)?.name : null}
       />
 
       {/* Toast Notifications */}
