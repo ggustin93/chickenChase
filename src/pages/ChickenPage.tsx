@@ -67,7 +67,7 @@ const ChickenPage: React.FC = () => {
       case 'challenges':
         return 'Défis';
       case 'chat':
-        return 'Chat global';
+        return 'Chat';
       case 'teams':
         return 'Équipes';
       default:
