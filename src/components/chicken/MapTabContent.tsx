@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonToast, IonActionSheet, IonFab, IonFabButton, IonIcon, IonBadge, IonChip } from '@ionic/react';
 import { ChickenGameState, Bar } from '../../data/types';
 import GameMap from '../GameMap';
 import GameStatusCard from './GameStatusCard';
-import { eyeOutline, eyeOffOutline, trashOutline, informationCircleOutline } from 'ionicons/icons';
+import { eyeOutline, eyeOffOutline, trashOutline, informationCircleOutline, timeOutline } from 'ionicons/icons';
 import { useBarManagement } from '../../hooks/useBarManagement';
+import useGameTimerDisplay from '../../hooks/useGameTimerDisplay';
+import useCagnotteConsumption from '../../hooks/useCagnotteConsumption';
+import CagnotteModal from './CagnotteModal';
 import './MapTabContent.css';
 
 interface MapTabContentProps {
@@ -31,6 +34,32 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
   const [showTeamsOnMap, setShowTeamsOnMap] = useState(true); // Affiche les équipes par défaut
   const [selectedBar, setSelectedBar] = useState<string | null>(null);
   const [showBarActionSheet, setShowBarActionSheet] = useState(false);
+  
+  // État pour suivre la transition entre caché/non-caché
+  const [wasHidden, setWasHidden] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Utiliser le hook pour le timer
+  const timerDisplay = useGameTimerDisplay({
+    isChickenHidden: gameState.isChickenHidden || false,
+    timeLeft: gameState.timeLeft,
+    hidingTimeLeft: gameState.hidingTimeLeft
+  });
+
+  // Surveiller les changements de statut de cachette pour gérer la transition
+  useEffect(() => {
+    if (!wasHidden && gameState.isChickenHidden) {
+      // Le poulet vient d'être caché
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+    
+    setWasHidden(gameState.isChickenHidden || false);
+  }, [gameState.isChickenHidden, wasHidden]);
 
   // Use our bar management hook
   const { 
@@ -51,6 +80,27 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
           `Le bar "${barName}" a été retiré de la carte. Le poulet ne s'y cache pas !`,
           'barRemoval'
         );
+      }
+    }
+  });
+
+  // Use the cagnotte consumption hook directly
+  const cagnotteManager = useCagnotteConsumption({
+    currentCagnotte: gameState.currentCagnotte || 0,
+    onCagnotteConsumption: (amount, reason) => {
+      if (onCagnotteConsumption) {
+        onCagnotteConsumption(amount, reason);
+        
+        // Send notification about cagnotte consumption
+        if (onSendNotification) {
+          onSendNotification(
+            `Le poulet a dépensé ${amount}€ de la cagnotte${reason ? ` pour "${reason}"` : ''}.`,
+            'cagnotteEvent'
+          );
+        }
+        
+        setToastMessage(`${amount}€ utilisés de la cagnotte!`);
+        setShowToast(true);
       }
     }
   });
@@ -101,21 +151,6 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
     setShowBarActionSheet(false);
   };
 
-  // Handle cagnotte consumption
-  const handleCagnotteConsumption = (amount: number, reason: string) => {
-    if (onCagnotteConsumption) {
-      onCagnotteConsumption(amount, reason);
-      
-      // Send notification about cagnotte consumption
-      if (onSendNotification) {
-        onSendNotification(
-          `Le poulet a dépensé ${amount}€ de la cagnotte${reason ? ` pour "${reason}"` : ''}.`,
-          'cagnotteEvent'
-        );
-      }
-    }
-  };
-
   // Filtrer et préparer les équipes pour l'affichage sur la carte
   const getTeamsWithLocations = () => {
     // Ne renvoyer que les équipes qui ont une position connue
@@ -134,8 +169,37 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
   // Calculer le nombre de bars retirés
   const removedBarsCount = removedBars.length;
 
+  // Create modified bar data with beer emoji markers
+  const barsWithBeerEmoji = availableBars.map(bar => ({
+    ...bar,
+    useCustomMarker: true,
+    customMarkerHtml: bar.id === gameState.currentBar?.id 
+      ? '<div class="beer-marker current">🍺</div>' 
+      : '<div class="beer-marker">🍺</div>'
+  }));
+  
+  // Fonction pour sélectionner un emoji approprié pour les équipes
+  const getTeamEmoji = (): string => {
+    // Utiliser un seul emoji pour toutes les équipes
+    return '🕵️'; // Détective pour toutes les équipes
+  };
+
+  // Préparer les icônes custom pour les équipes (cowboys)
+  const teamsWithCustomIcons = getTeamsWithLocations().map(team => ({
+    ...team,
+    useCustomMarker: true,
+    customMarkerHtml: `<div class="team-marker ${team.foundChicken ? 'found' : ''}" title="${team.name}">${getTeamEmoji()}</div>`
+  }));
+
+  // Handle opening the cagnotte modal
+  const handleOpenCagnotteModal = () => {
+    if (cagnotteManager && typeof cagnotteManager.openModal === 'function') {
+      cagnotteManager.openModal();
+    }
+  };
+
   return (
-    <div className="map-tab-container">
+    <div className="map-tab-container no-scroll">
       {/* Notification des bars retirés */}
       {removedBarsCount > 0 && (
         <div className="removed-bars-notification">
@@ -152,21 +216,30 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
         </div>
       )}
       
-      {/* Augmenter la taille relative de la carte */}
-      <div className="map-container large-map">
+      {/* Fixed size map container */}
+      <div className="map-container fixed-map">
         <GameMap 
           currentLocation={
             gameState.currentBar 
               ? [gameState.currentBar.latitude, gameState.currentBar.longitude]
               : undefined
           }
-          bars={availableBars}
-          teamLocations={getTeamsWithLocations()}
+          bars={barsWithBeerEmoji}
+          teamLocations={teamsWithCustomIcons}
           onBarClick={handleBarClick}
           isChicken={true}
         />
         
-        {/* Bouton de contrôle d'affichage des équipes sur la carte */}
+        {/* Timer display in corner of map - avec classe différente selon la taille */}
+        <div className={`map-timer-display ${timerDisplay.isLongTimer ? 'compact-timer' : ''}`}>
+          <div className="timer-icon">
+            <IonIcon icon={timeOutline} />
+          </div>
+          <div className="timer-value">{timerDisplay.displayTimer}</div>
+          <div className="timer-label">{timerDisplay.timerLabel}</div>
+        </div>
+        
+        {/* Bouton de contrôle d'affichage des équipes sur la carte - position ajustée */}
         <IonFab vertical="top" horizontal="end" slot="fixed" className="teams-visibility-fab">
           <IonFabButton size="small" onClick={handleToggleTeamsVisibility} color={showTeamsOnMap ? "primary" : "medium"}>
             <IonIcon icon={showTeamsOnMap ? eyeOutline : eyeOffOutline} />
@@ -177,15 +250,19 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
         </IonFab>
       </div>
       
-      {/* Réduire la taille et rendre le status card plus compact */}
-      <div className="status-card-container compact">
+      {/* Status card with cagnotte visible only after hiding */}
+      <div className={`status-card-container ultra-compact ${isTransitioning ? 'fade-transition' : ''}`}>
         <GameStatusCard
           gameState={gameState}
           onOpenSelectBarModal={onOpenSelectBarModal || (() => {})}
           isHidden={gameState.isChickenHidden}
           onHideChicken={handleHideChicken}
           hidingTimeLeft={gameState.hidingTimeLeft}
-          onCagnotteConsumption={handleCagnotteConsumption}
+          hideTimer={true} /* Hide timer in card since it's now on map */
+          hideTeamsFound={true} /* Hide teams found section since it's not relevant on map */
+          hideCagnotte={!gameState.isChickenHidden} /* Show cagnotte only when chicken is hidden */
+          cagnotte={gameState.currentCagnotte || 0}
+          showCagnotteModal={handleOpenCagnotteModal}
         />
       </div>
 
@@ -214,6 +291,17 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
             role: 'cancel'
           }
         ]}
+      />
+
+      {/* Separate CagnotteModal managed at the Map level */}
+      <CagnotteModal 
+        isOpen={cagnotteManager.showModal}
+        onClose={cagnotteManager.closeModal}
+        currentAmount={cagnotteManager.localCagnotte}
+        amount={cagnotteManager.amount}
+        onAmountChange={cagnotteManager.setAmount}
+        error={cagnotteManager.error}
+        onSubmit={cagnotteManager.handleSubmit}
       />
     </div>
   );

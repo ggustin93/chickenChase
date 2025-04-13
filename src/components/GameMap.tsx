@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { IonButton, IonIcon, IonBadge, IonSpinner } from '@ionic/react';
-import { navigateOutline, locationOutline, checkmarkDoneCircleOutline, peopleOutline, closeCircleOutline } from 'ionicons/icons';
+import { IonButton, IonIcon, IonSpinner } from '@ionic/react';
+import { navigateOutline, checkmarkDoneCircleOutline, peopleOutline } from 'ionicons/icons';
 import { Bar, Team } from '../data/types';
 import './GameMap.css';
 import 'leaflet/dist/leaflet.css';
@@ -52,6 +52,18 @@ interface GameMapProps {
   teamLocations?: Team[]; // Teams with their current locations
   onBarClick?: (barId: string) => void; // New prop for bar interaction
   isChicken?: boolean; // New prop to identify chicken role
+}
+
+// Extended Bar interface to support custom markers
+interface ExtendedBar extends Bar {
+  useCustomMarker?: boolean;
+  customMarkerHtml?: string;
+}
+
+// Extended Team interface to support custom markers
+interface ExtendedTeam extends Team {
+  useCustomMarker?: boolean;
+  customMarkerHtml?: string;
 }
 
 // Enhanced RecenterAutomatically component
@@ -122,6 +134,16 @@ const GameMap: React.FC<GameMapProps> = ({
       onBarClick(bar.id);
     }
   };
+
+  // Create custom HTML icon for emoji markers
+  const createCustomIcon = (html: string) => {
+    return L.divIcon({
+      html,
+      className: 'custom-html-marker',
+      iconSize: [42, 42],
+      iconAnchor: [21, 42]
+    });
+  };
   
   return (
     <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }}>
@@ -144,69 +166,96 @@ const GameMap: React.FC<GameMapProps> = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        {bars.map((bar) => (
-          <Marker 
-            key={bar.id}
-            position={[bar.latitude, bar.longitude]}
-            icon={getBarIcon(bar)}
-            eventHandlers={isChicken ? { click: () => handleBarMarkerClick(bar) } : undefined}
-          >
+        {bars.map((bar) => {
+          // Check if this is an extended bar with custom marker
+          const extendedBar = bar as ExtendedBar;
+          const useCustomMarker = extendedBar.useCustomMarker && extendedBar.customMarkerHtml;
+          
+          return (
+            <Marker 
+              key={bar.id}
+              position={[bar.latitude, bar.longitude]}
+              icon={useCustomMarker 
+                ? createCustomIcon(extendedBar.customMarkerHtml || '') 
+                : getBarIcon(bar)
+              }
+              eventHandlers={isChicken ? { click: () => handleBarMarkerClick(bar) } : undefined}
+            >
+              <Popup>
+                <div className="bar-popup">
+                  <h3>{bar.name}</h3>
+                  <p>{bar.address}</p>
+                  
+                  {onNavigateToBar && (
+                    <IonButton 
+                      expand="block" 
+                      fill="outline" 
+                      size="small"
+                      onClick={() => onNavigateToBar(bar)}
+                    >
+                      <IonIcon icon={navigateOutline} slot="start" />
+                      Naviguer vers ce bar
+                    </IonButton>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+        
+        {/* User's current location marker */}
+        {currentLocation && (
+          <Marker position={currentLocation} icon={currentLocationIcon}>
             <Popup>
-              <div className="bar-popup">
-                <h3>{bar.name}</h3>
-                <p>{bar.address}</p>
-                {visitedBars.includes(bar.id) && (
-                  <IonBadge color="success">
-                    <IonIcon icon={checkmarkDoneCircleOutline} /> Visité
-                  </IonBadge>
-                )}
-                {onNavigateToBar && (
-                  <IonButton 
-                    size="small"
-                    onClick={() => onNavigateToBar(bar)}
-                  >
-                    <IonIcon icon={navigateOutline} />
-                    Y aller
-                  </IonButton>
-                )}
-                {isChicken && onBarClick && (
-                  <IonButton 
-                    size="small"
-                    color="danger"
-                    onClick={() => onBarClick(bar.id)}
-                  >
-                    <IonIcon icon={closeCircleOutline} />
-                    Retirer (indice)
-                  </IonButton>
-                )}
+              <div className="location-popup">
+                <h3>Votre position</h3>
+                <p className="location-coords">
+                  {currentLocation[0].toFixed(5)}, {currentLocation[1].toFixed(5)}
+                </p>
               </div>
             </Popup>
           </Marker>
-        ))}
+        )}
         
-        {/* Afficher les positions des équipes */}
+        {/* Team location markers */}
         {teamLocations.map((team) => {
-          // Vérifier que l'équipe a une position valide
+          // Make sure the team has a valid location
           if (team.lastLocation && team.lastLocation.latitude && team.lastLocation.longitude) {
+            // Check if this is a team with custom marker
+            const extendedTeam = team as ExtendedTeam;
+            const useCustomMarker = extendedTeam.useCustomMarker && extendedTeam.customMarkerHtml;
+            
             return (
-              <Marker
-                key={`team-${team.id}`}
-                position={[team.lastLocation.latitude, team.lastLocation.longitude]}
-                icon={teamLocationIcon}
+              <Marker 
+                key={team.id}
+                position={[team.lastLocation.latitude, team.lastLocation.longitude]} 
+                icon={useCustomMarker 
+                  ? createCustomIcon(extendedTeam.customMarkerHtml || '') 
+                  : teamLocationIcon
+                }
               >
                 <Popup>
                   <div className="team-popup">
-                    <h3>{team.name}</h3>
-                    <p>Dernière position connue</p>
+                    <h3>Équipe {team.name}</h3>
+                    <p>
+                      {team.foundChicken ? (
+                        <span className="found-status">
+                          <IonIcon icon={checkmarkDoneCircleOutline} color="success" />
+                          A trouvé le poulet
+                        </span>
+                      ) : (
+                        <span className="searching-status">
+                          <IonIcon icon={peopleOutline} color="warning" />
+                          En recherche
+                        </span>
+                      )}
+                    </p>
+                    {/* We only show timestamp/lastSeen if it exists in the team object */}
                     {team.lastLocation.timestamp && (
-                      <p className="timestamp">
-                        {new Date(team.lastLocation.timestamp).toLocaleTimeString()}
+                      <p className="last-seen">
+                        Vu à {new Date(team.lastLocation.timestamp).toLocaleTimeString()}
                       </p>
                     )}
-                    <IonBadge color={team.foundChicken ? "success" : "warning"}>
-                      <IonIcon icon={peopleOutline} />
-                      {team.foundChicken ? " A trouvé le poulet" : " En chasse"}
-                    </IonBadge>
                   </div>
                 </Popup>
               </Marker>
@@ -214,20 +263,6 @@ const GameMap: React.FC<GameMapProps> = ({
           }
           return null;
         })}
-        
-        {currentLocation && (
-          <Marker 
-            position={currentLocation}
-            icon={currentLocationIcon}
-          >
-            <Popup>
-              <div className="current-location-popup">
-                <IonIcon icon={locationOutline} />
-                <span>Vous êtes ici</span>
-              </div>
-            </Popup>
-          </Marker>
-        )}
         
         <RecenterAutomatically position={currentLocation} />
         <MapInitializer />

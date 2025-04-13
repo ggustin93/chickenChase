@@ -1,35 +1,140 @@
 .map-tab-container {
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 100%;
-  position: relative;
+}
+
+.map-tab-container.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  top: 56px; /* Adjust based on header height */
+  left: 0;
+  right: 0;
+  bottom: 56px; /* Adjust based on tab bar height */
 }
 
 .map-container {
-  flex: 1;
   position: relative;
-  overflow: hidden;
+  width: 100%;
+  flex: 1;
+  min-height: 200px;
 }
 
-.large-map {
-  flex: 2; /* Increase the map size proportion */
+.map-container.large-map {
+  height: 60vh;
+}
+
+.map-container.fixed-map {
+  height: 70vh; /* Fixed height for the map */
 }
 
 .status-card-container {
-  position: relative;
-  min-height: 160px;
-  z-index: 1;
+  width: 100%;
 }
 
-.compact {
-  min-height: 120px;
+.status-card-container.compact {
+  margin-top: -20px;
+  z-index: 10;
+  position: relative;
+}
+
+.status-card-container.ultra-compact {
+  margin-top: -20px;
+  z-index: 10;
+  position: relative;
+  height: 30vh; /* Fixed height for the status card */
+}
+
+.teams-visibility-fab {
+  margin-top: 10px;
+  margin-right: 10px;
+  z-index: 1000;
+}
+
+.teams-count-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 10px;
+  --padding-start: 5px;
+  --padding-end: 5px;
+}
+
+.removed-bars-notification {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: rgba(245, 245, 245, 0.9);
+  z-index: 900;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.removed-bar-name {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  font-size: 0.8rem;
+}
+
+.removed-bar-name ion-icon {
+  margin-right: 5px;
+  font-size: 16px;
+}
+
+.map-timer-display {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 900;
+  font-size: 14px;
+  max-width: 100px;
+  overflow: hidden;
+}
+
+.map-timer-display.compact-timer {
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+.timer-icon {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.timer-value {
+  font-family: var(--ion-font-fantasy);
+  font-size: 20px;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.timer-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-top: 2px;
+  text-align: center;
 }
 
 /* Styling for the teams visibility FAB */
 .teams-visibility-fab {
-  margin-top: 12px;
-  margin-right: 12px;
-  z-index: 100;
+  margin-top: 15px;
+  margin-right: 15px;
+  z-index: 1000;
 }
 
 .teams-count-badge {
@@ -103,7 +208,7 @@
 .teams-visibility-fab {
   margin-top: 12px;
   margin-right: 12px;
-  z-index: 1000;
+  z-index: 100;
 }
 
 .teams-count-badge {
@@ -168,4 +273,102 @@
   max-height: 40vh; /* Augmenté pour profiter de l'espace supplémentaire */
   overflow-y: auto; /* Permet de scroller si nécessaire */
   padding-bottom: 60px; /* Ajoute de l'espace pour le menu de navigation */
+}
+
+/* Styling for beer emoji markers */
+.beer-marker {
+  font-size: 34px;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
+}
+
+.beer-marker.current {
+  font-size: 42px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Transition for status card content */
+.fade-transition {
+  transition: all 0.5s ease-in-out;
+}
+
+/* Override some of the default modal styling */
+ion-modal.cagnotte-modal {
+  --border-radius: 16px;
+  --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  --width: 90%;
+  --height: auto;
+  --max-width: 400px;
+  --max-height: 400px;
+}
+
+/* Styles pour les marqueurs personnalisés des équipes */
+.team-marker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 42px;
+  height: 42px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 50%;
+  border: 2.5px solid white;
+  font-size: 22px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+  z-index: 900;
+}
+
+.team-marker:hover {
+  transform: scale(1.1);
+  z-index: 1000;
+}
+
+.team-marker.found {
+  background-color: rgba(76, 175, 80, 0.85);
+  border-color: #ffeb3b;
+  animation: pulse-success 2s infinite;
+}
+
+@keyframes pulse-success {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+/* Beer marker styles */
+.beer-marker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(255, 193, 7, 0.8);
+  border-radius: 50%;
+  border: 2px solid white;
+  font-size: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.beer-marker.current {
+  background-color: rgba(255, 87, 34, 0.8);
+  transform: scale(1.2);
+  z-index: 1000;
 } 

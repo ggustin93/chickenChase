@@ -19,14 +19,14 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  z-index: 1000;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 100;
 }
 
 .map-loading-container ion-spinner {
@@ -37,9 +37,9 @@
 }
 
 .map-loading-container p {
-  margin: 0;
+  margin-top: 10px;
+  color: #666;
   font-size: 0.9rem;
-  color: var(--ion-color-dark);
 }
 
 /* Fixer un problème courant avec les icônes Leaflet */
@@ -57,13 +57,15 @@
 }
 
 .bar-popup h3 {
-  margin: 5px 0;
-  font-size: 1rem; /* Changed to responsive unit */
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 1rem;
+  color: #333;
 }
 
 .bar-popup p {
   margin: 5px 0;
-  font-size: 0.875rem; /* Changed to responsive unit */
+  font-size: 0.9rem;
   color: #666;
 }
 
@@ -83,9 +85,10 @@
 }
 
 .team-popup h3 {
-  margin: 5px 0;
+  margin-top: 0;
+  margin-bottom: 5px;
   font-size: 1rem;
-  color: var(--ion-color-dark);
+  color: #333;
 }
 
 .team-popup p {
@@ -137,4 +140,93 @@
   .team-popup .timestamp {
     font-size: 0.7rem;
   }
+}
+
+/* Custom HTML marker styling */
+.custom-html-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* Beer emoji styling */
+.beer-marker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(255, 193, 7, 0.8);
+  border-radius: 50%;
+  border: 2px solid white;
+  font-size: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.beer-marker:hover {
+  transform: scale(1.1);
+}
+
+.beer-marker.current {
+  background-color: rgba(255, 87, 34, 0.8);
+  transform: scale(1.2);
+  z-index: 1000;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.beer-marker.visited {
+  background-color: rgba(76, 175, 80, 0.8);
+  border-color: #fff;
+}
+
+.location-popup h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.location-coords {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.found-status, .searching-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.found-status {
+  color: var(--ion-color-success);
+}
+
+.searching-status {
+  color: var(--ion-color-warning);
+}
+
+.last-seen {
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #888;
+  font-style: italic;
 } 

@@ -30,6 +30,7 @@ interface MapTabProps {
   cagnotteCurrentAmount?: number;
   cagnotteInitialAmount?: number;
   isCagnotteLoading?: boolean;
+  onCagnotteConsumption?: (amount: number, reason: string) => void;
   error?: GeolocationPositionError | Error | null;
 }
 
@@ -49,6 +50,7 @@ const MapTab: React.FC<MapTabProps> = ({
   cagnotteCurrentAmount,
   cagnotteInitialAmount,
   isCagnotteLoading,
+  onCagnotteConsumption,
   error
 }) => {
   const [activeSegment, setActiveSegment] = useState<'map' | 'list'>('map');
@@ -123,7 +125,13 @@ const MapTab: React.FC<MapTabProps> = ({
             {/* Map Container */}
             <div className="map-wrapper">
               <GameMap
-                bars={bars}
+                bars={bars.map(bar => ({
+                  ...bar,
+                  useCustomMarker: true,
+                  customMarkerHtml: visitedBarIds.includes(bar.id)
+                    ? '<div class="beer-marker visited">🍺</div>'
+                    : '<div class="beer-marker">🍺</div>'
+                }))}
                 visitedBars={visitedBarIds}
                 currentLocation={currentPosition ? [currentPosition.coords.latitude, currentPosition.coords.longitude] : undefined}
               />
@@ -289,6 +297,7 @@ const MapTab: React.FC<MapTabProps> = ({
           cagnotteCurrentAmount={cagnotteCurrentAmount}
           cagnotteInitialAmount={cagnotteInitialAmount}
           isCagnotteLoading={isCagnotteLoading}
+          onCagnotteConsumption={onCagnotteConsumption}
         />
       </div>
 
