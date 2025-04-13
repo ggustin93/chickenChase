@@ -583,7 +583,7 @@ export const mockChickenGameState: ChickenGameState = {
   isChickenHidden: false, // Le poulet n'est pas encore caché
   hidingTimeLeft: '25:00', // 25 minutes restantes pour se cacher
   // --- Hypothetical Cagnotte Values ---
-  initialCagnotte: 100, // Assuming a starting value
-  currentCagnotte: 12,  // Reflecting the current state
+  initialCagnotte: 800, // Initial cagnotte of 800 EUR
+  currentCagnotte: 350,  // Current remaining amount
   // -----------------------------------
 }; 
