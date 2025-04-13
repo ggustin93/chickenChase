@@ -12,6 +12,7 @@ interface CameraModalProps {
   onPhotoProofSubmit: (photo: UseCameraPhoto | null) => void;
   challengeToComplete: string | null;
   challenges: Challenge[];
+  barToVisit?: string | null; // Nom du bar à visiter (optionnel)
 }
 
 const CameraModal: React.FC<CameraModalProps> = ({
@@ -21,17 +22,31 @@ const CameraModal: React.FC<CameraModalProps> = ({
   takePhoto,
   onPhotoProofSubmit,
   challengeToComplete,
-  challenges
+  challenges,
+  barToVisit
 }) => {
   const challenge = challengeToComplete 
     ? challenges.find(c => c.id === challengeToComplete) 
     : null;
 
+  // Détermine le titre et le message en fonction de l'action
+  const getTitle = () => {
+    if (challengeToComplete) return "Preuve Défi";
+    if (barToVisit) return "Preuve Visite";
+    return "Preuve Photo";
+  };
+
+  const getMessage = () => {
+    if (challengeToComplete) return `Preuve requise pour le défi: ${challenge?.title}`;
+    if (barToVisit) return `Preuve de visite pour le bar: ${barToVisit}`;
+    return "Preuve générique (si nécessaire)";
+  };
+
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{challengeToComplete ? "Preuve Défi" : "Preuve Photo"}</IonTitle>
+          <IonTitle>{getTitle()}</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={onDidDismiss}>Annuler</IonButton>
           </IonButtons>
@@ -39,8 +54,7 @@ const CameraModal: React.FC<CameraModalProps> = ({
       </IonHeader>
       <IonContent className="ion-padding">
         <p className="mb-3">
-          {challengeToComplete && `Preuve requise pour le défi: ${challenge?.title}`}
-          {!challengeToComplete && "Preuve générique (si nécessaire)"}
+          {getMessage()}
         </p>
         {photo?.webviewPath && (
           <div className="my-4 text-center">
@@ -53,7 +67,6 @@ const CameraModal: React.FC<CameraModalProps> = ({
         )}
         {!photo && (
           <div className="text-center my-4">
-            <p>(Intégration du plugin Capacitor Camera ici)</p>
             <IonIcon 
               icon={cameraOutline} 
               size="large" 
