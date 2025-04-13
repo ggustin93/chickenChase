@@ -189,6 +189,22 @@ const PlayerPage: React.FC = () => {
     setActiveTab(tab);
   };
   
+  // Fonction pour déterminer le titre en fonction de l'onglet actif
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case 'map':
+        return 'Carte';
+      case 'challenges':
+        return 'Défis';
+      case 'chat':
+        return 'Chat de groupe'; // Garder le nom de l'équipe pour le chat
+      case 'leaderboard':
+        return 'Classement';
+      default:
+        return gameState.team.name;
+    }
+  };
+
   const handleChallengeAttempt = (challengeId: string) => {
     const challenge = gameState.challenges.find(c => c.id === challengeId);
     if (challenge && !gameState.completedChallenges.some(c => c.id === challengeId)) {
@@ -328,7 +344,7 @@ const PlayerPage: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton menu="main-menu" />
           </IonButtons>
-          <IonTitle className="ion-text-center">{gameState.team.name}</IonTitle>
+          <IonTitle className="ion-text-center">{getTabTitle()}</IonTitle>
           
          
           

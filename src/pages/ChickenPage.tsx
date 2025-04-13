@@ -57,6 +57,24 @@ const ChickenPage: React.FC = () => {
     setActiveTab(tab);
   };
 
+  // Fonction pour déterminer le titre en fonction de l'onglet actif
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case 'map':
+        return 'Carte';
+      case 'notifications':
+        return 'Indices';
+      case 'challenges':
+        return 'Défis';
+      case 'chat':
+        return 'Chat global';
+      case 'teams':
+        return 'Équipes';
+      default:
+        return 'Vue Poulet';
+    }
+  };
+
   // Handler for sending a clue to all teams
   const handleSendClue = (clueText: string) => {
     // Using photoUrl in a real implementation would send it with the clue
@@ -167,7 +185,7 @@ const ChickenPage: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle color="light" className="ion-text-center">Vue Poulet</IonTitle>
+          <IonTitle color="light" className="ion-text-center">{getTabTitle()}</IonTitle>
         </IonToolbar>
       </IonHeader>
       
