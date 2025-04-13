@@ -1,106 +1,315 @@
 .game-status-card {
   margin: 0;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
-  background-color: #ffffff;
-  position: relative;
-  overflow: hidden;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
 }
 
 .status-content {
-  padding: 12px !important;
+  padding: 8px 12px;
 }
 
-/* Main stats grid layout */
 .stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
-/* General stat item styling */
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background-color: #f8f8f8;
-  border-radius: 8px;
   padding: 8px 10px;
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
+  border-radius: 12px;
+  min-width: 130px;
+}
+
+.time-item {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.time-item.critical {
+  background: rgba(var(--ion-color-danger-rgb), 0.1);
+  color: var(--ion-color-danger);
+}
+
+.teams-count-item {
+  flex: 1;
+  margin-left: 10px;
+  max-width: 130px;
 }
 
 .stat-item ion-icon {
-  font-size: 20px;
-  color: var(--ion-color-medium);
+  font-size: 24px;
+  margin-right: 10px;
 }
 
 .stat-details {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
 }
 
 .stat-value {
-  font-size: 1.1rem;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--ion-color-dark);
-  line-height: 1.2;
 }
 
 .stat-label {
-  font-size: 0.7rem;
-  color: var(--ion-color-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  opacity: 0.7;
 }
 
-/* Specific item colors */
-.time-item ion-icon {
-  color: var(--ion-color-warning);
-}
-
-.teams-count-item ion-icon {
-  color: var(--ion-color-primary);
-}
-
-/* Critical time animation */
-.time-item.critical {
-  animation: pulse 2s infinite;
-}
-
-/* Location selector */
 .location-selector {
-  --border-radius: 8px;
-  --background: var(--ion-color-light);
+  --background: rgba(var(--ion-color-light-rgb), 0.5);
+  --border-radius: 12px;
   margin-bottom: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
 }
 
 .location-label h2 {
+  font-size: 16px;
   font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 2px;
 }
 
 .location-label p {
-  font-size: 0.8rem;
-  color: var(--ion-color-medium);
+  font-size: 12px;
+  margin-top: 2px;
 }
 
-/* Hide button */
 .hide-button-container {
-  margin-bottom: 12px;
+  margin: 8px 0 16px;
 }
 
 .hide-button {
-  --border-radius: 8px;
-  height: 44px;
-  font-size: 0.95rem;
-  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --border-radius: 20px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin: 0 auto;
+  max-width: 90%;
 }
 
-.hide-button ion-icon {
+.status-row {
+  margin-top: 8px;
+}
+
+/* New improved cagnotte styling */
+.cagnotte-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cagnotte-container:active {
+  background: rgba(var(--ion-color-primary-rgb), 0.2);
+}
+
+.cagnotte-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.cagnotte-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.cagnotte-button {
+  margin: 0;
+  --padding-start: 8px;
+  --padding-end: 8px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 360px) {
+  .stat-grid {
+    flex-direction: column;
+  }
+  
+  .stat-item {
+    width: 100%;
+    margin: 0 0 8px 0;
+  }
+  
+  .time-item, .teams-count-item {
+    margin: 0 0 8px 0;
+    max-width: none;
+  }
+}
+
+/* Cagnotte Section */
+.cagnotte-container {
+  margin-top: 16px;
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(254, 138, 0, 0.08);
+  border: 1px solid rgba(254, 138, 0, 0.2);
+}
+
+.cagnotte-container.compact {
+  padding: 8px;
+}
+
+.cagnotte-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cagnotte-header ion-icon {
   font-size: 20px;
-  margin-right: 5px;
+  margin-right: 8px;
+  color: var(--ion-color-primary);
+}
+
+.cagnotte-header h3 {
+  margin: 0;
+  font-size: 16px;
+  flex: 1;
+  color: var(--ion-color-dark);
+}
+
+.cagnotte-amount {
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--ion-color-primary);
+  margin-right: 8px;
+}
+
+.cagnotte-mini-progress {
+  width: 80px;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cagnotte-mini-progress .progress-bar {
+  height: 100%;
+  background-color: var(--ion-color-primary);
+}
+
+.consume-cagnotte-button {
+  --border-radius: 16px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* Modal styling */
+.cagnotte-modal {
+  --width: 90%;
+  --max-width: 400px;
+  --height: 350px;
+  --border-radius: 16px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+.cagnotte-modal ion-header {
+  --background: var(--ion-color-primary);
+  color: white;
+}
+
+.cagnotte-modal ion-title {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.cagnotte-modal-content {
+  padding: 16px;
+}
+
+.cagnotte-status {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.cagnotte-status ion-icon {
+  font-size: 32px;
+  margin-right: 16px;
+}
+
+.cagnotte-status h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.amount-input-container {
+  margin-bottom: 24px;
+}
+
+.amount-input {
+  --padding-start: 0;
+  --padding-end: 0;
+  --highlight-color-focused: var(--ion-color-primary);
+}
+
+.error-message {
+  font-size: 12px;
+  margin-top: 4px;
+  padding-left: 16px;
+}
+
+.consumption-info {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+}
+
+.cagnotte-footer {
+  padding: 16px;
+}
+
+.validate-button {
+  --border-radius: 24px;
+  --background: var(--ion-color-primary);
+  font-weight: bold;
+}
+
+@keyframes pulse-bg {
+  0% {
+    background-color: rgba(255, 220, 220, 0.8);
+  }
+  50% {
+    background-color: rgba(255, 100, 100, 0.25);
+  }
+  100% {
+    background-color: rgba(255, 220, 220, 0.8);
+  }
+}
+
+/* Media query for larger screens */
+@media (min-width: 768px) {
+  .game-status-card {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+/* Fix for overlapping buttons */
+.hide-button-container {
+  position: relative;
+  margin-bottom: 20px; /* Ensure there's space below */
+  z-index: 5;
+}
+
+.cagnotte-container {
+  position: relative;
+  z-index: 4; /* Lower than hide button */
+  margin-top: 10px; /* Add space between containers */
 }
 
 /* Toggle teams visibility */
@@ -327,4 +536,68 @@
   height: 56px;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+/* Cagnotte section styling */
+.cagnotte-section-wrapper {
+  cursor: pointer;
+  margin-top: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  display: block;
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+.clickable-cagnotte {
+  width: 100%;
+  display: block;
+}
+
+.cagnotte-section-wrapper:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive pour que l'ensemble fonctionne bien sur différents écrans */
+@media (max-width: 400px) {
+  .stat-grid {
+    flex-direction: column;
+  }
+  
+  .stat-item {
+    width: 100%;
+    margin: 0 0 8px 0;
+  }
+  
+  .time-item, .teams-count-item {
+    margin: 0 0 8px 0;
+    max-width: none;
+  }
+  
+  .cagnotte-section-wrapper {
+    margin-top: 12px;
+  }
+}
+
+/* Assurer que ça s'affiche bien sur petit écran */
+@media (max-width: 320px) {
+  .cagnotte-section-wrapper {
+    margin-top: 10px;
+  }
+  
+  .status-content {
+    padding: 6px 10px;
+  }
+  
+  .stat-value {
+    font-size: 14px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
 } 

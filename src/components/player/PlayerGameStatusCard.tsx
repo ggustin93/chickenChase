@@ -18,6 +18,7 @@ interface PlayerGameStatusCardProps {
   cagnotteCurrentAmount?: number;
   cagnotteInitialAmount?: number;
   isCagnotteLoading?: boolean;
+  onCagnotteConsumption?: (amount: number, reason: string) => void;
 }
 
 const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
@@ -31,7 +32,8 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
   totalChallenges,
   cagnotteCurrentAmount,
   cagnotteInitialAmount,
-  isCagnotteLoading
+  isCagnotteLoading,
+  onCagnotteConsumption
 }) => {
   const isTimeCritical = gameTime.includes('0:') || gameTime.includes('00:');
   // Remove unused percentage calculations
@@ -87,7 +89,8 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
               initialAmount={cagnotteInitialAmount}
               isLoading={isCagnotteLoading}
               title="Cagnotte Équipe"
-              className="embedded-cagnotte" 
+              className="embedded-cagnotte"
+              onConsumption={onCagnotteConsumption}
             />
           </div>
         )}
