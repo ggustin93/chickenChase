@@ -125,6 +125,7 @@ const GameStatusCard: React.FC<GameStatusCardProps> = ({
             <IonButton
               expand="block"
               color="primary"
+              fill="outline"
               className="hide-button"
               onClick={onHideChicken}
               shape="round"

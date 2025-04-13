@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { IonButton, IonIcon, IonSpinner } from '@ionic/react';
-import { navigateOutline, checkmarkDoneCircleOutline, peopleOutline } from 'ionicons/icons';
+import { navigateOutline, checkmarkDoneCircleOutline, peopleOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { Bar, Team } from '../data/types';
 import './GameMap.css';
 import 'leaflet/dist/leaflet.css';
@@ -130,8 +130,12 @@ const GameMap: React.FC<GameMapProps> = ({
   };
 
   const handleBarMarkerClick = (bar: Bar) => {
-    if (isChicken && onBarClick) {
-      onBarClick(bar.id);
+    if (onBarClick) {
+      if (isChicken) {
+        // Mode chicken: envoyer l'ID du bar directement
+        onBarClick(bar.id);
+      }
+      // Pour les joueurs, le clic ouvre simplement le popup - pas d'action spéciale ici
     }
   };
 
@@ -179,13 +183,29 @@ const GameMap: React.FC<GameMapProps> = ({
                 ? createCustomIcon(extendedBar.customMarkerHtml || '') 
                 : getBarIcon(bar)
               }
-              eventHandlers={isChicken ? { click: () => handleBarMarkerClick(bar) } : undefined}
+              eventHandlers={isChicken ? { click: () => handleBarMarkerClick(bar) } : { click: () => {} }}
             >
               <Popup>
                 <div className="bar-popup">
                   <h3>{bar.name}</h3>
                   <p>{bar.address}</p>
                   
+                  {/* Bouton pour marquer comme visité (seulement pour les joueurs) */}
+                  {!isChicken && onBarClick && !visitedBars.includes(bar.id) && (
+                    <IonButton 
+                      expand="block" 
+                      fill="solid" 
+                      size="small"
+                      color="success"
+                      className="visit-button"
+                      onClick={() => onBarClick(bar.id)}
+                    >
+                      <IonIcon icon={checkmarkCircleOutline} slot="start" />
+                      Marquer comme visité
+                    </IonButton>
+                  )}
+                  
+                  {/* Bouton pour naviguer */}
                   {onNavigateToBar && (
                     <IonButton 
                       expand="block" 

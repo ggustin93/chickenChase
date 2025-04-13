@@ -17,16 +17,14 @@
 /* Map loading indicator */
 .map-loading-container {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.7);
-  z-index: 100;
+  gap: 15px;
+  z-index: 1000;
 }
 
 .map-loading-container ion-spinner {
@@ -37,9 +35,8 @@
 }
 
 .map-loading-container p {
-  margin-top: 10px;
-  color: #666;
-  font-size: 0.9rem;
+  margin: 0;
+  color: var(--ion-color-medium);
 }
 
 /* Fixer un problème courant avec les icônes Leaflet */
@@ -52,21 +49,43 @@
 }
 
 .bar-popup {
-  text-align: center;
-  padding: 5px;
+  padding: 2px;
+  min-width: 200px;
 }
 
 .bar-popup h3 {
-  margin-top: 0;
-  margin-bottom: 5px;
-  font-size: 1rem;
-  color: #333;
+  margin: 8px 0 4px 0;
+  font-size: 16px;
+  color: var(--ion-color-dark);
 }
 
 .bar-popup p {
-  margin: 5px 0;
-  font-size: 0.9rem;
-  color: #666;
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+}
+
+.bar-popup .visit-button {
+  margin-bottom: 8px;
+  --background: var(--ion-color-success);
+  --background-hover: var(--ion-color-success-shade);
+  --background-activated: var(--ion-color-success-shade);
+  --box-shadow: 0 2px 6px rgba(var(--ion-color-success-rgb), 0.3);
+  font-weight: 600;
+  --border-radius: 8px;
+  animation: pulse-success 2s infinite;
+}
+
+@keyframes pulse-success {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-success-rgb), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--ion-color-success-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-success-rgb), 0);
+  }
 }
 
 .bar-popup ion-badge {
@@ -85,10 +104,9 @@
 }
 
 .team-popup h3 {
-  margin-top: 0;
-  margin-bottom: 5px;
-  font-size: 1rem;
-  color: #333;
+  margin: 5px 0;
+  font-size: 16px;
+  color: var(--ion-color-primary);
 }
 
 .team-popup p {
@@ -144,32 +162,23 @@
 
 /* Custom HTML marker styling */
 .custom-html-marker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   text-align: center;
-  background: none;
-  border: none;
-  box-shadow: none;
 }
 
 /* Beer emoji styling */
 .beer-marker {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-  background-color: rgba(255, 193, 7, 0.8);
-  border-radius: 50%;
-  border: 2px solid white;
-  font-size: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
+  font-size: 2rem;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  transform: translateY(-20px);
+  transition: all 0.2s ease;
+}
+
+.beer-marker.visited {
+  opacity: 0.7;
 }
 
 .beer-marker:hover {
-  transform: scale(1.1);
+  transform: translateY(-25px) scale(1.1);
 }
 
 .beer-marker.current {
@@ -191,29 +200,24 @@
   }
 }
 
-.beer-marker.visited {
-  background-color: rgba(76, 175, 80, 0.8);
-  border-color: #fff;
-}
-
 .location-popup h3 {
-  margin-top: 0;
-  margin-bottom: 5px;
-  font-size: 1rem;
-  color: #333;
+  margin: 5px 0;
+  font-size: 16px;
+  color: var(--ion-color-primary);
 }
 
 .location-coords {
+  margin: 5px 0;
+  font-size: 13px;
   font-family: monospace;
-  font-size: 0.85rem;
-  color: #666;
+  color: var(--ion-color-dark);
 }
 
 .found-status, .searching-status {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.9rem;
+  font-size: 13px;
 }
 
 .found-status {
@@ -225,8 +229,8 @@
 }
 
 .last-seen {
-  margin-top: 5px;
-  font-size: 0.8rem;
-  color: #888;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
   font-style: italic;
 } 
