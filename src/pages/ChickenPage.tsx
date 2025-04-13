@@ -16,7 +16,7 @@ import {
 } from '@ionic/react';
 import { 
   locationOutline, chatbubbleOutline,
-  peopleOutline, ribbonOutline
+  peopleOutline, ribbonOutline, notificationsOutline
 } from 'ionicons/icons';
 
 import './ChickenPage.css';
@@ -29,10 +29,8 @@ import SelectHidingSpotModal from '../components/chicken/SelectHidingSpotModal';
 import MapTabContent from '../components/chicken/MapTabContent';
 import ChallengesTabContent from '../components/chicken/ChallengesTabContent';
 import ChatTabContent from '../components/chicken/ChatTabContent';
-import CluePanel from '../components/chicken/CluePanel';
-
-// Import team tab content
 import TeamsTabContent from '../components/chicken/TeamsTabContent';
+import NotificationsTabContent from '../components/chicken/NotificationsTabContent';
 
 const ChickenPage: React.FC = () => {
   // Use the custom hook for game state
@@ -43,12 +41,12 @@ const ChickenPage: React.FC = () => {
     handleChallengeValidation,
     markTeamFound,
     changeCurrentBar,
-    sendMessage: sendGameMessage
+    sendMessage: sendGameMessage,
+    hideChicken
   } = useChickenGameState();
 
   // UI state
   const [activeTab, setActiveTab] = useState('map');
-  const [showPanel, setShowPanel] = useState<string | null>(null);
   const [showSelectBarModal, setShowSelectBarModal] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -57,15 +55,14 @@ const ChickenPage: React.FC = () => {
   // Handler for changing tabs
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    setShowPanel(null); // Reset panels when changing tabs
   };
 
   // Handler for sending a clue to all teams
-  const handleSendClue = (clueText: string) => {
+  const handleSendClue = (clueText: string, photoUrl?: string) => {
+    // Using photoUrl in a real implementation would send it with the clue
     sendClue(clueText);
     setToastMessage(`Indice envoyé à toutes les équipes: "${clueText}"`);
     setShowToast(true);
-    setShowPanel(null);
   };
 
   // Handler for sending a regular message
@@ -92,6 +89,77 @@ const ChickenPage: React.FC = () => {
     setShowToast(true);
   };
 
+  // Handler for when chicken hides
+  const handleHideChicken = () => {
+    if (gameState.currentBar) {
+      hideChicken(); // This updates gameState.isChickenHidden to true and resets timers
+      setToastMessage(`Vous êtes maintenant caché à ${gameState.currentBar.name}! La chasse commence !`);
+      setShowToast(true);
+    } else {
+      setToastMessage('Veuillez sélectionner un bar avant de vous cacher.');
+      setShowToast(true);
+    }
+  };
+
+  // Handler for bar removal (as hint)
+  const handleRemoveBar = (barId: string) => {
+    if (!gameState.isChickenHidden) {
+      setToastMessage("Vous devez d'abord vous cacher avant de donner des indices.");
+      setShowToast(true);
+      return;
+    }
+
+    // Find the bar to make sure it's not the current one
+    const barToRemove = gameState.barOptions.find(b => b.id === barId);
+    
+    if (barToRemove) {
+      if (gameState.currentBar && barToRemove.id === gameState.currentBar.id) {
+        setToastMessage("Vous ne pouvez pas retirer votre propre cachette!");
+        setShowToast(true);
+        return;
+      }
+
+      // Create a notification message
+      sendClue(`Le poulet ne se cache PAS au bar "${barToRemove.name}"`);
+      
+      // Here you'd typically call an API to remove the bar from options
+      // For now, just show a toast
+      setToastMessage(`Bar "${barToRemove.name}" retiré comme indice!`);
+      setShowToast(true);
+    }
+  };
+
+  // Handler for pot consumption
+  const handleCagnotteConsumption = (amount: number, reason: string) => {
+    if (!gameState.isChickenHidden) {
+      setToastMessage("Vous devez d'abord vous cacher avant d'utiliser la cagnotte.");
+      setShowToast(true);
+      return;
+    }
+
+    // Create a notification message
+    sendGameMessage(`💰 Le poulet a dépensé ${amount}€ de la cagnotte${reason ? ` pour "${reason}"` : ''}.`);
+    
+    // Here you'd typically call an API to update the cagnotte amount
+    // For now, just show a toast
+    setToastMessage(`${amount}€ utilisés de la cagnotte!`);
+    setShowToast(true);
+  };
+
+  // Handler for sending a notification
+  const handleSendNotification = (content: string, type: 'clue' | 'barRemoval' | 'cagnotteEvent') => {
+    if (type === 'clue') {
+      sendClue(content);
+    } else if (type === 'barRemoval') {
+      sendGameMessage(content);
+    } else if (type === 'cagnotteEvent') {
+      sendGameMessage(content);
+    }
+    
+    setToastMessage('Notification envoyée!');
+    setShowToast(true);
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -109,7 +177,16 @@ const ChickenPage: React.FC = () => {
           <MapTabContent 
             gameState={gameState}
             onOpenSelectBarModal={() => setShowSelectBarModal(true)}
-            onTogglePanel={setShowPanel}
+            onHideChicken={handleHideChicken}
+            onRemoveBar={handleRemoveBar}
+            onSendNotification={handleSendNotification}
+          />
+        )}
+        
+        {activeTab === 'notifications' && (
+          <NotificationsTabContent 
+            gameState={gameState}
+            onSendClue={handleSendClue}
           />
         )}
         
@@ -136,15 +213,6 @@ const ChickenPage: React.FC = () => {
           />
         )}
         
-        {/* Floating panels */}
-        {showPanel === 'clue' && (
-          <CluePanel 
-            onClose={() => setShowPanel(null)}
-            onSendClue={handleSendClue}
-            previousClues={gameState.messages.filter(m => m.isClue)}
-          />
-        )}
-        
         {/* Bar selection modal */}
         <SelectHidingSpotModal 
           isOpen={showSelectBarModal}
@@ -160,6 +228,11 @@ const ChickenPage: React.FC = () => {
         <IonTabButton tab="map" href="#" onClick={() => handleTabChange('map')} selected={activeTab === 'map'}>
           <IonIcon icon={locationOutline} />
           <IonLabel>Carte</IonLabel>
+        </IonTabButton>
+        
+        <IonTabButton tab="notifications" href="#" onClick={() => handleTabChange('notifications')} selected={activeTab === 'notifications'}>
+          <IonIcon icon={notificationsOutline} />
+          <IonLabel>Indices</IonLabel>
         </IonTabButton>
         
         <IonTabButton tab="challenges" href="#" onClick={() => handleTabChange('challenges')} selected={activeTab === 'challenges'}>

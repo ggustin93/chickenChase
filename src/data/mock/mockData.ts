@@ -6,13 +6,14 @@ import {
   TeamMember, 
   Challenge, 
   ChallengeCompletion,
-  Message
+  Message,
+  Location
 } from '../types';
 
 // Données simulées pour le jeu
 const mockGame: Game = {
   id: 'game-001',
-  name: 'La Course du Poulet - Édition Pigalle',
+  name: 'La Course du Poulet - Édition Bruxelles',
   startTime: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   endTime: new Date(Date.now() + 135 * 60 * 1000).toISOString(),
   status: 'active',
@@ -24,47 +25,47 @@ const mockBars: Bar[] = [
   {
     id: 'bar-001',
     name: 'Le Coq Sportif',
-    address: '23 Rue des Martyrs, 75009 Paris',
-    description: 'Un bar sportif avec une bonne sélection de bières.',
+    address: '15 Rue Antoine Dansaert, 1000 Bruxelles',
+    description: 'Un bar sportif avec une bonne sélection de bières belges.',
     photoUrl: 'https://picsum.photos/seed/bar1/800/600',
-    latitude: 48.8789,
-    longitude: 2.3395
+    latitude: 50.8505,
+    longitude: 4.3461
   },
   {
     id: 'bar-002',
     name: 'Chez Poule & Coq',
-    address: '18 Rue Condorcet, 75009 Paris',
-    description: 'Un bistrot traditionnel français avec des cocktails signature.',
+    address: '22 Place Sainte-Catherine, 1000 Bruxelles',
+    description: 'Un bistrot traditionnel belge avec des cocktails signature.',
     photoUrl: 'https://picsum.photos/seed/bar2/800/600',
-    latitude: 48.8806,
-    longitude: 2.3445
+    latitude: 50.8531,
+    longitude: 4.3479
   },
   {
     id: 'bar-003',
     name: 'La Plume Dorée',
-    address: '42 Boulevard de Clichy, 75018 Paris',
+    address: '7 Rue du Marché aux Herbes, 1000 Bruxelles',
     description: 'Bar chic avec musique live et cocktails artisanaux.',
     photoUrl: 'https://picsum.photos/seed/bar3/800/600',
-    latitude: 48.8824,
-    longitude: 2.3381
+    latitude: 50.8462,
+    longitude: 4.3525
   },
   {
     id: 'bar-004',
     name: 'Le Poulet Ivre',
-    address: '8 Rue Pierre Fontaine, 75009 Paris',
+    address: '10 Rue des Bouchers, 1000 Bruxelles',
     description: 'Bar à thème avec décoration inspirée de la volaille.',
     photoUrl: 'https://picsum.photos/seed/bar4/800/600',
-    latitude: 48.8810,
-    longitude: 2.3350
+    latitude: 50.8478,
+    longitude: 4.3540
   },
   {
     id: 'bar-005',
     name: 'Les Œufs d\'Or',
-    address: '15 Rue Frochot, 75009 Paris',
+    address: '25 Rue du Midi, 1000 Bruxelles',
     description: 'Petit bar intime avec une ambiance conviviale.',
     photoUrl: 'https://picsum.photos/seed/bar5/800/600',
-    latitude: 48.8805,
-    longitude: 2.3370
+    latitude: 50.8448,
+    longitude: 4.3490
   },
   // --- Add Placeholder Bars (6 to 25) ---
   {
@@ -73,8 +74,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 6',
     description: 'Placeholder Description 6',
     photoUrl: 'https://picsum.photos/seed/bar6/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8420,
+    longitude: 4.3580
   },
   {
     id: 'bar-007',
@@ -82,8 +83,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 7',
     description: 'Placeholder Description 7',
     photoUrl: 'https://picsum.photos/seed/bar7/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8510,
+    longitude: 4.3450
   },
   {
     id: 'bar-008',
@@ -91,8 +92,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 8',
     description: 'Placeholder Description 8',
     photoUrl: 'https://picsum.photos/seed/bar8/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8495,
+    longitude: 4.3515
   },
   {
     id: 'bar-009',
@@ -100,8 +101,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 9',
     description: 'Placeholder Description 9',
     photoUrl: 'https://picsum.photos/seed/bar9/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8455,
+    longitude: 4.3505
   },
   {
     id: 'bar-010',
@@ -109,8 +110,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 10',
     description: 'Placeholder Description 10',
     photoUrl: 'https://picsum.photos/seed/bar10/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8470,
+    longitude: 4.3475
   },
   {
     id: 'bar-011',
@@ -118,8 +119,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 11',
     description: 'Placeholder Description 11',
     photoUrl: 'https://picsum.photos/seed/bar11/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8520,
+    longitude: 4.3520
   },
   {
     id: 'bar-012',
@@ -127,8 +128,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 12',
     description: 'Placeholder Description 12',
     photoUrl: 'https://picsum.photos/seed/bar12/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8535,
+    longitude: 4.3545
   },
   {
     id: 'bar-013',
@@ -136,8 +137,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 13',
     description: 'Placeholder Description 13',
     photoUrl: 'https://picsum.photos/seed/bar13/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8490,
+    longitude: 4.3565
   },
   {
     id: 'bar-014',
@@ -145,8 +146,8 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 14',
     description: 'Placeholder Description 14',
     photoUrl: 'https://picsum.photos/seed/bar14/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8430,
+    longitude: 4.3500
   },
   {
     id: 'bar-015',
@@ -154,10 +155,44 @@ const mockBars: Bar[] = [
     address: 'Placeholder Address 15',
     description: 'Placeholder Description 15',
     photoUrl: 'https://picsum.photos/seed/bar15/800/600',
-    latitude: 0,
-    longitude: 0
+    latitude: 50.8445,
+    longitude: 4.3530
   }
 ];
+
+// Emplacements simulés d'équipes à Bruxelles
+const mockLocations: Record<string, Location> = {
+  'team-001': {
+    latitude: 50.8495,
+    longitude: 4.3470,
+    timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    accuracy: 15
+  },
+  'team-002': {
+    latitude: 50.8515,
+    longitude: 4.3490,
+    timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
+    accuracy: 10
+  },
+  'team-003': {
+    latitude: 50.8465,
+    longitude: 4.3510,
+    timestamp: new Date(Date.now() - 7 * 60 * 1000).toISOString(),
+    accuracy: 20
+  },
+  'team-004': {
+    latitude: 50.8485,
+    longitude: 4.3460,
+    timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    accuracy: 8
+  },
+  'team-005': {
+    latitude: 50.8480,
+    longitude: 4.3538, // Proche du Poulet Ivre car cette équipe l'a trouvé
+    timestamp: new Date(Date.now() - 1 * 60 * 1000).toISOString(),
+    accuracy: 5
+  }
+};
 
 // Données simulées pour les membres d'équipe
 const mockTeamMembers1: TeamMember[] = [
@@ -257,7 +292,8 @@ const mockTeams: Team[] = [
     barsVisited: 3,
     challengesCompleted: 2,
     foundChicken: false,
-    members: mockTeamMembers1
+    members: mockTeamMembers1,
+    lastLocation: mockLocations['team-001']
   },
   {
     id: 'team-002',
@@ -267,7 +303,8 @@ const mockTeams: Team[] = [
     barsVisited: 4,
     challengesCompleted: 3,
     foundChicken: false,
-    members: mockTeamMembers2
+    members: mockTeamMembers2,
+    lastLocation: mockLocations['team-002']
   },
   {
     id: 'team-003',
@@ -277,7 +314,8 @@ const mockTeams: Team[] = [
     barsVisited: 2,
     challengesCompleted: 3,
     foundChicken: false,
-    members: mockTeamMembers3
+    members: mockTeamMembers3,
+    lastLocation: mockLocations['team-003']
   },
   {
     id: 'team-004',
@@ -287,7 +325,8 @@ const mockTeams: Team[] = [
     barsVisited: 2,
     challengesCompleted: 1,
     foundChicken: false,
-    members: mockTeamMembers4
+    members: mockTeamMembers4,
+    lastLocation: mockLocations['team-004']
   },
   {
     id: 'team-005',
@@ -297,7 +336,8 @@ const mockTeams: Team[] = [
     barsVisited: 0,
     challengesCompleted: 0,
     foundChicken: true,
-    members: mockTeamMembers5
+    members: mockTeamMembers5,
+    lastLocation: mockLocations['team-005']
   }
 ];
 
@@ -434,7 +474,7 @@ const mockMessages: Message[] = [
     gameId: 'game-001',
     userId: 'user-001',
     sender: 'alex93',
-    content: 'Est-ce que quelqu\'un a vu le poulet près de Pigalle ?',
+    content: 'Est-ce que quelqu\'un a vu le poulet près de Bruxelles ?',
     timestamp: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
     isClue: false
   },
@@ -513,11 +553,20 @@ const mockMessages: Message[] = [
   {
     id: 'message-010',
     gameId: 'game-001',
-    userId: 'user-005',
-    sender: 'Vous',
-    content: 'Bien joué à tous ! La partie continue pour les défis',
+    userId: 'user-011',
+    sender: 'julien_m',
+    content: 'Il y a quelqu\'un à la Plume Dorée ? On cherche toujours...',
     timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
     isClue: false
+  },
+  {
+    id: 'message-011',
+    gameId: 'game-001',
+    userId: 'user-005',
+    sender: 'Le Poulet',
+    content: 'Je me cache toujours, mais peut-être pas pour longtemps...',
+    timestamp: new Date(Date.now() - 1 * 60 * 1000).toISOString(),
+    isClue: true
   }
 ];
 
@@ -531,6 +580,8 @@ export const mockChickenGameState: ChickenGameState = {
   currentBar: mockBars[3], // Le Poulet Ivre
   timeLeft: '2:15:00',
   barOptions: mockBars,
+  isChickenHidden: false, // Le poulet n'est pas encore caché
+  hidingTimeLeft: '25:00', // 25 minutes restantes pour se cacher
   // --- Hypothetical Cagnotte Values ---
   initialCagnotte: 100, // Assuming a starting value
   currentCagnotte: 12,  // Reflecting the current state

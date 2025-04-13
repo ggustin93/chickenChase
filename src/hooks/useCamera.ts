@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
-import { isPlatform } from '@ionic/react';
 
 export interface UseCameraPhoto {
   filepath: string | undefined;

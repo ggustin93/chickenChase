@@ -9,6 +9,13 @@ export interface Game {
   maxTeams: number;
 }
 
+export interface Location {
+  latitude: number;
+  longitude: number;
+  timestamp?: string;
+  accuracy?: number;
+}
+
 export interface Team {
   id: string;
   name: string;
@@ -18,6 +25,7 @@ export interface Team {
   barsVisited: number;
   challengesCompleted: number;
   foundChicken: boolean;
+  lastLocation?: Location; // Dernière position connue de l'équipe
 }
 
 export interface TeamMember {
@@ -55,6 +63,11 @@ export interface Message {
   content: string;
   timestamp: string;
   isClue: boolean;
+  photoUrl?: string;
+  isCagnotteEvent?: boolean;
+  isBarRemoval?: boolean;
+  amount?: number;
+  barId?: string;
 }
 
 export interface Bar {
@@ -76,6 +89,10 @@ export interface ChickenGameState {
   currentBar?: Bar;
   timeLeft: string;
   barOptions: Bar[];
+  
+  // Propriétés pour la phase de cachette
+  isChickenHidden?: boolean; // Indique si le poulet est caché
+  hidingTimeLeft?: string; // Temps restant pour se cacher
 
   // Hypothetical Cagnotte values added
   initialCagnotte: number;
