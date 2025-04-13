@@ -180,28 +180,6 @@ const SideMenu: React.FC<SideMenuProps> = ({
           </IonListHeader>
           
           {renderModeSelectors()}
-
-          {/* Quit Game Button */}
-          {onQuitGame && (
-            <>
-              <IonListHeader className="text-md uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)" }}>
-                Actions
-              </IonListHeader>
-              <IonMenuToggle autoHide={false}>
-                <IonItem 
-                  button 
-                  detail={false}
-                  lines="none" 
-                  color="light" 
-                  className="mx-3 mb-2 rounded-lg shadow-sm bg-danger-shade opacity-90"
-                  onClick={onQuitGame}
-                >
-                  <IonIcon slot="start" icon={closeOutline} color="light" className="ion-margin-start"/>
-                  <IonLabel color="light" className="text-sm font-medium ion-text-default">Quitter la partie</IonLabel>
-                </IonItem>
-              </IonMenuToggle>
-            </>
-      
         </IonList>
 
         {/* Footer avec version de l'app */}

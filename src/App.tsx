@@ -60,7 +60,7 @@ interface MainLayoutProps {
 
 // Renamed from AppContent, accepts router context via props
 const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
-  const [gameName] = useState('La Course du Poulet - Édition Pigalle'); // Placeholder
+  const [gameName] = useState('v1.0'); // Placeholder
 
   // Determine mode based on path from props
   const currentPath = location.pathname;
