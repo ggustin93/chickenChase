@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonTabBar, IonTabButton,
   IonIcon, IonLabel, IonButtons, IonMenuButton, IonToast
@@ -8,7 +8,7 @@ import {
 } from 'ionicons/icons';
 
 // Import types
-import { Game, Bar, Team, Challenge, Message } from '../data/types';
+import { Game, Bar, Team, Challenge, Message, ChallengeCompletion } from '../data/types';
 
 // Import mock data
 import { mockChickenGameState } from '../data/mock/mockData';
@@ -24,6 +24,8 @@ import ChallengesTab from '../components/player/ChallengesTab';
 import ChatTab from '../components/player/ChatTab';
 import LeaderboardTab from '../components/player/LeaderboardTab';
 import CameraModal from '../components/player/CameraModal';
+import ChallengeDetailModal from '../components/player/ChallengeDetailModal';
+import UnlockModal from '../components/player/UnlockModal';
 
 // --- Utility Function for Time Formatting ---
 const formatTime = (milliseconds: number): string => {
@@ -48,6 +50,7 @@ interface PlayerGameState {
   visitedBars: Bar[];
   challenges: Challenge[];
   completedChallenges: Challenge[];
+  challengeCompletions: ChallengeCompletion[];
   messages: Message[];
   leaderboard: Team[];
   score: number;
@@ -79,6 +82,7 @@ const PlayerPage: React.FC = () => {
       visitedBars: visitedBars,
       challenges: mockChickenGameState.challenges.filter(c => c.active),
       completedChallenges: completedChallenges,
+      challengeCompletions: mockChickenGameState.challengeCompletions,
       messages: mockChickenGameState.messages,
       leaderboard: mockChickenGameState.teams,
       score: playerTeam.score,
@@ -90,7 +94,6 @@ const PlayerPage: React.FC = () => {
   // --- State for Timer Display ---
   const [displayTime, setDisplayTime] = useState<string>('--:--:--'); 
 
-  const [newMessage, setNewMessage] = useState('');
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [challengeToComplete, setChallengeToComplete] = useState<string | null>(null);
   const [barToVisit, setBarToVisit] = useState<string | null>(null);
@@ -104,6 +107,14 @@ const PlayerPage: React.FC = () => {
     current: mockChickenGameState.currentCagnotte,
     initial: mockChickenGameState.initialCagnotte
   });
+
+  // State for the new Challenge Detail Modal
+  const [showChallengeDetailModal, setShowChallengeDetailModal] = useState(false);
+  const [selectedChallengeDetail, setSelectedChallengeDetail] = useState<{challenge: Challenge | null, completion: ChallengeCompletion | null}>({ challenge: null, completion: null });
+
+  // State for the new Unlock Modal
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
+  const [challengeToUnlock, setChallengeToUnlock] = useState<Challenge | null>(null);
 
   // --- Instantiate Hooks ---
   const { photo, takePhoto } = useCamera();
@@ -185,6 +196,23 @@ const PlayerPage: React.FC = () => {
     }
   }, [isGeolocationAvailable]);
 
+  // Calculate challenge statuses for the current team
+  const challengeStatuses = useMemo(() => {
+    const statuses: Record<string, ChallengeCompletion['status'] | undefined> = {};
+    gameState.challengeCompletions
+      .filter(comp => comp.teamId === gameState.team.id) // Filter completions for the current player's team
+      .forEach(comp => {
+        statuses[comp.challengeId] = comp.status;
+      });
+    // Ensure all active challenges have at least an 'undefined' status if not found in completions
+    gameState.challenges.forEach(challenge => {
+      if (!(challenge.id in statuses)) {
+        statuses[challenge.id] = undefined;
+      }
+    });
+    return statuses;
+  }, [gameState.challengeCompletions, gameState.challenges, gameState.team.id]);
+
   // --- Event Handlers ---
   const handleTabChange = (tab: 'map' | 'challenges' | 'chat' | 'leaderboard') => {
     setActiveTab(tab);
@@ -198,7 +226,7 @@ const PlayerPage: React.FC = () => {
       case 'challenges':
         return 'Défis';
       case 'chat':
-        return 'Chat de groupe'; // Garder le nom de l'équipe pour le chat
+        return 'Newsfeed'; // Garder le nom de l'équipe pour le chat
       case 'leaderboard':
         return 'Classement';
       default:
@@ -206,12 +234,42 @@ const PlayerPage: React.FC = () => {
     }
   };
 
-  const handleChallengeAttempt = (challengeId: string) => {
+  // Renamed from handleChallengeAttempt - MODIFIED LOGIC
+  const onViewChallengeDetail = (challengeId: string) => {
     const challenge = gameState.challenges.find(c => c.id === challengeId);
-    if (challenge && !gameState.completedChallenges.some(c => c.id === challengeId)) {
-      console.log(`Attempting challenge ${challengeId}: ${challenge.title}`);
-      setChallengeToComplete(challengeId);
-      setShowCameraModal(true);
+    const status = challengeStatuses[challengeId]; // Get status from derived state
+
+    console.log(`Viewing detail for challenge ${challengeId}: ${challenge?.title}, Status: ${status || 'Not Started'}, Type: ${challenge?.type}`);
+    
+    // Handle challenge not found
+    if (!challenge) {
+      console.error(`Challenge with ID ${challengeId} not found.`);
+      setToastMessage('Défi non trouvé.');
+      setToastColor('danger');
+      setShowToast(true);
+      return;
+    }
+
+    // Decide which action/modal to open based on status and type
+    if (status === undefined) { // Challenge not started/attempted
+      if (challenge.type === 'unlock') {
+        console.log(`Opening unlock modal for initial attempt of challenge ${challengeId}`);
+        setChallengeToUnlock(challenge);
+        setShowUnlockModal(true);
+      } else { // Default to photo type
+        console.log(`Opening camera for initial attempt of photo challenge ${challengeId}`);
+        setChallengeToComplete(challengeId); // Keep this for CameraModal association
+        setShowCameraModal(true);
+      }
+    } 
+    else { // Challenge already attempted (pending, approved, rejected)
+      const completion = gameState.challengeCompletions.find(
+        comp => comp.challengeId === challengeId && comp.teamId === gameState.team.id
+      ) || null;
+      
+      console.log(`Opening detail modal for challenge ${challengeId}, Completion found:`, !!completion);
+      setSelectedChallengeDetail({ challenge, completion });
+      setShowChallengeDetailModal(true);
     }
   };
 
@@ -229,40 +287,77 @@ const PlayerPage: React.FC = () => {
   }
 
   const handlePhotoProofSubmit = (capturedPhoto: UseCameraPhoto | null) => {
-    if (!capturedPhoto?.webviewPath) {
-      console.error("No photo captured to submit.");
+    const photoPath = capturedPhoto?.webviewPath; // Keep the actual path if available
+    
+    if (!photoPath) { // Check if we have a path (real or placeholder)
+      console.error("No photo captured or placeholder generated.");
       setShowCameraModal(false);
       setChallengeToComplete(null);
       setBarToVisit(null);
       return;
     }
 
-    // Gestion des défis
+    // Gestion des défis - MODIFIED LOGIC
     if (challengeToComplete) {
-      console.log("Submitting photo proof for challenge:", challengeToComplete, capturedPhoto.webviewPath);
+      console.log("Submitting photo proof for challenge validation:", challengeToComplete, photoPath);
       const challenge = gameState.challenges.find(c => c.id === challengeToComplete);
-      if (challenge && !gameState.completedChallenges.some(cc => cc.id === challengeToComplete)) {
-        setGameState(prev => ({
-          ...prev,
-          completedChallenges: [...prev.completedChallenges, challenge],
-          team: { ...prev.team, challengesCompleted: prev.team.challengesCompleted + 1, score: prev.team.score + challenge.points },
-          score: prev.score + challenge.points
-        }));
-        console.log(`Challenge ${challengeToComplete} marked as completed`);
-        setToastMessage(`Défi "${challenge.title}" complété ! (+${challenge.points} pts)`);
-        setToastColor('success');
+      const existingCompletionIndex = gameState.challengeCompletions.findIndex(
+        comp => comp.challengeId === challengeToComplete && comp.teamId === gameState.team.id
+      );
+
+      // Only submit if it doesn't exist or was rejected previously
+      if (challenge && (existingCompletionIndex === -1 || gameState.challengeCompletions[existingCompletionIndex].status === 'rejected')) {
+        const newCompletion: ChallengeCompletion = {
+          id: `comp-${challengeToComplete}-${gameState.team.id}-${Date.now()}`,
+          challengeId: challengeToComplete,
+          teamId: gameState.team.id,
+          timestamp: new Date().toISOString(),
+          status: 'pending', // Set status to pending
+          // Use real photo path if available, otherwise placeholder
+          photoUrl: photoPath || `https://picsum.photos/seed/${challengeToComplete}/400/300`,
+        };
+
+        setGameState(prev => {
+          const updatedCompletions = [...prev.challengeCompletions];
+          if (existingCompletionIndex !== -1) {
+            // Replace the rejected completion
+            updatedCompletions[existingCompletionIndex] = newCompletion;
+          } else {
+            // Add the new pending completion
+            updatedCompletions.push(newCompletion);
+          }
+          return {
+            ...prev,
+            challengeCompletions: updatedCompletions,
+            // Remove direct score update and completedChallenges update
+            // score: prev.score + challenge.points // Score updated on approval
+            // completedChallenges: [...prev.completedChallenges, challenge], // Handled by status now
+          };
+        });
+        
+        console.log(`Challenge ${challengeToComplete} submitted for validation`);
+        setToastMessage(`Défi "${challenge.title}" soumis pour validation !`);
+        setToastColor('success'); // Use success color for submission confirmation
         setShowToast(true);
+        
+      } else if (challenge) {
+          console.log(`Challenge ${challengeToComplete} already submitted or pending/approved.`);
+          setToastMessage(`Défi "${challenge.title}" déjà soumis.`);
+          setToastColor('warning');
+          setShowToast(true);
+      } else {
+          console.error("Challenge not found for submission:", challengeToComplete);
       }
     } 
-    // Gestion des visites de bar
+    // Gestion des visites de bar - REMAINS THE SAME
     else if (barToVisit) {
-      console.log("Submitting photo proof for bar visit:", barToVisit, capturedPhoto.webviewPath);
+      console.log("Submitting photo proof for bar visit:", barToVisit, photoPath);
       const bar = gameState.bars.find(b => b.id === barToVisit);
       if (bar && !gameState.visitedBars.some(vb => vb.id === barToVisit)) {
         // Stocker la photo et la position avec le bar visité
         const visitedBar = {
           ...bar,
-          photoProof: capturedPhoto.webviewPath,
+          photoProof: photoPath, // Use the photo path
           locationProof: currentPosition ? {
             latitude: currentPosition.coords.latitude,
             longitude: currentPosition.coords.longitude,
@@ -282,9 +377,9 @@ const PlayerPage: React.FC = () => {
         setShowToast(true);
       }
     }
-    // Preuve générique
+    // Preuve générique - REMAINS THE SAME
     else {
-      console.log("Submitting generic photo proof:", capturedPhoto.webviewPath);
+      console.log("Submitting generic photo proof:", photoPath);
       setToastMessage('Preuve générique envoyée (simulation)');
       setToastColor('medium');
       setShowToast(true);
@@ -295,25 +390,6 @@ const PlayerPage: React.FC = () => {
     setShowCameraModal(false);
   };
 
-  const sendMessage = () => {
-    if (newMessage.trim()) {
-      const newMsg: Message = {
-        id: `msg-${Date.now()}`,
-        gameId: gameState.game.id,
-        userId: gameState.team.members[0].id,
-        sender: gameState.team.name,
-        content: newMessage,
-        timestamp: new Date().toISOString(),
-        isClue: false
-      };
-      setGameState(prev => ({
-        ...prev,
-        messages: [...prev.messages, newMsg]
-      }));
-      setNewMessage('');
-    }
-  };
-  
   // --- Geolocation Actions ---
   const handleGetCurrentLocation = async () => {
     // No need to manage isGettingLocation state here anymore,
@@ -347,6 +423,72 @@ const PlayerPage: React.FC = () => {
     console.log(`Cagnotte réduite de ${amount}€ pour: ${reason}. Nouveau montant: ${cagnotte.current - amount}€`);
   };
 
+  // --- New Handler for Unlock Submission ---
+  const handleUnlockSubmit = (challengeId: string, submittedAnswer: string) => {
+    const challenge = gameState.challenges.find(c => c.id === challengeId);
+    
+    console.log(`Attempting to unlock challenge ${challengeId} with answer: "${submittedAnswer}"`);
+
+    // Close the modal first
+    setShowUnlockModal(false);
+    setChallengeToUnlock(null);
+
+    if (!challenge || challenge.type !== 'unlock' || !challenge.correctAnswer) {
+      console.error("Invalid challenge or missing correct answer for unlock attempt:", challengeId);
+      setToastMessage('Erreur lors de la validation du défi.');
+      setToastColor('danger');
+      setShowToast(true);
+      return;
+    }
+
+    // Basic comparison (case-insensitive, trim spaces)
+    const isCorrect = submittedAnswer.trim().toLowerCase() === challenge.correctAnswer.trim().toLowerCase();
+
+    if (isCorrect) {
+      console.log("Correct answer submitted!");
+      const newCompletion: ChallengeCompletion = {
+        id: `comp-${challengeId}-${gameState.team.id}-${Date.now()}`,
+        challengeId: challengeId,
+        teamId: gameState.team.id,
+        timestamp: new Date().toISOString(),
+        status: 'approved', // Automatically approved
+        textAnswer: submittedAnswer // Store the submitted answer
+      };
+
+      setGameState(prev => {
+        // Avoid duplicate completions if somehow submitted twice
+        const existingIndex = prev.challengeCompletions.findIndex(c => c.challengeId === challengeId && c.teamId === prev.team.id);
+        const updatedCompletions = existingIndex === -1
+           ? [...prev.challengeCompletions, newCompletion]
+           : prev.challengeCompletions.map((comp, index) => index === existingIndex ? newCompletion : comp);
+
+        return {
+          ...prev,
+          challengeCompletions: updatedCompletions,
+          team: { 
+            ...prev.team, 
+            // Only increment if it wasn't already completed
+            challengesCompleted: existingIndex === -1 ? prev.team.challengesCompleted + 1 : prev.team.challengesCompleted, 
+            score: prev.team.score + challenge.points 
+          },
+          // Update top-level score as well
+          score: prev.score + challenge.points 
+        };
+      });
+
+      setToastMessage(`Défi "${challenge.title}" réussi ! (+${challenge.points} pts)`);
+      setToastColor('success');
+      setShowToast(true);
+    } else {
+      console.log("Incorrect answer submitted.");
+      setToastMessage(`Réponse incorrecte pour le défi "${challenge.title}". Essayez encore !`);
+      setToastColor('warning');
+      setShowToast(true);
+      // Re-open the modal for another try? Or just let them click again? For now, just show toast.
+      // Consider adding a attempts counter later.
+    }
+  };
+
   // --- Main Render ---
   return (
     <IonPage id="main-content">
@@ -359,7 +501,7 @@ const PlayerPage: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton menu="main-menu" />
           </IonButtons>
-          <IonTitle className="ion-text-center">{getTabTitle()}</IonTitle>
+          <IonTitle className="ion-text-center page-title">{getTabTitle()}</IonTitle>
           
          
           
@@ -391,19 +533,15 @@ const PlayerPage: React.FC = () => {
           />
         )}
         {activeTab === 'challenges' && (
-          <ChallengesTab 
+          <ChallengesTab
             challenges={gameState.challenges}
-            completedChallenges={gameState.completedChallenges}
-            onChallengeAttempt={handleChallengeAttempt}
+            challengeStatuses={challengeStatuses}
+            onViewChallengeDetail={onViewChallengeDetail}
           />
         )}
         {activeTab === 'chat' && (
           <ChatTab 
             messages={gameState.messages}
-            currentTeamName={gameState.team.name}
-            newMessage={newMessage}
-            onMessageChange={setNewMessage}
-            onSendMessage={sendMessage}
           />
         )}
         {activeTab === 'leaderboard' && (
@@ -448,6 +586,28 @@ const PlayerPage: React.FC = () => {
         challengeToComplete={challengeToComplete}
         challenges={gameState.challenges}
         barToVisit={barToVisit ? gameState.bars.find(b => b.id === barToVisit)?.name : null}
+      />
+
+      {/* NEW: Challenge Detail Modal */}
+      <ChallengeDetailModal
+        isOpen={showChallengeDetailModal}
+        onDidDismiss={() => {
+          setShowChallengeDetailModal(false);
+          setSelectedChallengeDetail({ challenge: null, completion: null }); // Clear selection on close
+        }}
+        challenge={selectedChallengeDetail.challenge}
+        completion={selectedChallengeDetail.completion}
+      />
+
+      {/* NEW: Unlock Modal */}
+      <UnlockModal 
+        isOpen={showUnlockModal}
+        onDidDismiss={() => {
+          setShowUnlockModal(false);
+          setChallengeToUnlock(null);
+        }}
+        challenge={challengeToUnlock}
+        onSubmit={handleUnlockSubmit}
       />
 
       {/* Toast Notifications */}

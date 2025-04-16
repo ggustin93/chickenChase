@@ -5,7 +5,8 @@ import {
   IonRefresherContent,
   IonSegment,
   IonSegmentButton,
-  IonLabel
+  IonLabel,
+  IonBadge
 } from '@ionic/react';
 import LeaderboardList from './LeaderboardList';
 import { Team } from '../../data/types';
@@ -20,6 +21,14 @@ type FilterType = 'all' | 'found' | 'notFound';
 
 const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ leaderboard, currentPlayerTeamId }) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+
+  // Calculate counts for badges
+  const counts = useMemo(() => {
+    const allCount = leaderboard.length;
+    const foundCount = leaderboard.filter(team => team.foundChicken).length;
+    const notFoundCount = allCount - foundCount;
+    return { allCount, foundCount, notFoundCount };
+  }, [leaderboard]);
 
   // Filtrer et trier les équipes selon le filtre actif
   const displayedTeams = useMemo(() => {
@@ -55,15 +64,25 @@ const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ leaderboard, currentPla
       <IonSegment 
         value={activeFilter} 
         onIonChange={e => setActiveFilter(e.detail.value as FilterType)}
+        className="leaderboard-segment"
       >
-        <IonSegmentButton value="all">
-          <IonLabel>Tous</IonLabel>
+        <IonSegmentButton value="all" className="segment-button-with-badge">
+          <div className="segment-button-inner">
+            <IonLabel>Tous</IonLabel>
+            <IonBadge color="medium" className="segment-badge">{counts.allCount}</IonBadge>
+          </div>
         </IonSegmentButton>
-        <IonSegmentButton value="found">
-          <IonLabel>A trouvé</IonLabel>
+        <IonSegmentButton value="found" className="segment-button-with-badge">
+          <div className="segment-button-inner">
+            <IonLabel>A trouvé</IonLabel>
+            <IonBadge color="success" className="segment-badge">{counts.foundCount}</IonBadge>
+          </div>
         </IonSegmentButton>
-        <IonSegmentButton value="notFound">
-          <IonLabel>Pas trouvé</IonLabel>
+        <IonSegmentButton value="notFound" className="segment-button-with-badge">
+          <div className="segment-button-inner">
+            <IonLabel>Pas trouvé</IonLabel>
+            <IonBadge color="warning" className="segment-badge">{counts.notFoundCount}</IonBadge>
+          </div>
         </IonSegmentButton>
       </IonSegment>
 

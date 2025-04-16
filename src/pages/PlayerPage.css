@@ -1,0 +1,8 @@
+/* Styles specific to PlayerPage.tsx */ 
+
+/* Increase main header title size to match ChickenPage */
+ion-header ion-toolbar[color="primary"] ion-title.page-title {
+  font-size: 1.5rem; 
+  /* You might want to adjust font-weight here too if needed */
+  /* font-weight: bold; /* Re-apply bold if the .page-title rule overrode it */
+} 

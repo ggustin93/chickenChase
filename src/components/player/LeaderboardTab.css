@@ -32,4 +32,57 @@
     flex-direction: column;
     align-items: center;
   }
+}
+
+/* Reset font size and text transform for segment button labels */
+ion-segment ion-segment-button ion-label {
+  font-size: inherit; /* Use parent font size, or specify e.g., '1rem' */
+  text-transform: none; /* Prevent potential uppercase */
+}
+
+/* Styles for badges within segment buttons */
+.leaderboard-segment ion-segment-button {
+  position: relative; /* Needed for absolute positioning if used */
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Vertically center items */
+  justify-content: center; /* Horizontally center items */
+}
+
+.leaderboard-segment ion-segment-button ion-label {
+  margin-right: 6px; /* Add space between label and badge */
+}
+
+.segment-button-with-badge .segment-button-inner {
+  position: relative; /* Establish positioning context */
+  display: inline-block; /* Allow badge to position relative to content */
+  padding-right: 10px; /* Add padding to prevent overlap if label is long */
+}
+
+.leaderboard-segment ion-segment-button ion-badge.segment-badge {
+  font-size: 0.75em;
+  padding: 0;
+  min-width: 18px; /* Adjust size as needed */
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* --- Absolute Positioning --- */
+  position: absolute;
+  top: 0; /* Adjust as needed */
+  right: 0; /* Adjust as needed */
+  transform: translate(40%, -40%); /* Fine-tune position - shift up and right */
+  /* --- Remove margin --- */
+  /* margin-left: 5px; */ 
+}
+
+/* Keep the label style */
+.leaderboard-segment ion-segment-button ion-label {
+  font-size: inherit;
+  text-transform: none;
+}
+
+ion-header ion-toolbar[color="primary"] ion-title.page-title {
+  font-size: 1.5rem;
 } 
