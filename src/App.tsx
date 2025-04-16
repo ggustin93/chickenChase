@@ -8,6 +8,9 @@ import Home from './pages/Home';
 import ChickenPage from './pages/ChickenPage';
 import PlayerPage from './pages/PlayerPage';
 import AdminPage from './pages/AdminPage';
+import Rules from './pages/Rules';
+import About from './pages/About';
+import Partner from './pages/Partner';
 import SideMenu from './components/SideMenu';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -102,6 +105,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
         </Route>
         <Route exact path="/admin">
           <AdminPage />
+        </Route>
+        <Route exact path="/rules">
+          <Rules />
+        </Route>
+        <Route exact path="/about">
+          <About />
+        </Route>
+        <Route exact path="/partner">
+          <Partner />
         </Route>
         <Route exact path="/">
           <Redirect to="/home" />

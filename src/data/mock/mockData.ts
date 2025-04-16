@@ -345,58 +345,92 @@ const mockTeams: Team[] = [
 const mockChallenges: Challenge[] = [
   {
     id: 'challenge-001',
-    title: 'Photo avec un inconnu',
-    description: 'Trouvez quelqu\'un qui porte un vêtement rouge et prenez un selfie avec cette personne.',
+    title: 'Trinquons entre inconnus!',
+    description: 'Offrez un verre à un parfait inconnu dans le bar et immortalisez ce moment de générosité avec un selfie "tchin-tchin". ',
     points: 50,
     active: true,
     completed: false,
-    teams: []
+    teams: [],
+    type: 'photo'
   },
   {
     id: 'challenge-002',
-    title: 'Danse en public',
+    title: 'Danse du poulet',
     description: 'Filmez un membre de votre équipe en train de faire une danse de poulet pendant 30 secondes.',
     points: 100,
     active: true,
     completed: false,
-    teams: []
+    teams: [],
+    type: 'photo'
   },
   {
     id: 'challenge-003',
-    title: 'Cocktail mystère',
-    description: 'Commandez un cocktail au bar et faites deviner ses ingrédients à votre équipe.',
+    title: 'Barman d\'un jour',
+    description: 'Se retrouver derrière le comptoir à aider le barman et prendre une photo comme preuve.',
     points: 75,
     active: true,
     completed: false,
-    teams: []
+    teams: [],
+    type: 'photo'
   },
+
+  // --- New Challenges from Image (assuming photo based) ---
   {
-    id: 'challenge-004',
-    title: 'Karaoké improvisé',
-    description: 'Chantez une chanson avec les paroles modifiées pour inclure le mot "poulet" au moins 3 fois.',
-    points: 125,
-    active: false,
-    completed: false,
-    teams: []
-  },
-  {
-    id: 'challenge-005',
-    title: 'Tour de magie',
-    description: 'Réalisez un tour de magie simple pour un inconnu dans un bar.',
-    points: 75,
-    active: true,
-    completed: false,
-    teams: []
-  },
-  {
-    id: 'challenge-006',
-    title: 'Photo de groupe',
-    description: 'Prenez une photo avec au moins 5 inconnus dans un bar.',
+    id: 'challenge-007',
+    title: 'Faire un "à fond" de groupe devant le Manneken Pis',
+    description: 'Faire un "à fond" de groupe devant le Manneken Pis',
     points: 100,
-    active: false,
+    active: true,
     completed: false,
-    teams: []
+    teams: [],
+    type: 'photo'
+  },
+  {
+    id: 'challenge-009',
+    title: 'Demander et obtenir un "free hug" d\'un client inconnu',
+    description: 'Demander et obtenir un "free hug" d\'un client inconnu',
+    points: 200,
+    active: true,
+    completed: false,
+    teams: [],
+    type: 'photo'
+  },
+  // --- Riddle Challenges (Photo-based for now, could be unlock later) ---
+  {
+    id: 'challenge-017',
+    title: 'Qu\'est-ce qui est petit et marron?',
+    description: 'Une énigme pour les plus forts.',
+    points: 350,
+    active: true,
+    completed: false,
+    teams: [],
+    type: 'unlock',
+    correctAnswer: 'un marron'
+  },
+  {
+    id: 'challenge-018',
+    title: 'Maths à l\'Atomium',
+    description: 'Si l\'Atomium a un nombre de sphères égal à la racine carrée de 81, et que chaque sphère a un diamètre de 18 mètres, quel est le produit du nombre de sphères par le diamètre d\'une sphère?',
+    points: 125,
+    active: true,
+    completed: false,
+    teams: [],
+    type: 'unlock',
+    correctAnswer: '162'
+  },
+  {
+    id: 'challenge-019',
+    title: 'Mur BD célèbre',
+    description: 'Dans quelle rue se trouve le mur peint rendant hommage au reporter à la houppette et à son fidèle compagnon canin ?',
+    points: 175,
+    active: true,
+    completed: false,
+    teams: [],
+    type: 'unlock',
+    correctAnswer: 'Rue de l\'Étuve'
   }
+  // --- More Subtle/Text-Hinted Challenges ---
+  // --- End of New Challenges ---
 ];
 
 // Données simulées pour les complétion de défis
@@ -464,6 +498,22 @@ const mockChallengeCompletions: ChallengeCompletion[] = [
     timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
     status: 'pending',
     photoUrl: 'https://picsum.photos/200/300?random=8'
+  },
+  {
+    id: 'completion-009',
+    challengeId: 'challenge-002',
+    teamId: 'team-004',
+    timestamp: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+    status: 'approved',
+    photoUrl: 'https://picsum.photos/200/300?random=9'
+  },
+  {
+    id: 'completion-010',
+    challengeId: 'challenge-001',
+    teamId: 'team-003',
+    timestamp: new Date(Date.now() - 18 * 60 * 1000).toISOString(),
+    status: 'approved',
+    photoUrl: 'https://picsum.photos/200/300?random=10'
   }
 ];
 
@@ -472,77 +522,81 @@ const mockMessages: Message[] = [
   {
     id: 'message-001',
     gameId: 'game-001',
-    userId: 'user-001',
-    sender: 'alex93',
-    content: 'Est-ce que quelqu\'un a vu le poulet près de Bruxelles ?',
-    timestamp: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
+    userId: 'system',
+    sender: 'Système',
+    content: 'Bienvenue dans La Course du Poulet ! 🐔 La chasse commence. Décompte: 2h30.',
+    timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
     isClue: false
   },
   {
-    id: 'message-002',
+    id: 'message-003',
     gameId: 'game-001',
-    userId: 'user-005',
+    userId: 'chicken',
     sender: 'Le Poulet',
     content: 'Je suis quelque part où les coqs chantent...',
     timestamp: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
     isClue: true
   },
   {
-    id: 'message-003',
-    gameId: 'game-001',
-    userId: 'user-003',
-    sender: 'thomas75',
-    content: 'On a vérifié au Coq Sportif, il n\'y est pas !',
-    timestamp: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
-    isClue: false
-  },
-  {
     id: 'message-004',
     gameId: 'game-001',
     userId: 'system',
     sender: 'Système',
-    content: 'L\'équipe KFC a complété un défi !',
-    timestamp: new Date(Date.now() - 28 * 60 * 1000).toISOString(),
+    content: 'L\'équipe KFC a complété le défi "Trinquons entre inconnus" ! +50 points',
+    timestamp: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
     isClue: false
   },
   {
     id: 'message-005',
     gameId: 'game-001',
-    userId: 'user-005',
+    userId: 'system',
+    sender: 'Système',
+    content: 'Mise à jour du classement : 1. KFC (110pts), 2. Chasseurs de Poulet (75pts), 3. Poule Position (50pts)',
+    timestamp: new Date(Date.now() - 28 * 60 * 1000).toISOString(),
+    isClue: false
+  },
+  {
+    id: 'message-006',
+    gameId: 'game-001',
+    userId: 'chicken',
     sender: 'Le Poulet',
     content: 'J\'ai une préférence pour les œufs brouillés...',
     timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
     isClue: true
   },
   {
-    id: 'message-006',
-    gameId: 'game-001',
-    userId: 'user-006',
-    sender: 'emma_b',
-    content: 'On se dirige vers Les Œufs d\'Or !',
-    timestamp: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
-    isClue: false
-  },
-  {
     id: 'message-007',
     gameId: 'game-001',
-    userId: 'user-005',
+    userId: 'system',
+    sender: 'Système',
+    content: 'Cagnotte mise à jour : 650€ restants (-50€)',
+    timestamp: new Date(Date.now() - 22 * 60 * 1000).toISOString(),
+    isClue: false,
+    isCagnotteEvent: true,
+    amount: -50
+  },
+  {
+    id: 'message-008',
+    gameId: 'game-001',
+    userId: 'chicken',
     sender: 'Le Poulet',
     content: 'J\'ai changé d\'endroit, je préfère les endroits ivres maintenant...',
     timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
     isClue: true
   },
   {
-    id: 'message-008',
+    id: 'message-009',
     gameId: 'game-001',
-    userId: 'user-010',
-    sender: 'vincent_s',
-    content: 'Je pense savoir où il est ! On fonce au Poulet Ivre !',
-    timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-    isClue: false
+    userId: 'system',
+    sender: 'Système',
+    content: 'Le bar "Les Œufs d\'Or" a été retiré de la liste ! Il n\'y a plus de poulet ici.',
+    timestamp: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+    isClue: false,
+    isBarRemoval: true,
+    barId: 'bar-005'
   },
   {
-    id: 'message-009',
+    id: 'message-010',
     gameId: 'game-001',
     userId: 'system',
     sender: 'Système',
@@ -551,22 +605,54 @@ const mockMessages: Message[] = [
     isClue: false
   },
   {
-    id: 'message-010',
+    id: 'message-011',
     gameId: 'game-001',
-    userId: 'user-011',
-    sender: 'julien_m',
-    content: 'Il y a quelqu\'un à la Plume Dorée ? On cherche toujours...',
+    userId: 'system',
+    sender: 'Système',
+    content: 'Mise à jour du classement : 1. Chicken Run (500pts), 2. KFC (410pts), 3. Chasseurs de Poulet (325pts)',
     timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
     isClue: false
   },
   {
-    id: 'message-011',
+    id: 'message-012',
     gameId: 'game-001',
-    userId: 'user-005',
+    userId: 'chicken',
     sender: 'Le Poulet',
     content: 'Je me cache toujours, mais peut-être pas pour longtemps...',
     timestamp: new Date(Date.now() - 1 * 60 * 1000).toISOString(),
     isClue: true
+  },
+  {
+    id: 'message-013',
+    gameId: 'game-001',
+    userId: 'system',
+    sender: 'Système',
+    content: 'Cagnotte mise à jour : 350€ restants (-100€)',
+    timestamp: new Date(Date.now()).toISOString(),
+    isClue: false,
+    isCagnotteEvent: true,
+    amount: -100
+  },
+  // New photo clues
+  {
+    id: 'message-014',
+    gameId: 'game-001',
+    userId: 'chicken',
+    sender: 'Le Poulet',
+    content: 'Voici une vue depuis ma cachette actuelle...',
+    timestamp: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
+    isClue: true,
+    photoUrl: 'https://picsum.photos/id/164/500/300' // Random Belgian street pic
+  },
+  {
+    id: 'message-015',
+    gameId: 'game-001',
+    userId: 'chicken',
+    sender: 'Le Poulet',
+    content: 'Est-ce que vous reconnaissez cette enseigne ?',
+    timestamp: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    isClue: true,
+    photoUrl: 'https://picsum.photos/id/665/500/300' // Random store sign pic
   }
 ];
 

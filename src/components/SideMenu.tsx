@@ -47,7 +47,7 @@ const MENU_MODES = [
 // Configuration des items de navigation
 const NAV_ITEMS = [
   { id: 'about', icon: informationCircleOutline, label: 'À propos', path: '/about' },
-  { id: 'faq', icon: helpCircleOutline, label: 'FAQ', path: '/faq' },
+  { id: 'rules', icon: helpCircleOutline, label: 'Règles du jeu', path: '/rules' },
   { id: 'partner', icon: storefrontOutline, label: 'Devenir bar partenaire', path: '/partner' },
 ];
 
@@ -155,7 +155,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           />
           <h1
             className="text-2xl text-white ion-text-default" 
-            style={{ fontFamily: "var(--ion-font-fantasy)" }}
+            style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}
           >
             Chicken Chase
           </h1>
@@ -168,14 +168,14 @@ const SideMenu: React.FC<SideMenuProps> = ({
 
         {/* Section de navigation */}
         <IonList lines="none" className="ion-no-padding mt-2">
-          <IonListHeader className="text-md uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)" }}>
+          <IonListHeader className="text-sm uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)", fontWeight: 'normal' }}>
             Navigation
           </IonListHeader>
           
           {renderNavItems()}
           
           {/* Section des modes */}
-          <IonListHeader className="text-md uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)" }}>
+          <IonListHeader className="text-sm uppercase tracking-wide px-4 mb-2 ion-text-default section-header" style={{ fontFamily: "var(--ion-font-fantasy)", color: "var(--ion-color-primary)", fontWeight: 'normal' }}>
             Changer de mode
           </IonListHeader>
           

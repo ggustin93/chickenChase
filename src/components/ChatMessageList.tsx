@@ -1,134 +1,200 @@
-import React from 'react';
-import { IonList, IonIcon } from '@ionic/react';
-import { chatbubbleOutline } from 'ionicons/icons';
-import { Message } from '../data/types'; // Adjust path if necessary
-import styles from './ChatMessageList.module.css'; // Import CSS Module
+import React, { useMemo } from 'react';
+import { 
+  IonList, 
+  IonIcon, 
+  IonImg,
+  IonText,
+  IonChip,
+  IonLabel,
+  IonAvatar
+} from '@ionic/react';
+import { 
+  chatbubbleOutline, 
+  trophyOutline, 
+  cashOutline, 
+  closeCircleOutline, 
+  notificationsOutline,
+  alertCircleOutline
+} from 'ionicons/icons';
+import { Message } from '../data/types';
+import styles from './ChatMessageList.module.css';
+import chickenLogo from '../assets/images/logo.png'; // Importer le logo du poulet
 
 interface ChatMessageListProps {
   messages: Message[];
-  currentTeamName: string;
+  currentTeamName?: string; // Optional prop for the current team name
 }
 
-const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, currentTeamName }) => {
-  // Sort messages chronologically just in case
-  const sortedMessages = [...messages].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+// Type pour les messages regroupés par date
+type MessageGroups = Record<string, Message[]>;
+
+// Composant pour l'en-tête d'un message
+interface MessageHeaderProps {
+  icon: string;
+  text: string;
+  color?: string;
+}
+
+const MessageHeader: React.FC<MessageHeaderProps> = ({ icon, text, color = 'medium' }) => (
+  <IonChip 
+    className="my-1 rounded-md px-2 py-1 flex items-center" 
+    color={color as "primary" | "secondary" | "tertiary" | "success" | "warning" | "danger" | "medium" | "light" | "dark"}
+    outline={true}
+  >
+    <IonIcon icon={icon} className="mr-1" />
+    <IonLabel className="text-xs font-semibold">{text}</IonLabel>
+  </IonChip>
+);
+
+// Composant pour le timestamp
+interface TimestampProps {
+  timestamp: string;
+  isDark?: boolean;
+}
+
+const Timestamp: React.FC<TimestampProps> = ({ timestamp, isDark = false }) => (
+  <IonText 
+    className={`text-xs ${isDark ? 'text-white opacity-80' : 'text-gray-500'} float-right mt-1`}
+    color="medium"
+  >
+    {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+  </IonText>
+);
+
+// Composant pour l'avatar du poulet
+const ChickenAvatar: React.FC = () => (
+  <div className={styles.avatarContainer}>
+    <IonAvatar className={styles.chickenAvatar}>
+      <img src={chickenLogo} alt="Le Poulet" />
+    </IonAvatar>
+  </div>
+);
+
+// Provide a default empty array for messages
+const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages = [], currentTeamName }) => {
+  // Trier et regrouper les messages par date
+  const messagesByDate = useMemo(() => {
+    const sortedMessages = [...messages].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    
+    return sortedMessages.reduce((groups, message) => {
+      const date = new Date(message.timestamp).toLocaleDateString();
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(message);
+      return groups;
+    }, {} as MessageGroups);
+  }, [messages]);
 
   return (
     <IonList lines="none" className="chat-messages-container flex flex-col flex-1 overflow-y-auto p-3 space-y-2">
-      {sortedMessages.map(message => {
-        const isOwnMessage = message.sender === currentTeamName;
-        const isSystemMessage = message.sender === 'Système';
-        const isClue = message.isClue;
+      {Object.entries(messagesByDate).map(([date, dateMessages]) => (
+        <React.Fragment key={date}>
+          {/* Optionally add date separator */}
+          {/* <div className="text-center text-xs bg-gray-100 text-gray-500 rounded-full py-1 px-3 mx-auto my-2">{date}</div> */}
+          
+          {dateMessages.map(message => {
+            const isSystemMessage = message.sender === 'Système';
+            const isClue = message.isClue;
+            const isCagnotteEvent = message.isCagnotteEvent;
+            const isBarRemoval = message.isBarRemoval;
+            const isRanking = isSystemMessage && message.content.includes('classement');
+            const isChallengeCompletion = isSystemMessage && message.content.includes('complété le défi');
+            const hasPhoto = Boolean(message.photoUrl);
+            const isCurrentTeam = currentTeamName && message.sender === currentTeamName;
+            
+            // Déterminer l'icône et la couleur en fonction du type de message
+            let icon = notificationsOutline;
+            let headerColor = 'medium';
+            let headerText = 'Notification';
+            
+            if (isClue) {
+              icon = chatbubbleOutline;
+              headerText = 'Indice du Poulet';
+              headerColor = 'primary';
+            } else if (isCagnotteEvent) {
+              icon = cashOutline;
+              headerText = 'Cagnotte';
+              headerColor = 'warning';
+            } else if (isBarRemoval) {
+              icon = closeCircleOutline;
+              headerText = 'Bar retiré';
+              headerColor = 'danger';
+            } else if (isRanking) {
+              icon = trophyOutline;
+              headerText = 'Classement';
+              headerColor = 'success';
+            } else if (isChallengeCompletion) {
+              icon = alertCircleOutline;
+              headerText = 'Défi complété';
+              headerColor = 'tertiary';
+            }
 
-        // Determine alignment based on message type
-        const itemAlignmentClass = isOwnMessage ? 'justify-end' : isSystemMessage ? 'justify-center' : 'justify-start';
+            // Classer le message pour le CSS et les classes Tailwind
+            const bubbleClassNames = [styles.chatBubble];
+            let containerClasses = "w-full mb-3"; // Increased bottom margin for avatar
+            
+            if (isClue) {
+              bubbleClassNames.push(styles.chatBubbleClue);
+              containerClasses += " flex items-start pl-2 pr-16";
+            } else if (isSystemMessage) {
+              bubbleClassNames.push(styles.whatsAppSystem);
+              containerClasses += " flex justify-center";
+              
+              if (isCagnotteEvent) bubbleClassNames.push(styles.chatBubbleCagnotte);
+              else if (isBarRemoval) bubbleClassNames.push(styles.chatBubbleBarRemoval);
+              else if (isRanking) bubbleClassNames.push(styles.chatBubbleRanking);
+              else if (isChallengeCompletion) bubbleClassNames.push(styles.chatBubbleChallenge);
+              else bubbleClassNames.push(styles.chatBubbleSystem);
+            } else {
+              // Regular user message
+              containerClasses += isCurrentTeam ? " flex justify-end" : " flex justify-start";
+            }
 
-        // Container for the entire row - add px-2 (horizontal padding)
-        const rowStyle: React.CSSProperties = {
-          display: 'flex',
-          justifyContent: isOwnMessage ? 'flex-end' : isSystemMessage ? 'center' : 'flex-start',
-          marginBottom: '8px',
-          width: '100%',
-          paddingLeft: isOwnMessage ? '15%' : '2%', // Add space on left for own messages
-          paddingRight: !isOwnMessage ? '15%' : '2%', // Add space on right for other messages
-        };
-
-        // Create inline styles for each type of bubble 
-        let bubbleStyle: React.CSSProperties = {
-          padding: '10px 15px',
-          borderRadius: '15px',
-          wordWrap: 'break-word' as 'break-word',
-          maxWidth: '300px',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-        };
-
-        let bubbleClasses = `${styles.chatBubble}`; // Keep module class for maintainability
-
-        if (isOwnMessage) {
-          // Your message (right side)
-          bubbleStyle = {
-            ...bubbleStyle,
-            backgroundColor: 'var(--ion-color-primary)',
-            color: 'white',
-            borderBottomRightRadius: '5px',
-          };
-          bubbleClasses += ` bg-primary text-primary-contrast ${styles.chatBubbleOwn}`;
-        } else if (isClue) {
-          // Clue message (special highlight)
-          bubbleStyle = {
-            ...bubbleStyle,
-            backgroundColor: '#3880ff', // Bleu ionique plutôt qu'orange
-            color: 'white',
-            borderRadius: '10px',
-            border: '1px solid #3171e0', // Bordure plus foncée
-          };
-          bubbleClasses += ` bg-warning text-warning-contrast border border-warning-shade ${styles.chatBubbleClue}`;
-        } else if (isSystemMessage) {
-          // System message (centered)
-          bubbleStyle = {
-            ...bubbleStyle,
-            backgroundColor: '#f0f0f0',
-            color: '#555',
-            fontStyle: 'italic',
-            textAlign: 'center',
-            padding: '5px 10px',
-            fontSize: '0.8rem',
-            borderRadius: '5px',
-            width: 'fit-content',
-          };
-          bubbleClasses += ` bg-medium text-medium-contrast text-xs italic ${styles.chatBubbleSystem}`;
-        } else {
-          // Other person's message (left side)
-          bubbleStyle = {
-            ...bubbleStyle,
-            backgroundColor: '#e5e5ea',
-            color: 'black',
-            borderBottomLeftRadius: '5px',
-          };
-          bubbleClasses += ` bg-light text-light-contrast ${styles.chatBubbleOther}`;
-        }
-
-        return (
-          // Use a standard div for the message row alignment with direct styling
-          <div key={message.id} style={rowStyle}>
-             {/* Apply both inline styles AND module classes */}
-             <div className={bubbleClasses} style={bubbleStyle}>
-                 {/* Sender Name (only for other non-clue messages) */}
-                 {!isOwnMessage && !isClue && !isSystemMessage && (
-                   <p className="chat-sender-name text-xs font-medium mb-1 opacity-80" style={{fontSize: '0.75rem', fontWeight: 500, marginBottom: '4px', opacity: 0.8}}>
-                     {message.sender}
-                   </p>
-                 )}
-                 {/* Clue Header */}
-                 {isClue && (
-                   <p className="chat-sender-name text-xs font-bold mb-1 flex items-center" 
-                      style={{
-                        fontSize: '0.75rem', 
-                        fontWeight: 700, 
-                        marginBottom: '4px', 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        padding: '2px 6px',
-                        borderRadius: '12px',
-                    }}>
-                      <IonIcon icon={chatbubbleOutline} className="mr-1" /> Indice du Poulet
-                   </p>
-                 )}
-                 {/* Message Content */}
-                 <p className={`chat-content text-sm ${isSystemMessage ? 'italic' : ''}`} style={{fontSize: '0.875rem'}}>
-                   {message.content}
-                 </p>
-                 {/* Timestamp (always show, aligned right within bubble, except for system) */}
-                 {!isSystemMessage && (
-                    <p className="chat-timestamp text-xs opacity-70 mt-1 text-right" style={{fontSize: '0.75rem', opacity: 0.7, marginTop: '4px', textAlign: 'right'}}>
-                      {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                 )}
+            return (
+              <div key={message.id} className={containerClasses}>
+                {/* Avatar du poulet pour les messages d'indices */}
+                {isClue && <ChickenAvatar />}
+                
+                <div className={bubbleClassNames.join(' ')}>
+                  {/* Messages du poulet n'ont pas besoin de l'en-tête avec "Indice du Poulet" 
+                      puisque l'avatar le montre clairement */}
+                  {!isClue && isSystemMessage && (
+                    <MessageHeader 
+                      icon={icon} 
+                      text={headerText} 
+                      color={headerColor} 
+                    />
+                  )}
+                  
+                  {/* Photo du message si présente */}
+                  {hasPhoto && (
+                    <div className={styles.messagePhoto}>
+                      <IonImg 
+                        src={message.photoUrl} 
+                        className={styles.cluePhoto}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Contenu du message */}
+                  <IonText color={isClue ? "light" : "dark"} className="block mt-1">
+                    {message.content}
+                  </IonText>
+                  
+                  {/* Timestamp - style WhatsApp */}
+                  <Timestamp 
+                    timestamp={message.timestamp} 
+                    isDark={isClue} 
+                  />
+                </div>
               </div>
-          </div>
-        );
-      })}
+            );
+          })}
+        </React.Fragment>
+      ))}
     </IonList>
   );
 };

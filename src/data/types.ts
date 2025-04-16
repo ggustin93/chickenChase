@@ -44,6 +44,8 @@ export interface Challenge {
   completed: boolean;
   teams: string[];
   pendingValidation?: boolean;
+  type?: 'photo' | 'unlock';
+  correctAnswer?: string;
 }
 
 export interface ChallengeCompletion {
@@ -53,6 +55,7 @@ export interface ChallengeCompletion {
   timestamp: string;
   status: 'approved' | 'rejected' | 'pending';
   photoUrl?: string;
+  textAnswer?: string;
 }
 
 export interface Message {
