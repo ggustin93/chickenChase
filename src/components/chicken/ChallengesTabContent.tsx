@@ -7,7 +7,6 @@ import {
   IonSegmentButton,
   IonBadge,
   IonText,
-  IonSkeletonText,
   IonLabel,
   IonItem,
   IonItemSliding,
@@ -63,12 +62,18 @@ const getStatusDetails = (status: ChallengeCompletion['status']) => {
   }
 };
 
+// Helper function to get a specific Picsum image based on ID
+const getPicsumUrlById = (numericId: number, width: number, height: number) => {
+  // Ensure ID is within 1-99 range as requested by user, fallback to a default if needed
+  const imageId = (numericId % 99) + 1; 
+  return `https://picsum.photos/id/${imageId}/${width}/${height}`;
+};
+
 const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
   gameState,
   onChallengeValidation
 }) => {
   const [submissionFilter, setSubmissionFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
-  const [imageLoading, setImageLoading] = useState<Record<string, boolean>>({});
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const slidingItemsRef = useRef<{ [key: string]: HTMLIonItemSlidingElement | null }>({});
   
@@ -94,10 +99,6 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
     return completion.status === submissionFilter;
   });
 
-  const handleImageLoad = (id: string) => {
-    setImageLoading(prev => ({...prev, [id]: false}));
-  };
-
   const handleApprove = (id: string) => {
     slidingItemsRef.current[id]?.closeOpened();
     onChallengeValidation?.(id, true);
@@ -110,12 +111,6 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
   
   const openImageModal = (url: string) => {
     setSelectedImage(url);
-  };
-
-  // Helper to get a consistent Picsum image based on challenge ID
-  const getPicsumUrl = (id: string, width: number, height: number) => {
-    // Use the ID as a seed for consistent images
-    return `https://picsum.photos/seed/${id}/${width}/${height}`;
   };
 
   return (
@@ -170,10 +165,13 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
             const team = gameState.teams.find(t => t.id === completion.teamId);
             const statusDetails = getStatusDetails(completion.status);
             
-            // Use Picsum for missing images, or keep actual photo if present
-            const photoUrl = completion.photoUrl || getPicsumUrl(completion.id, 200, 200);
-            // For the modal, we'll use a larger version of the same image
-            const modalPhotoUrl = completion.photoUrl || getPicsumUrl(completion.id, 800, 600);
+            // Generate a consistent numeric ID from the string ID for Picsum
+            const numericIdForPicsum = completion.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+
+            // Use specific Picsum image by ID for missing images, or keep actual photo if present
+            const photoUrl = completion.photoUrl || getPicsumUrlById(numericIdForPicsum, 200, 200);
+            // For the modal, use a larger version of the same image ID
+            const modalPhotoUrl = completion.photoUrl || getPicsumUrlById(numericIdForPicsum, 800, 600);
             
             return (
               <IonItemSliding 
@@ -190,16 +188,14 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
                 )}
                 
                 <IonItem lines="full" className="challenge-item">
+                  {/* Re-introduce IonThumbnail */}
                   <IonThumbnail slot="start" className="challenge-thumb" onClick={() => openImageModal(modalPhotoUrl)}>
-                    {imageLoading[completion.id] !== false ? (
-                      <IonSkeletonText animated />
-                    ) : (
-                      <img 
-                        src={photoUrl}
-                        alt="Preuve" 
-                        onLoad={() => handleImageLoad(completion.id)}
-                      />
-                    )}
+                    {/* Render IonImg directly, remove skeleton and condition */}
+                    <IonImg
+                      src={photoUrl}
+                      alt="Preuve" 
+                      // No need for load/error handlers if not managing skeleton
+                    />
                   </IonThumbnail>
                   
                   <IonLabel className="ion-text-wrap">
@@ -271,7 +267,7 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
                     color="success"
                     onClick={() => {
                       const completion = filteredCompletions.find(c => {
-                        const modalUrl = c.photoUrl || getPicsumUrl(c.id, 800, 600);
+                        const modalUrl = c.photoUrl || getPicsumUrlById(c.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0), 800, 600);
                         return modalUrl === selectedImage;
                       });
                       if (completion) {
@@ -288,7 +284,7 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
                     color="danger"
                     onClick={() => {
                       const completion = filteredCompletions.find(c => {
-                        const modalUrl = c.photoUrl || getPicsumUrl(c.id, 800, 600);
+                        const modalUrl = c.photoUrl || getPicsumUrlById(c.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0), 800, 600);
                         return modalUrl === selectedImage;
                       });
                       if (completion) {
