@@ -12,7 +12,8 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonSegment,
-  IonSegmentButton
+  IonSegmentButton,
+  IonBadge
 } from '@ionic/react';
 import { 
   peopleOutline, 
@@ -95,14 +96,20 @@ const TeamsTabContent: React.FC<TeamsTabContentProps> = ({
 }) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
-  // Filtrer et trier les équipes
-  const { foundTeams, searchingTeams, sortedTeams } = useMemo(() => {
+  // Filtrer et trier les équipes + calculer les comptes
+  const { foundTeams, searchingTeams, sortedTeams, counts } = useMemo(() => {
     const allTeams = [...gameState.teams];
     const found = allTeams.filter(team => team.foundChicken).sort((a, b) => b.score - a.score);
     const searching = allTeams.filter(team => !team.foundChicken).sort((a, b) => b.score - a.score);
     const sorted = [...allTeams].sort((a, b) => b.score - a.score);
     
-    return { foundTeams: found, searchingTeams: searching, sortedTeams: sorted };
+    const counts = {
+        allCount: allTeams.length,
+        foundCount: found.length,
+        searchingCount: searching.length
+    };
+
+    return { foundTeams: found, searchingTeams: searching, sortedTeams: sorted, counts };
   }, [gameState.teams]);
 
   // Teams à afficher selon le filtre actif
@@ -258,15 +265,25 @@ const TeamsTabContent: React.FC<TeamsTabContentProps> = ({
       <IonSegment 
         value={activeFilter} 
         onIonChange={e => setActiveFilter(e.detail.value as FilterType)}
+        className="teams-segment"
       >
-        <IonSegmentButton value="all">
-          <IonLabel>Tous</IonLabel>
+        <IonSegmentButton value="all" className="segment-button-with-badge">
+          <div className="segment-button-inner">
+            <IonLabel>Tous</IonLabel>
+            <IonBadge color="medium" className="segment-badge">{counts.allCount}</IonBadge>
+          </div>
         </IonSegmentButton>
-        <IonSegmentButton value="searching">
-          <IonLabel>En chasse</IonLabel>
+        <IonSegmentButton value="searching" className="segment-button-with-badge">
+          <div className="segment-button-inner">
+            <IonLabel>En chasse</IonLabel>
+            <IonBadge color="warning" className="segment-badge">{counts.searchingCount}</IonBadge>
+          </div>
         </IonSegmentButton>
-        <IonSegmentButton value="found">
-          <IonLabel>Finito</IonLabel>
+        <IonSegmentButton value="found" className="segment-button-with-badge">
+          <div className="segment-button-inner">
+            <IonLabel>Finito</IonLabel> 
+            <IonBadge color="success" className="segment-badge">{counts.foundCount}</IonBadge>
+          </div>
         </IonSegmentButton>
       </IonSegment>
 

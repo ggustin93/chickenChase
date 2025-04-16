@@ -1,0 +1,215 @@
+/* Styles généraux */
+:root {
+  --input-border-radius: 16px;
+  --button-border-radius: 12px;
+  --transition-fast: 200ms;
+  --transition-medium: 300ms;
+}
+
+/* Styles pour le container de messages - pas nécessaire avec IonContent */
+/* .chat-messages-container {
+  height: 100%;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages-container.pb-24 {
+  padding-bottom: 96px;
+} */
+
+/* Styles pour le formulaire d'indice */
+.clue-form-card {
+  margin: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour le bouton flottant d'ajout d'indice */
+.clue-fab-button {
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1);
+  transition: transform var(--transition-fast) ease;
+}
+
+.clue-fab-button:active {
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(0.95);
+}
+
+/* Styles pour le modal d'ajout d'indice */
+.clue-modal {
+  --backdrop-opacity: 0.4;
+  --box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+  --border-radius: 16px 16px 0 0;
+}
+
+/* Zone de texte pour l'indice */
+.clue-textarea-container {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden; /* Important pour le compteur de caractères */
+}
+
+.clue-textarea {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 30px; /* Espace pour le compteur */
+  border-color: rgba(0, 0, 0, 0.08);
+  background-color: var(--ion-color-light);
+  transition: border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.clue-textarea.has-focus {
+  border-color: var(--ion-color-warning);
+  box-shadow: 0 0 0 2px rgba(var(--ion-color-warning-rgb), 0.2);
+}
+
+/* Container pour l'aperçu de la photo */
+.photo-preview-container {
+  overflow: hidden;
+  border-radius: 12px;
+  position: relative;
+}
+
+.photo-preview {
+  width: 100%;
+  height: auto;
+  transition: transform var(--transition-medium) ease;
+}
+
+.photo-preview:hover {
+  transform: scale(1.05);
+}
+
+/* Bouton de suppression de photo */
+.remove-photo-button {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --border-radius: 50%;
+  height: 32px;
+  width: 32px;
+  margin: 0;
+}
+
+/* Animations pour les boutons d'action */
+ion-button.action-button {
+  --transition: background-color var(--transition-fast) ease, 
+                transform var(--transition-fast) ease,
+                opacity var(--transition-fast) ease;
+  overflow: hidden;
+}
+
+ion-button.action-button:active {
+  transform: scale(0.98);
+}
+
+/* Styles pour l'action sheet des photos */
+.photo-action-sheet {
+  --backdrop-opacity: 0.6;
+}
+
+.action-sheet-cancel {
+  font-weight: 600 !important;
+}
+
+/* Toast personnalisé */
+.custom-toast {
+  --border-radius: 12px;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --min-height: 48px;
+  font-weight: 500;
+}
+
+/* Styles pour le footer du chat */
+.chat-footer {
+  --background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.chat-input {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --background: var(--ion-color-light);
+  --border-radius: 24px;
+  --placeholder-color: var(--ion-color-medium);
+  --placeholder-opacity: 0.6;
+  margin: 0 4px;
+  font-size: 16px;
+  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.send-button {
+  --border-radius: 50%;
+  --padding-start: 0;
+  --padding-end: 0;
+  height: 42px;
+  width: 42px;
+  margin: 0;
+  --box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.2);
+  transition: transform var(--transition-fast) ease;
+}
+
+.send-button:active {
+  transform: scale(0.92);
+}
+
+/* Animation de transition */
+.slide-in-up {
+  animation: slideInUp 0.3s forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Utilitaires supplémentaires */
+.shadow-top {
+  box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Styles pour les champs de texte */
+ion-textarea, ion-input {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Support des modes sombre/clair */
+@media (prefers-color-scheme: dark) {
+  .chat-footer {
+    --background: rgba(28, 28, 30, 0.95);
+  }
+  
+  .clue-textarea {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  
+  .photo-action-sheet {
+    --backdrop-opacity: 0.8;
+  }
+} 

@@ -415,4 +415,9 @@ ion-loading {
     --padding-start: 10%;
     --padding-end: 10%;
   }
+}
+
+/* Add this rule for the page title */
+.page-title {
+  font-weight: normal; /* Or try 500 or 400 if 'normal' isn't right */
 } 

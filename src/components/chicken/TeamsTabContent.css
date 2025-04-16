@@ -245,4 +245,34 @@
 .rank-other {
   background-color: var(--ion-color-light);
   color: var(--ion-color-dark);
+}
+
+/* Reset font size and text transform for segment button labels */
+ion-segment ion-segment-button ion-label {
+  font-size: 0.9rem; /* Explicitly set font size */
+  text-transform: none;
+}
+
+/* Styles for badges within segment buttons */
+.segment-button-with-badge .segment-button-inner {
+  position: relative; /* Establish positioning context */
+  display: inline-block; /* Allow badge to position relative to content */
+  padding-right: 15px; /* Increased padding for more space */
+}
+
+ion-segment ion-segment-button ion-badge.segment-badge {
+  font-size: 0.75em;
+  padding: 0;
+  min-width: 18px; 
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Absolute Positioning */
+  position: absolute;
+  top: 0; 
+  right: 0; 
+  transform: translate(60%, -40%); /* Pushed further right */
 } 

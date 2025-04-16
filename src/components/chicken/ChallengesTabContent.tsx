@@ -1,25 +1,34 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonIcon,
   IonList,
   IonSegment,
   IonSegmentButton,
   IonBadge,
-  IonRippleEffect,
   IonText,
   IonSkeletonText,
-  IonLabel
+  IonLabel,
+  IonItem,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
+  IonChip,
+  IonThumbnail,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButtons,
+  IonImg
 } from '@ionic/react';
 import { 
   checkmarkCircleOutline, closeCircleOutline, ribbonOutline,
-  peopleOutline, imageOutline, timeOutline, appsOutline
+  peopleOutline, imageOutline, timeOutline, eyeOutline,
+  closeOutline, thumbsUpOutline, thumbsDownOutline
 } from 'ionicons/icons';
-import { ChickenGameState, Challenge } from '../../data/types';
+import { ChickenGameState, Challenge, ChallengeCompletion } from '../../data/types';
 import './ChallengesTabContent.css';
 
 interface ChallengesTabContentProps {
@@ -30,12 +39,38 @@ interface ChallengesTabContentProps {
   addChallenge?: (challenge: Omit<Challenge, 'id'>) => Challenge;
 }
 
+// Helper function to get status details
+const getStatusDetails = (status: ChallengeCompletion['status']) => {
+  switch (status) {
+    case 'pending':
+      return { 
+        icon: timeOutline, 
+        color: 'warning', 
+        text: 'En attente' 
+      };
+    case 'approved':
+      return { 
+        icon: checkmarkCircleOutline, 
+        color: 'success', 
+        text: 'Validé' 
+      };
+    case 'rejected':
+      return { 
+        icon: closeCircleOutline, 
+        color: 'danger', 
+        text: 'Refusé' 
+      };
+  }
+};
+
 const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
   gameState,
   onChallengeValidation
 }) => {
-  const [submissionFilter, setSubmissionFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
+  const [submissionFilter, setSubmissionFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [imageLoading, setImageLoading] = useState<Record<string, boolean>>({});
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const slidingItemsRef = useRef<{ [key: string]: HTMLIonItemSlidingElement | null }>({});
   
   // Calculate challenge counts by status
   const challengeCounts = useMemo(() => {
@@ -43,7 +78,6 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
       pending: 0,
       approved: 0,
       rejected: 0,
-      total: gameState.challengeCompletions.length
     };
     
     gameState.challengeCompletions.forEach(completion => {
@@ -57,7 +91,6 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
   
   // Filter challenge completions based on selected filter
   const filteredCompletions = gameState.challengeCompletions.filter(completion => {
-    if (submissionFilter === 'all') return true;
     return completion.status === submissionFilter;
   });
 
@@ -65,19 +98,39 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
     setImageLoading(prev => ({...prev, [id]: false}));
   };
 
+  const handleApprove = (id: string) => {
+    slidingItemsRef.current[id]?.closeOpened();
+    onChallengeValidation?.(id, true);
+  };
+  
+  const handleReject = (id: string) => {
+    slidingItemsRef.current[id]?.closeOpened();
+    onChallengeValidation?.(id, false);
+  };
+  
+  const openImageModal = (url: string) => {
+    setSelectedImage(url);
+  };
+
+  // Helper to get a consistent Picsum image based on challenge ID
+  const getPicsumUrl = (id: string, width: number, height: number) => {
+    // Use the ID as a seed for consistent images
+    return `https://picsum.photos/seed/${id}/${width}/${height}`;
+  };
+
   return (
     <>
       <IonSegment value={submissionFilter} onIonChange={e => {
         const value = e.detail.value as string;
-        if (value === 'pending' || value === 'approved' || value === 'rejected' || value === 'all') {
-          setSubmissionFilter(value);
+        if (value === 'pending' || value === 'approved' || value === 'rejected') {
+          setSubmissionFilter(value as 'pending' | 'approved' | 'rejected');
         }
       }}>
         <IonSegmentButton value="pending">
           <IonIcon icon={timeOutline} />
           <IonLabel>En attente</IonLabel>
           {challengeCounts.pending > 0 && (
-            <IonBadge color="primary">{challengeCounts.pending}</IonBadge>
+            <IonBadge color="warning">{challengeCounts.pending}</IonBadge>
           )}
         </IonSegmentButton>
         <IonSegmentButton value="approved">
@@ -92,13 +145,6 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
           <IonLabel>Refusés</IonLabel>
           {challengeCounts.rejected > 0 && (
             <IonBadge color="danger">{challengeCounts.rejected}</IonBadge>
-          )}
-        </IonSegmentButton>
-        <IonSegmentButton value="all">
-          <IonIcon icon={appsOutline} />
-          <IonLabel>Tous</IonLabel>
-          {challengeCounts.total > 0 && (
-            <IonBadge color="medium">{challengeCounts.total}</IonBadge>
           )}
         </IonSegmentButton>
       </IonSegment>
@@ -118,95 +164,148 @@ const ChallengesTabContent: React.FC<ChallengesTabContentProps> = ({
           </IonText>
         </div>
       ) : (
-        <IonList lines="none" className="challenge-list">
+        <IonList lines="inset" className="ion-padding-vertical">
           {filteredCompletions.map(completion => {
             const challenge = gameState.challenges.find(c => c.id === completion.challengeId);
             const team = gameState.teams.find(t => t.id === completion.teamId);
+            const statusDetails = getStatusDetails(completion.status);
+            
+            // Use Picsum for missing images, or keep actual photo if present
+            const photoUrl = completion.photoUrl || getPicsumUrl(completion.id, 200, 200);
+            // For the modal, we'll use a larger version of the same image
+            const modalPhotoUrl = completion.photoUrl || getPicsumUrl(completion.id, 800, 600);
             
             return (
-              <IonCard key={completion.id} className="challenge-card ion-activatable ripple-parent">
-                <IonRippleEffect></IonRippleEffect>
-                <IonCardHeader className="card-header">
-                  <div className="title-points-container">
-                    <IonCardTitle className="challenge-title">
-                      {challenge?.title || "Défi inconnu"}
-                    </IonCardTitle>
-                    <IonBadge color="warning" className="points-badge">
-                      <IonIcon icon={ribbonOutline} className="points-icon" />
-                      {challenge?.points || 0} pts
-                    </IonBadge>
-                  </div>
-                  <div className="team-container">
-                    <IonIcon icon={peopleOutline} className="team-icon" />
-                    <IonText color="primary" className="team-name">
-                      {team?.name || "Équipe inconnue"}
-                    </IonText>
-                  </div>
-                </IonCardHeader>
-                <IonCardContent className="card-content">
-                  {completion.photoUrl && (
-                    <div className="proof-container">
-                      {imageLoading[completion.id] !== false && (
-                        <div className="skeleton-container">
-                          <IonSkeletonText animated style={{ height: '200px', width: '100%' }} />
-                        </div>
-                      )}
+              <IonItemSliding 
+                key={completion.id}
+                ref={(ref) => { slidingItemsRef.current[completion.id] = ref; }}
+              >
+                {/* Swipe left options - only for pending items */}
+                {completion.status === 'pending' && (
+                  <IonItemOptions side="start">
+                    <IonItemOption color="danger" onClick={() => handleReject(completion.id)}>
+                      <IonIcon slot="icon-only" icon={thumbsDownOutline} />
+                    </IonItemOption>
+                  </IonItemOptions>
+                )}
+                
+                <IonItem lines="full" className="challenge-item">
+                  <IonThumbnail slot="start" className="challenge-thumb" onClick={() => openImageModal(modalPhotoUrl)}>
+                    {imageLoading[completion.id] !== false ? (
+                      <IonSkeletonText animated />
+                    ) : (
                       <img 
-                        src={completion.photoUrl} 
-                        alt="Preuve photo" 
-                        className="proof-image"
+                        src={photoUrl}
+                        alt="Preuve" 
                         onLoad={() => handleImageLoad(completion.id)}
-                        style={{ display: imageLoading[completion.id] === false ? 'block' : 'none' }}
                       />
-                    </div>
-                  )}
+                    )}
+                  </IonThumbnail>
                   
-                  {completion.status === 'pending' && (
-                    <div className="validation-buttons">
-                      <IonButton 
-                        expand="block" 
-                        color="success"
-                        size="large"
-                        className="validation-button approve-button"
-                        onClick={() => onChallengeValidation?.(completion.id, true)}
-                      >
-                        <IonIcon icon={checkmarkCircleOutline} />
-                      </IonButton>
-                      <IonButton 
-                        expand="block" 
-                        color="danger"
-                        size="large"
-                        className="validation-button reject-button"
-                        onClick={() => onChallengeValidation?.(completion.id, false)}
-                      >
-                        <IonIcon icon={closeCircleOutline} />
-                      </IonButton>
-                    </div>
-                  )}
-                  
-                  {completion.status === 'approved' && (
-                    <div className="status-badge approved">
-                      <IonBadge color="success" className="status-badge-large">
-                        <IonIcon icon={checkmarkCircleOutline} className="status-icon" />
-                        Validé
+                  <IonLabel className="ion-text-wrap">
+                    <h2>{challenge?.title || "Défi inconnu"}</h2>
+                    
+                    <div className="challenge-meta">
+                      <IonChip outline color="primary" className="team-chip">
+                        <IonIcon icon={peopleOutline} />
+                        <IonLabel>{team?.name || "Équipe inconnue"}</IonLabel>
+                      </IonChip>
+                      
+                      <IonChip outline color="warning">
+                        <IonIcon icon={ribbonOutline} />
+                        <IonLabel>{challenge?.points || 0} pts</IonLabel>
+                      </IonChip>
+                      
+                      <IonBadge color={statusDetails.color} className="status-badge">
+                        <IonIcon icon={statusDetails.icon} />
+                        &nbsp;{statusDetails.text}
                       </IonBadge>
                     </div>
-                  )}
+                  </IonLabel>
                   
-                  {completion.status === 'rejected' && (
-                    <div className="status-badge rejected">
-                      <IonBadge color="danger" className="status-badge-large">
-                        <IonIcon icon={closeCircleOutline} className="status-icon" />
-                        Refusé
-                      </IonBadge>
-                    </div>
-                  )}
-                </IonCardContent>
-              </IonCard>
+                  <IonButton 
+                    fill="clear" 
+                    slot="end" 
+                    onClick={() => openImageModal(modalPhotoUrl)}
+                  >
+                    <IonIcon slot="icon-only" icon={eyeOutline} />
+                  </IonButton>
+                </IonItem>
+                
+                {/* Swipe right options - only for pending items */}
+                {completion.status === 'pending' && (
+                  <IonItemOptions side="end">
+                    <IonItemOption color="success" onClick={() => handleApprove(completion.id)}>
+                      <IonIcon slot="icon-only" icon={thumbsUpOutline} />
+                    </IonItemOption>
+                  </IonItemOptions>
+                )}
+              </IonItemSliding>
             );
           })}
         </IonList>
       )}
+      
+      {/* Image preview modal */}
+      <IonModal isOpen={!!selectedImage} onDidDismiss={() => setSelectedImage(null)}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Photo preuve</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setSelectedImage(null)}>
+                <IonIcon slot="icon-only" icon={closeOutline} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          {selectedImage && (
+            <div className="modal-image-container">
+              <IonImg src={selectedImage} alt="Preuve photo" />
+              
+              {/* Show validation buttons in modal if it's a pending challenge */}
+              {submissionFilter === 'pending' && (
+                <div className="modal-validation-buttons">
+                  <IonButton 
+                    expand="block" 
+                    color="success"
+                    onClick={() => {
+                      const completion = filteredCompletions.find(c => {
+                        const modalUrl = c.photoUrl || getPicsumUrl(c.id, 800, 600);
+                        return modalUrl === selectedImage;
+                      });
+                      if (completion) {
+                        onChallengeValidation?.(completion.id, true);
+                        setSelectedImage(null);
+                      }
+                    }}
+                  >
+                    <IonIcon slot="start" icon={checkmarkCircleOutline} />
+                    Valider
+                  </IonButton>
+                  <IonButton 
+                    expand="block" 
+                    color="danger"
+                    onClick={() => {
+                      const completion = filteredCompletions.find(c => {
+                        const modalUrl = c.photoUrl || getPicsumUrl(c.id, 800, 600);
+                        return modalUrl === selectedImage;
+                      });
+                      if (completion) {
+                        onChallengeValidation?.(completion.id, false);
+                        setSelectedImage(null);
+                      }
+                    }}
+                  >
+                    <IonIcon slot="start" icon={closeCircleOutline} />
+                    Refuser
+                  </IonButton>
+                </div>
+              )}
+            </div>
+          )}
+        </IonContent>
+      </IonModal>
     </>
   );
 };

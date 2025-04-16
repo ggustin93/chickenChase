@@ -16,7 +16,7 @@ import {
 } from '@ionic/react';
 import { 
   locationOutline, chatbubbleOutline,
-  peopleOutline, ribbonOutline, notificationsOutline
+  peopleOutline, ribbonOutline
 } from 'ionicons/icons';
 
 import './ChickenPage.css';
@@ -30,7 +30,6 @@ import MapTabContent from '../components/chicken/MapTabContent';
 import ChallengesTabContent from '../components/chicken/ChallengesTabContent';
 import ChatTabContent from '../components/chicken/ChatTabContent';
 import TeamsTabContent from '../components/chicken/TeamsTabContent';
-import NotificationsTabContent from '../components/chicken/NotificationsTabContent';
 
 const ChickenPage: React.FC = () => {
   // Use the custom hook for game state
@@ -62,12 +61,10 @@ const ChickenPage: React.FC = () => {
     switch (activeTab) {
       case 'map':
         return 'Carte';
-      case 'notifications':
-        return 'Indices';
       case 'challenges':
         return 'Défis';
       case 'chat':
-        return 'Chat';
+        return 'Newsfeed';
       case 'teams':
         return 'Équipes';
       default:
@@ -185,7 +182,7 @@ const ChickenPage: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle color="light" className="ion-text-center">{getTabTitle()}</IonTitle>
+          <IonTitle color="light" className="ion-text-center page-title">{getTabTitle()}</IonTitle>
         </IonToolbar>
       </IonHeader>
       
@@ -202,13 +199,6 @@ const ChickenPage: React.FC = () => {
           />
         )}
         
-        {activeTab === 'notifications' && (
-          <NotificationsTabContent 
-            gameState={gameState}
-            onSendClue={handleSendClue}
-          />
-        )}
-        
         {activeTab === 'challenges' && (
           <ChallengesTabContent 
             gameState={gameState}
@@ -218,10 +208,12 @@ const ChickenPage: React.FC = () => {
         
         {activeTab === 'chat' && (
           <ChatTabContent 
-            gameState={gameState}
+            messages={gameState.messages}
             newMessage={newMessage}
             onNewMessageChange={setNewMessage}
             onSendMessage={handleSendMessage}
+            onSendClue={handleSendClue}
+            isChickenPage={true}
           />
         )}
         
@@ -247,11 +239,6 @@ const ChickenPage: React.FC = () => {
         <IonTabButton tab="map" href="#" onClick={() => handleTabChange('map')} selected={activeTab === 'map'}>
           <IonIcon icon={locationOutline} />
           <IonLabel>Carte</IonLabel>
-        </IonTabButton>
-        
-        <IonTabButton tab="notifications" href="#" onClick={() => handleTabChange('notifications')} selected={activeTab === 'notifications'}>
-          <IonIcon icon={notificationsOutline} />
-          <IonLabel>Indices</IonLabel>
         </IonTabButton>
         
         <IonTabButton tab="challenges" href="#" onClick={() => handleTabChange('challenges')} selected={activeTab === 'challenges'}>

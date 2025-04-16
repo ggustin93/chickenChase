@@ -71,166 +71,102 @@ ion-segment-button ion-badge {
   color: var(--ion-color-medium);
 }
 
-/* Challenge card styles */
-.challenge-list {
-  padding: 0 12px;
+/* Challenge item styles */
+.challenge-item {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
 }
 
-.challenge-card {
-  margin-bottom: 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.challenge-card:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.card-header {
-  padding: 16px;
-}
-
-.title-points-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.challenge-title {
-  font-size: 18px;
+.challenge-item h2 {
   font-weight: 600;
-  margin: 0;
-  flex: 1;
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 
-.points-badge {
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 16px;
+.challenge-meta {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
   align-items: center;
 }
 
-.points-icon {
+.challenge-meta ion-chip, 
+.challenge-meta .status-badge {
+  margin: 0;
+  font-size: 12px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+}
+
+.challenge-meta .status-badge ion-icon {
+  font-size: 14px;
   margin-right: 4px;
 }
 
-.team-container {
-  display: flex;
-  align-items: center;
+.team-chip {
+  --background: rgba(var(--ion-color-primary-rgb), 0.08);
 }
 
-.team-icon {
-  margin-right: 8px;
-  font-size: 18px;
-  color: var(--ion-color-primary);
-}
-
-.team-name {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.card-content {
-  padding: 0;
-}
-
-/* Proof image styles */
-.proof-container {
-  width: 100%;
-  position: relative;
-  margin-bottom: 16px;
-  border-radius: 0;
+.challenge-thumb {
+  --size: 70px;
+  border-radius: 8px;
   overflow: hidden;
+  cursor: pointer;
 }
 
-.skeleton-container {
-  background-color: var(--ion-color-light);
-}
-
-.proof-image {
+.challenge-thumb img {
   width: 100%;
-  height: auto;
-  max-height: 300px;
+  height: 100%;
   object-fit: cover;
 }
 
-/* Validation buttons */
-.validation-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 16px;
+/* Item sliding styles */
+ion-item-sliding {
+  margin-bottom: 4px;
 }
 
-.validation-button {
-  --border-radius: 30px;
-  margin: 0 auto;
-  width: 60px;
-  height: 60px;
-  overflow: hidden;
-  --padding-start: 0;
-  --padding-end: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+ion-item-option {
+  --padding-start: 1.2rem;
+  --padding-end: 1.2rem;
+  font-size: 1.1rem;
 }
 
-.validation-button.approve-button {
-  --background: var(--ion-color-success);
-  --background-activated: var(--ion-color-success-shade);
-  --background-focused: var(--ion-color-success-shade);
+ion-item-option ion-icon {
+  font-size: 1.4rem;
 }
 
-.validation-button.reject-button {
-  --background: var(--ion-color-danger);
-  --background-activated: var(--ion-color-danger-shade);
-  --background-focused: var(--ion-color-danger-shade);
-}
-
-.validation-button ion-icon {
-  font-size: 28px;
-  margin: 0;
-}
-
-/* Status badges */
-.status-badge {
-  padding: 16px;
+/* Modal styles */
+.modal-image-container {
   display: flex;
-  justify-content: center;
-}
-
-.status-badge-large {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 10px;
-  --padding-bottom: 10px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 24px;
-  display: flex;
+  flex-direction: column;
+  width: 100%;
   align-items: center;
 }
 
-.status-icon {
-  margin-right: 8px;
+.modal-image-container ion-img {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-/* Responsive styles for larger screens */
+.modal-validation-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* Responsive styles */
 @media (min-width: 768px) {
-  .challenge-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 16px;
-  }
-  
-  .challenge-card {
-    margin-bottom: 0;
-    height: 100%;
+  .modal-validation-buttons {
+    flex-direction: row;
   }
 } 
