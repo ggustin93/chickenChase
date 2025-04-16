@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton, IonSegment, IonSegmentButton, IonLabel, IonLoading } from '@ionic/react';
 import { useChickenGameState } from '../../hooks/useChickenGameState';
 import MapTabContent from './MapTabContent';
-import NotificationsTabContent from './NotificationsTabContent';
+import ChatTabContent from './ChatTabContent';
 import ChallengesTabContent from './ChallengesTabContent';
 import './ChickenPage.css';
 
 enum ChickenTab {
   Map = 'map',
-  Notifications = 'notifications',
+  Chat = 'chat',
   Challenges = 'challenges',
 }
 
@@ -32,8 +32,17 @@ const ChickenPage: React.FC = () => {
             onHideChicken={hideChicken}
           />
         );
-      case ChickenTab.Notifications:
-        return <NotificationsTabContent gameState={gameState} onSendClue={sendClue} />;
+      case ChickenTab.Chat:
+        return (
+          <ChatTabContent
+            messages={gameState.messages}
+            newMessage=""
+            onNewMessageChange={() => {}}
+            onSendMessage={() => {}}
+            onSendClue={sendClue}
+            isChickenPage={true}
+          />
+        );
       case ChickenTab.Challenges:
         return (
           <ChallengesTabContent 
@@ -61,8 +70,8 @@ const ChickenPage: React.FC = () => {
             <IonSegmentButton value={ChickenTab.Map}>
               <IonLabel>Carte</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value={ChickenTab.Notifications}>
-              <IonLabel>Notifications</IonLabel>
+            <IonSegmentButton value={ChickenTab.Chat}>
+              <IonLabel>Chat</IonLabel>
             </IonSegmentButton>
             <IonSegmentButton value={ChickenTab.Challenges}>
               <IonLabel>Défis</IonLabel>
