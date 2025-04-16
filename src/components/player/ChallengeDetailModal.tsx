@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   IonModal, IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, IonContent,
-  IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonImg, IonIcon, IonBadge, IonSpinner
+  IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonImg, IonIcon, IonBadge
 } from '@ionic/react';
 import { closeCircleOutline, checkmarkCircleOutline, timeOutline, close } from 'ionicons/icons';
 import { Challenge, ChallengeCompletion } from '../../data/types';
@@ -33,15 +33,6 @@ const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
   challenge,
   completion
 }) => {
-  const [imageLoading, setImageLoading] = React.useState(true);
-
-  // Reset loading state when completion changes
-  React.useEffect(() => {
-    if (completion?.photoUrl) {
-      setImageLoading(true);
-    }
-  }, [completion]);
-
   if (!challenge) return null; // Don't render if no challenge is selected
 
   return (
@@ -71,24 +62,10 @@ const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
             {completion && (
               <>
                 <h3 className="ion-margin-top ion-margin-bottom text-sm font-semibold">Preuve photo :</h3>
-                {imageLoading && (
-                  <div className="flex justify-center items-center h-48">
-                    <IonSpinner />
-                  </div>
-                )}
                 <IonImg
                   src={completion.photoUrl || `https://picsum.photos/seed/detail-${challenge.id}/400/300`}
                   alt={`Preuve pour ${challenge.title}`}
-                  className={`rounded-lg shadow-md ${imageLoading ? 'hidden' : 'block'}`}
-                  onIonImgDidLoad={() => setImageLoading(false)}
-                  onIonError={(e) => {
-                    console.warn("Error loading image:", completion.photoUrl, e);
-                    const imgElement = e.currentTarget as HTMLImageElement | null;
-                    if (imgElement) {
-                      imgElement.src = `https://picsum.photos/seed/detail-${challenge.id}/400/300`;
-                    }
-                    setImageLoading(false);
-                  }}
+                  className="rounded-lg shadow-md"
                 />
               </>
             )}
