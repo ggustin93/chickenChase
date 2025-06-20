@@ -3,15 +3,17 @@ import { IonApp, IonRouterOutlet, setupIonicReact, AnimationBuilder, RouteAction
 import { IonReactRouter } from '@ionic/react-router';
 import { useIonRouter } from '@ionic/react';
 import { RouterDirection } from '@ionic/core';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import ChickenPage from './pages/ChickenPage';
 import PlayerPage from './pages/PlayerPage';
-import AdminPage from './pages/AdminPage';
 import Rules from './pages/Rules';
 import About from './pages/About';
 import Partner from './pages/Partner';
+import JoinGamePage from './pages/JoinGamePage';
+import LobbyPage from './pages/LobbyPage';
 import SideMenu from './components/SideMenu';
+import { SessionProvider } from './contexts/SessionContext';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -97,14 +99,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
         <Route exact path="/home">
           <Home />
         </Route>
-        <Route exact path="/chicken">
+        <Route exact path="/chicken/:gameId">
           <ChickenPage />
         </Route>
-        <Route exact path="/player">
+        <Route exact path="/player/:gameId">
           <PlayerPage />
         </Route>
-        <Route exact path="/admin">
-          <AdminPage />
+        <Route exact path="/join-game">
+          <JoinGamePage />
+        </Route>
+        <Route exact path="/lobby/:gameId">
+          <LobbyPage />
         </Route>
         <Route exact path="/rules">
           <Rules />
@@ -127,6 +132,51 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
 const RouterContextWrapper: React.FC = () => {
   const location = useLocation();
   const router = useIonRouter();
+
+  useEffect(() => {
+    const sessionData = localStorage.getItem('player-session');
+    if (sessionData) {
+      try {
+        const session = JSON.parse(sessionData);
+        const { gameId, gameStatus } = session;
+        
+        if (gameId) {
+          // Si le jeu est en cours, rediriger vers la page appropriée
+          if (gameStatus === 'in_progress') {
+            // Vérifier si l'utilisateur est dans l'équipe Chicken
+            const isChickenTeam = session.isChickenTeam === true;
+            
+            console.log("App: Checking redirection", {
+              isChickenTeam,
+              currentPath: location.pathname,
+              shouldBeChicken: isChickenTeam && !location.pathname.startsWith(`/chicken/${gameId}`),
+              shouldBePlayer: !isChickenTeam && !location.pathname.startsWith(`/player/${gameId}`)
+            });
+            
+            // Rediriger vers la page appropriée si on n'y est pas déjà
+            if (isChickenTeam && !location.pathname.startsWith(`/chicken/${gameId}`)) {
+              console.log("App: Redirecting to chicken page", `/chicken/${gameId}`);
+              router.push(`/chicken/${gameId}`, 'root', 'replace');
+            } else if (!isChickenTeam && !location.pathname.startsWith(`/player/${gameId}`)) {
+              console.log("App: Redirecting to player page", `/player/${gameId}`);
+              router.push(`/player/${gameId}`, 'root', 'replace');
+            }
+          } 
+          // Si le jeu est en attente (lobby), rediriger vers le lobby si nécessaire
+          else if (location.pathname !== `/lobby/${gameId}` && 
+                  !location.pathname.startsWith(`/chicken/${gameId}`) && 
+                  !location.pathname.startsWith(`/player/${gameId}`)) {
+            console.log("App: Redirecting to lobby", `/lobby/${gameId}`);
+            router.push(`/lobby/${gameId}`, 'root', 'replace');
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse player session:", e);
+        localStorage.removeItem('player-session');
+      }
+    }
+  }, [location.pathname, router]);
+
   return <MainLayout location={location} router={router} />;
 }
 
@@ -134,9 +184,11 @@ const RouterContextWrapper: React.FC = () => {
 const App: React.FC = () => {
   return (
     <IonApp>
-      <IonReactRouter>
-        <RouterContextWrapper /> {/* Render the wrapper here */}
-      </IonReactRouter>
+      <SessionProvider>
+        <IonReactRouter>
+          <RouterContextWrapper /> {/* Render the wrapper here */}
+        </IonReactRouter>
+      </SessionProvider>
     </IonApp>
   );
 };

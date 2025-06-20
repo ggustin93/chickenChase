@@ -16,6 +16,7 @@ import { mockChickenGameState } from '../data/mock/mockData';
 // Import hooks
 import { useCamera, UseCameraPhoto } from '../hooks/useCamera';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { usePlayerGameData } from '../hooks/usePlayerGameData';
 
 // Import components
 import SideMenu from '../components/SideMenu';
@@ -26,6 +27,9 @@ import LeaderboardTab from '../components/player/LeaderboardTab';
 import CameraModal from '../components/player/CameraModal';
 import ChallengeDetailModal from '../components/player/ChallengeDetailModal';
 import UnlockModal from '../components/player/UnlockModal';
+
+// Import Supabase
+import { supabase } from '../lib/supabase';
 
 // --- Utility Function for Time Formatting ---
 const formatTime = (milliseconds: number): string => {
@@ -66,7 +70,24 @@ interface PlayerGameState {
 const PlayerPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard'>('leaderboard');
 
-  // --- Initialize State using Mock Data ---
+  // Get session info from localStorage - available to the whole component
+  const session = useMemo(() => {
+    const sessionData = localStorage.getItem('player-session');
+    if (!sessionData) return null;
+    return JSON.parse(sessionData); // { playerId, gameId, teamId }
+  }, []);
+
+  // Fetch live data using the new hook
+  const { gameState: liveGameState, loading: liveDataLoading, error: liveDataError } = usePlayerGameData(session?.gameId, session?.teamId);
+
+  useEffect(() => {
+    if (liveDataError) {
+      console.error("Error fetching live game data:", liveDataError);
+      // We can add a user-facing toast here later
+    }
+  }, [liveDataError]);
+
+  // --- Initialize State using Mock Data (will be replaced gradually) ---
   const currentPlayerTeamId = 'team-004'; // Équipe Cocorico
   const initialPlayerTeam = mockChickenGameState.teams.find(t => t.id === currentPlayerTeamId) || mockChickenGameState.teams[0];
 
@@ -286,108 +307,77 @@ const PlayerPage: React.FC = () => {
     setShowCameraModal(true);
   }
 
-  const handlePhotoProofSubmit = (capturedPhoto: UseCameraPhoto | null) => {
-    const photoPath = capturedPhoto?.webviewPath; // Keep the actual path if available
-    
-    if (!photoPath) { // Check if we have a path (real or placeholder)
-      console.error("No photo captured or placeholder generated.");
+  const handlePhotoProofSubmit = async (capturedPhoto: UseCameraPhoto | null) => {
+    if (!capturedPhoto || !challengeToComplete) {
+      console.error('No photo or challenge ID available for submission.');
       setShowCameraModal(false);
-      setChallengeToComplete(null);
-      setBarToVisit(null);
       return;
     }
 
-    // Gestion des défis - MODIFIED LOGIC
-    if (challengeToComplete) {
-      console.log("Submitting photo proof for challenge validation:", challengeToComplete, photoPath);
-      const challenge = gameState.challenges.find(c => c.id === challengeToComplete);
-      const existingCompletionIndex = gameState.challengeCompletions.findIndex(
-        comp => comp.challengeId === challengeToComplete && comp.teamId === gameState.team.id
-      );
-
-      // Only submit if it doesn't exist or was rejected previously
-      if (challenge && (existingCompletionIndex === -1 || gameState.challengeCompletions[existingCompletionIndex].status === 'rejected')) {
-        const newCompletion: ChallengeCompletion = {
-          id: `comp-${challengeToComplete}-${gameState.team.id}-${Date.now()}`,
-          challengeId: challengeToComplete,
-          teamId: gameState.team.id,
-          timestamp: new Date().toISOString(),
-          status: 'pending', // Set status to pending
-          // Use real photo path if available, otherwise placeholder
-          photoUrl: photoPath || `https://picsum.photos/seed/${challengeToComplete}/400/300`,
-        };
-
-        setGameState(prev => {
-          const updatedCompletions = [...prev.challengeCompletions];
-          if (existingCompletionIndex !== -1) {
-            // Replace the rejected completion
-            updatedCompletions[existingCompletionIndex] = newCompletion;
-          } else {
-            // Add the new pending completion
-            updatedCompletions.push(newCompletion);
-          }
-          return {
-            ...prev,
-            challengeCompletions: updatedCompletions,
-            // Remove direct score update and completedChallenges update
-            // score: prev.score + challenge.points // Score updated on approval
-            // completedChallenges: [...prev.completedChallenges, challenge], // Handled by status now
-          };
-        });
-        
-        console.log(`Challenge ${challengeToComplete} submitted for validation`);
-        setToastMessage(`Défi "${challenge.title}" soumis pour validation !`);
-        setToastColor('success'); // Use success color for submission confirmation
-        setShowToast(true);
-        
-      } else if (challenge) {
-          console.log(`Challenge ${challengeToComplete} already submitted or pending/approved.`);
-          setToastMessage(`Défi "${challenge.title}" déjà soumis.`);
-          setToastColor('warning');
-          setShowToast(true);
-      } else {
-          console.error("Challenge not found for submission:", challengeToComplete);
-      }
-    } 
-    // Gestion des visites de bar - REMAINS THE SAME
-    else if (barToVisit) {
-      console.log("Submitting photo proof for bar visit:", barToVisit, photoPath);
-      const bar = gameState.bars.find(b => b.id === barToVisit);
-      if (bar && !gameState.visitedBars.some(vb => vb.id === barToVisit)) {
-        // Stocker la photo et la position avec le bar visité
-        const visitedBar = {
-          ...bar,
-          photoProof: photoPath, // Use the photo path
-          locationProof: currentPosition ? {
-            latitude: currentPosition.coords.latitude,
-            longitude: currentPosition.coords.longitude,
-            accuracy: currentPosition.coords.accuracy
-          } : null,
-          visitTimestamp: new Date().toISOString()
-        };
-        
-        setGameState(prev => ({
-          ...prev,
-          visitedBars: [...prev.visitedBars, visitedBar],
-          team: { ...prev.team, barsVisited: prev.team.barsVisited + 1 },
-        }));
-        console.log(`Bar ${barToVisit} marked as visited with photo proof`);
-        setToastMessage(`${bar.name} visité !`);
-        setToastColor('success');
-        setShowToast(true);
-      }
+    if (!session || !session.playerId || !session.teamId) {
+      console.error('Player session not found. Cannot submit.');
+      return;
     }
-    // Preuve générique - REMAINS THE SAME
-    else {
-      console.log("Submitting generic photo proof:", photoPath);
-      setToastMessage('Preuve générique envoyée (simulation)');
-      setToastColor('medium');
+
+    // 1. Upload photo to Supabase Storage
+    const photoBlob = await fetch(capturedPhoto.webviewPath!).then(r => r.blob());
+    const photoPath = `${session.gameId}/${session.teamId}/${challengeToComplete}-${Date.now()}.jpg`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('challenge-submissions')
+      .upload(photoPath, photoBlob, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: 'image/jpeg'
+      });
+
+    if (uploadError) {
+      console.error('Error uploading photo:', uploadError);
+      setToastMessage('Erreur lors de l\'envoi de la photo.');
+      setToastColor('danger');
+      setShowToast(true);
+      setShowCameraModal(false);
+      return;
+    }
+
+    // 2. Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('challenge-submissions')
+      .getPublicUrl(photoPath);
+
+    if (!publicUrl) {
+      console.error('Could not get public URL for uploaded photo.');
+      // TODO: Handle this case, maybe by deleting the uploaded file
+      return;
+    }
+    
+    // 3. Create a record in `challenge_submissions` table
+    const submission = {
+      challenge_id: challengeToComplete,
+      team_id: session.teamId,
+      player_id: session.playerId,
+      type: 'photo',
+      content: publicUrl,
+      status: 'pending' // Host will validate this later
+    };
+
+    const { error: submissionError } = await supabase
+      .from('challenge_submissions')
+      .insert(submission);
+
+    if (submissionError) {
+      console.error('Error creating submission record:', submissionError);
+      setToastMessage('Erreur lors de la soumission du défi.');
+      setToastColor('danger');
+      setShowToast(true);
+    } else {
+      setToastMessage('Défi soumis pour validation !');
+      setToastColor('success');
       setShowToast(true);
     }
-
-    setChallengeToComplete(null);
-    setBarToVisit(null);
+    
     setShowCameraModal(false);
+    setChallengeToComplete(null);
   };
 
   // --- Geolocation Actions ---
@@ -424,69 +414,46 @@ const PlayerPage: React.FC = () => {
   };
 
   // --- New Handler for Unlock Submission ---
-  const handleUnlockSubmit = (challengeId: string, submittedAnswer: string) => {
-    const challenge = gameState.challenges.find(c => c.id === challengeId);
-    
-    console.log(`Attempting to unlock challenge ${challengeId} with answer: "${submittedAnswer}"`);
-
-    // Close the modal first
-    setShowUnlockModal(false);
-    setChallengeToUnlock(null);
-
-    if (!challenge || challenge.type !== 'unlock' || !challenge.correctAnswer) {
-      console.error("Invalid challenge or missing correct answer for unlock attempt:", challengeId);
-      setToastMessage('Erreur lors de la validation du défi.');
-      setToastColor('danger');
-      setShowToast(true);
+  const handleUnlockSubmit = async (challengeId: string, submittedAnswer: string) => {
+    if (!session || !session.teamId) {
+      console.error('Player session not found. Cannot submit.');
       return;
     }
 
-    // Basic comparison (case-insensitive, trim spaces)
-    const isCorrect = submittedAnswer.trim().toLowerCase() === challenge.correctAnswer.trim().toLowerCase();
-
-    if (isCorrect) {
-      console.log("Correct answer submitted!");
-      const newCompletion: ChallengeCompletion = {
-        id: `comp-${challengeId}-${gameState.team.id}-${Date.now()}`,
-        challengeId: challengeId,
-        teamId: gameState.team.id,
-        timestamp: new Date().toISOString(),
-        status: 'approved', // Automatically approved
-        textAnswer: submittedAnswer // Store the submitted answer
-      };
-
-      setGameState(prev => {
-        // Avoid duplicate completions if somehow submitted twice
-        const existingIndex = prev.challengeCompletions.findIndex(c => c.challengeId === challengeId && c.teamId === prev.team.id);
-        const updatedCompletions = existingIndex === -1
-           ? [...prev.challengeCompletions, newCompletion]
-           : prev.challengeCompletions.map((comp, index) => index === existingIndex ? newCompletion : comp);
-
-        return {
-          ...prev,
-          challengeCompletions: updatedCompletions,
-          team: { 
-            ...prev.team, 
-            // Only increment if it wasn't already completed
-            challengesCompleted: existingIndex === -1 ? prev.team.challengesCompleted + 1 : prev.team.challengesCompleted, 
-            score: prev.team.score + challenge.points 
-          },
-          // Update top-level score as well
-          score: prev.score + challenge.points 
-        };
-      });
-
-      setToastMessage(`Défi "${challenge.title}" réussi ! (+${challenge.points} pts)`);
-      setToastColor('success');
-      setShowToast(true);
-    } else {
-      console.log("Incorrect answer submitted.");
-      setToastMessage(`Réponse incorrecte pour le défi "${challenge.title}". Essayez encore !`);
-      setToastColor('warning');
-      setShowToast(true);
-      // Re-open the modal for another try? Or just let them click again? For now, just show toast.
-      // Consider adding a attempts counter later.
+    const challenge = liveGameState.challenges.find(c => c.id === challengeId);
+    if (!challenge) {
+      console.error('Challenge not found:', challengeId);
+      return;
     }
+
+    const isCorrect = challenge.correctAnswer?.trim().toLowerCase() === submittedAnswer.trim().toLowerCase();
+    const status = isCorrect ? 'approved' : 'rejected';
+
+    const submission = {
+      challenge_id: challengeId,
+      team_id: session.teamId,
+      player_id: session.playerId,
+      type: 'unlock',
+      content: submittedAnswer,
+      status: status
+    };
+
+    const { error: submissionError } = await supabase
+      .from('challenge_submissions')
+      .insert(submission);
+
+    if (submissionError) {
+      setToastMessage('Erreur lors de la soumission.');
+      setToastColor('danger');
+    } else if (isCorrect) {
+      setToastMessage('Bonne réponse ! Défi validé !');
+      setToastColor('success');
+    } else {
+      setToastMessage('Mauvaise réponse. Essayez encore !');
+      setToastColor('warning');
+    }
+    setShowToast(true);
+    setShowUnlockModal(false);
   };
 
   // --- Main Render ---
@@ -534,7 +501,7 @@ const PlayerPage: React.FC = () => {
         )}
         {activeTab === 'challenges' && (
           <ChallengesTab
-            challenges={gameState.challenges}
+            challenges={liveDataLoading ? [] : liveGameState.challenges}
             challengeStatuses={challengeStatuses}
             onViewChallengeDetail={onViewChallengeDetail}
           />

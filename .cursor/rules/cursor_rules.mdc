@@ -3,6 +3,301 @@ description: Guidelines for creating and maintaining Cursor rules to ensure cons
 globs: .cursor/rules/*.mdc
 alwaysApply: true
 ---
+---
+description: Assure que les composants sont petits, focalisés et ont une seule responsabilité
+globs: src/components/**/*.tsx, src/pages/**/*.tsx
+alwaysApply: true
+---
+
+Décomposer les gros composants
+Si un composant dépasse 200 lignes, refactorise-le en composants plus petits et réutilisables.
+
+Chaque composant doit avoir une seule responsabilité (ex. : affichage, logique, interaction).
+
+Exemple : Divise @UserProfile.tsx en UserInfo, UserStats, et UserActions.
+typescript
+
+// ✅ À FAIRE : Composant petit et focalisé
+const UserInfo: React.FC<UserInfoProps> = ({ user }) => (
+  <IonCard>
+    <IonCardContent>{user.name}</IonCardContent>
+  </IonCard>
+);
+
+// ❌ À ÉVITER : Composant monolithique
+const UserProfile: React.FC = ({ user }) => (
+  <IonCard>
+    <IonCardContent>{user.name}</IonCardContent>
+    <IonButton>Modifier</IonButton>
+    <IonList>{/* Stats */}</IonList>
+  </IonCard>
+);
+
+Utiliser des composants fonctionnels avec hooks
+Privilégie les composants fonctionnels aux composants de classe, en utilisant des hooks comme useState.
+
+Exemple :
+typescript
+
+// ✅ À FAIRE : Composant fonctionnel
+const Counter: React.FC = () => {
+  const [count, setCount] = useState(0);
+  return <IonButton onClick={() => setCount(count + 1)}>{count}</IonButton>;
+};
+
+// ❌ À ÉVITER : Composant de classe
+class Counter extends React.Component {
+  state = { count: 0 };
+  render() {
+    return <IonButton>{this.state.count}</IonButton>;
+  }
+}
+
+Typer les props avec TypeScript
+Utilise des interfaces pour typer les props et garantir la sécurité des types.
+
+Exemple :
+typescript
+
+interface UserInfoProps {
+  user: { name: string; id: number };
+}
+const UserInfo: React.FC<UserInfoProps> = ({ user }) => (
+  <div>{user.name}</div>
+);
+
+Règle 2 : Gestion de l'État
+
+---
+description: Utilise les techniques de gestion d'état adaptées à chaque scénario
+globs: src/components/**/*.tsx, src/pages/**/*.tsx
+alwaysApply: true
+---
+
+Utiliser l'état local pour les données spécifiques à un composant
+Utilise useState pour les états limités à un seul composant.
+
+Exemple :
+typescript
+
+const [isOpen, setIsOpen] = useState(false);
+
+Utiliser l'API Context pour l'état global
+Partage l'état entre plusieurs composants avec React Context, évitant le "prop drilling".
+
+Exemple dans @UserContext.tsx :
+typescript
+
+export const UserContext = createContext<User | null>(null);
+
+// Dans @App.tsx
+<UserContext.Provider value={user}>
+  <IonApp>{children}</IonApp>
+</UserContext.Provider>
+
+Extraire la logique dans des hooks personnalisés
+Crée des hooks réutilisables comme useUserData pour la logique avec état.
+
+Exemple :
+typescript
+
+// @useUserData.ts
+export const useUserData = () => {
+  const [user, setUser] = useState<User | null>(null);
+  return { user, setUser };
+};
+
+Règle 3 : Navigation et Routage
+
+---
+description: Utilise correctement les composants et patterns de navigation Ionic
+globs: src/pages/**/*.tsx, src/App.tsx
+alwaysApply: true
+---
+
+Utiliser IonPage pour les composants de page
+Enveloppe chaque page dans IonPage pour un style Ionic correct.
+
+Exemple dans @HomePage.tsx :
+typescript
+
+const HomePage: React.FC = () => (
+  <IonPage>
+    <IonHeader><IonToolbar><IonTitle>Accueil</IonTitle></IonToolbar></IonHeader>
+    <IonContent>Contenu Accueil</IonContent>
+  </IonPage>
+);
+
+Utiliser IonRouterOutlet pour le routage
+Définis les routes dans @App.tsx avec IonRouterOutlet.
+
+Exemple :
+typescript
+
+import { IonReactRouter } from '@ionic/react-router';
+import { IonRouterOutlet } from '@ionic/react';
+
+const App: React.FC = () => (
+  <IonReactRouter>
+    <IonRouterOutlet>
+      <Route path="/home" component={HomePage} exact />
+    </IonRouterOutlet>
+  </IonReactRouter>
+);
+
+Exploiter les hooks de navigation Ionic
+Utilise useIonRouter pour naviguer.
+
+Exemple :
+typescript
+
+import { useIonRouter } from '@ionic/react';
+const router = useIonRouter();
+router.push('/page-suivante');
+
+Règle 4 : Style et Thèmes
+
+---
+description: Suis les guidelines de style Ionic et utilise les variables CSS pour les thèmes
+globs: src/**/*.css, src/**/*.scss, src/components/**/*.tsx, src/pages/**/*.tsx
+alwaysApply: true
+---
+
+Utiliser les utilitaires CSS Ionic
+Applique des classes comme ion-padding pour un espacement cohérent.
+
+Exemple :
+css
+
+.ion-padding {
+  padding: 16px;
+}
+
+Utiliser des variables CSS pour les thèmes
+Personnalise les thèmes Ionic dans @theme/variables.css.
+
+Exemple :
+css
+
+:root {
+  --ion-color-primary: #ff4081;
+  --ion-color-primary-contrast: #ffffff;
+}
+
+Éviter les styles en ligne
+Privilégie les classes CSS aux styles inline pour la maintenabilité.
+
+Exemple :
+typescript
+
+// ✅ À FAIRE : Classe CSS
+<IonButton className="custom-button">Clique</IonButton>
+
+// ❌ À ÉVITER : Style inline
+<IonButton style={{ color: 'blue' }}>Clique</IonButton>
+
+Règle 5 : Optimisation des Performances
+
+---
+description: Implémente des techniques pour améliorer les performances de l'application
+globs: src/components/**/*.tsx, src/pages/**/*.tsx
+alwaysApply: true
+---
+
+Utiliser React.memo pour les composants purs
+Évite les re-rendus inutiles avec React.memo.
+
+Exemple :
+typescript
+
+const StaticComponent = React.memo(() => <IonLabel>Statique</IonLabel>);
+
+Utiliser useCallback pour les callbacks
+Mémorise les fonctions pour éviter leur re-création.
+
+Exemple :
+typescript
+
+const handleClick = useCallback(() => console.log('Cliqué'), []);
+
+Implémenter le chargement différé
+Utilise React.lazy pour diviser le code par route.
+
+Exemple dans @App.tsx :
+typescript
+
+const LazyPage = React.lazy(() => import('./pages/LazyPage'));
+<Suspense fallback={<IonSpinner />}>
+  <LazyPage />
+</Suspense>
+
+Règle 6 : Accessibilité
+
+---
+description: Assure que l'application est accessible à tous les utilisateurs
+globs: src/components/**/*.tsx, src/pages/**/*.tsx
+alwaysApply: true
+---
+
+Utiliser du HTML sémantique
+Utilise <button> pour les boutons, pas <div> avec onClick.
+
+Exemple :
+typescript
+
+// ✅ À FAIRE
+<button>Soumettre</button>
+// ❌ À ÉVITER
+<div onClick={handleClick}>Soumettre</div>
+
+Fournir un texte alternatif pour les images
+Ajoute des attributs alt aux balises <img>.
+
+Exemple :
+typescript
+
+<img src="logo.png" alt="Logo de l'application" />
+
+Assurer l'accessibilité au clavier
+Vérifie que tous les éléments interactifs sont accessibles avec Tab.
+
+Règle 7 : Tests
+
+---
+description: Écris des tests pour les composants et fonctionnalités
+globs: src/**/*.test.tsx
+alwaysApply: true
+---
+
+Écrire des tests unitaires
+Utilise Jest et React Testing Library.
+
+Exemple :
+typescript
+
+test('affiche le bouton', () => {
+  render(<IonButton>Clique</IonButton>);
+  expect(screen.getByText('Clique')).toBeInTheDocument();
+});
+
+Simuler les appels API
+Utilise des mocks pour les dépendances externes.
+
+Exemple :
+typescript
+
+jest.mock('axios');
+axios.get.mockResolvedValue({ data: mockData });
+
+Directives de Maintenance des Règles
+Mettre à jour régulièrement : Adapte les règles aux évolutions d’Ionic React (nouveaux hooks, composants).
+
+Ajouter des exemples réels : Référence ton code (ex. @HomePage.tsx) au fur et à mesure.
+
+Supprimer les patterns obsolètes : Retire les règles comme les composants de classe si inutiles.
+
+Référencer les règles liées : Par exemple, lie "Gestion de l'État" aux "Hooks Personnalisés".
+
 
 - **Required Rule Structure:**
   ```markdown

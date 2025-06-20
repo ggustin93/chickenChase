@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChickenGameState, Challenge, Message } from '../data/types';
 import { mockChickenGameState } from '../data/mock/mockData';
+// import { supabase } from '../lib/supabase';
 
-export const useChickenGameState = (initialState = mockChickenGameState) => {
-  const [gameState, setGameState] = useState<ChickenGameState>(initialState);
+export const useChickenGameState = (gameId?: string) => {
+  const [gameState, setGameState] = useState<ChickenGameState>(mockChickenGameState);
   const [isLoading, setIsLoading] = useState(false);
   
   // Référence pour stocker les intervalles de timer
@@ -22,6 +23,41 @@ export const useChickenGameState = (initialState = mockChickenGameState) => {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+  
+  // Chargement des données du jeu
+  useEffect(() => {
+    const fetchGameData = async () => {
+      if (!gameId) return;
+      
+      setIsLoading(true);
+      
+      try {
+        // Récupérer les données du jeu depuis Supabase
+        // Pour l'instant, nous utilisons les données mockées
+        // À l'avenir, remplacer par des requêtes Supabase
+        
+        // Simuler un délai de chargement
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Utiliser les données mockées pour l'instant
+        // À remplacer par les données réelles de Supabase
+        setGameState({
+          ...mockChickenGameState,
+          game: {
+            ...mockChickenGameState.game,
+            id: gameId
+          }
+        });
+        
+      } catch (error) {
+        console.error('Erreur lors du chargement des données du jeu:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchGameData();
+  }, [gameId]);
   
   // Gestion du timer de cachette
   useEffect(() => {
@@ -96,15 +132,6 @@ export const useChickenGameState = (initialState = mockChickenGameState) => {
       }
     };
   }, [gameState.isChickenHidden]);
-
-  // Initialisation
-  useEffect(() => {
-    // Simuler le chargement initial
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
 
   const sendClue = (clueText: string) => {
     const newClue: Message = {

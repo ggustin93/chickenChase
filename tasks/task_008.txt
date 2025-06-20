@@ -1,23 +1,11 @@
 # Task ID: 8
-# Title: Implement Communication System
+# Title: Implement Challenge Management System
 # Status: pending
-# Dependencies: 2, 3, 6, 7
+# Dependencies: 6, 7
 # Priority: medium
-# Description: Develop the real-time communication features including global chat, team chat, and notifications
+# Description: Develop the complete challenge lifecycle including creation, submission, validation, and tracking
 # Details:
-1. Implement Supabase Realtime subscriptions for chat
-2. Create global chat interface accessible to all players
-3. Develop team-specific chat channels
-4. Implement private messaging between chicken and admin
-5. Add hint broadcasting system
-6. Integrate Capacitor Push Notifications
-7. Create notification triggers for key game events
-8. Implement message persistence and history loading
-9. Break chat components into smaller modules (<200 lines each)
-10. Create custom hooks for chat functionality (useChat, useNotifications)
-11. Implement ChatContext using Context API
-12. Optimize message rendering with React.memo()
-13. Use MockData for chat and notification testing
+Integrate with PageCMS for predefined challenges. Create interface for Chicken to add custom challenges during the game. Implement challenge assignment to teams. Build submission flow with photo capture and upload. Develop validation interface for Chicken to approve/reject submissions. Create resubmission flow for rejected challenges. Implement challenge completion tracking and notification system.
 
 # Test Strategy:
-Test real-time message delivery in different chat channels. Verify notifications are received properly. Test hint broadcasting to specific teams. Measure performance with multiple active chats. Test offline message queuing and delivery. Verify component rerendering efficiency with React DevTools.
+Test challenge retrieval from CMS. Verify custom challenge creation and distribution. Test photo submission and storage. Confirm validation flow works correctly with proper status updates. Test resubmission of rejected challenges. Verify completion tracking and point assignment.

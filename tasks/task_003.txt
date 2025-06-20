@@ -1,18 +1,11 @@
 # Task ID: 3
-# Title: Implement Basic Ionic React App Structure with Navigation
-# Status: done
-# Dependencies: 1, 2
+# Title: Develop Map Integration and Geolocation Features
+# Status: pending
+# Dependencies: 2
 # Priority: high
-# Description: Create the foundational app structure with routing, authentication flow, and core UI components
+# Description: Integrate mapping service and implement core geolocation features for both Chicken and Hunter roles
 # Details:
-1. Initialize Ionic React project with Capacitor
-2. Set up routing system with protected routes
-3. Implement authentication UI (login, registration)
-4. Create navigation components and layout structure
-5. Implement Supabase client integration
-6. Configure theming (light/dark mode support)
-7. Create reusable UI components (buttons, cards, forms)
-8. Set up state management approach (context/hooks)
+Integrate Mapbox/Leaflet via Capacitor for interactive maps. Implement geolocation tracking with Capacitor Geolocation plugin. Create map filtering to show only bars within the game zone. Build location selection interface for Chicken role. Develop bar visit validation flow for Hunter teams using GPS proximity checking. Implement fallback photo validation when GPS fails. Create map and list views of bars for Hunter interface.
 
 # Test Strategy:
-Test navigation flow between screens. Verify authentication redirects work correctly. Ensure components render properly on different screen sizes. Test dark/light mode switching.
+Test map rendering and zoom functionality. Verify geolocation tracking accuracy. Confirm bar filtering works within defined game zones. Test GPS validation of bar visits and photo fallback mechanism. Verify the list view displays correct bar information and visit status.

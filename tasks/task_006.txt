@@ -1,23 +1,11 @@
 # Task ID: 6
-# Title: Build Chicken Role Interface
+# Title: Develop Scoring and Leaderboard System
 # Status: pending
-# Dependencies: 3, 5
+# Dependencies: 4, 5
 # Priority: medium
-# Description: Develop the specialized interface for players with the chicken role
+# Description: Implement the scoring logic, leaderboard, and game completion mechanics
 # Details:
-1. Intégrer et adapter le composant ChickenPage.tsx amélioré
-2. Implement timer for head start period
-3. Create bar selection interface on map
-4. Build challenge validation UI for reviewing team submissions
-5. Develop hint broadcasting functionality
-6. Add photo gallery to view team submissions
-7. Implement real-time updates for team movements/status
-8. Create specialized communication tools for chicken role
-9. Break ChickenPage.tsx into smaller components (<200 lines each)
-10. Extract logic to custom hooks (useTimer, useBarSelection, etc.)
-11. Use Context API for chicken role state management
-12. Implement proper Ionic component hierarchy
-13. Use MockData for development and testing
+Create Supabase Edge Function for score calculation. Implement scoring based on challenges completed and chicken discovery order. Build real-time leaderboard UI with filtering options. Develop game completion detection when all teams have found the chicken. Create final results display with top 3 winners highlighted. Implement score history tracking for post-game review.
 
 # Test Strategy:
-Test timer functionality for accuracy. Verify challenge validation flow works correctly. Test hint broadcasting to all teams. Confirm real-time updates are received properly. Test photo gallery rendering and navigation. Verify component composition and state management with React DevTools.
+Test score calculation for different scenarios (challenges, finding chicken). Verify leaderboard updates in real-time when scores change. Test game completion detection and final results display. Confirm filtering options work correctly in the leaderboard view.

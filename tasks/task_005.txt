@@ -1,22 +1,11 @@
 # Task ID: 5
-# Title: Implement Core Geolocation and Map Functionality
+# Title: Implement Hunter Role Interface
 # Status: pending
-# Dependencies: 3, 4
+# Dependencies: 3
 # Priority: high
-# Description: Integrate map visualization and geolocation services for both chicken and hunter teams
+# Description: Complete the Hunter team interface with bar visiting, challenge completion, and team coordination features
 # Details:
-1. Integrate Capacitor Geolocation plugin
-2. Implement map component with Leaflet/Mapbox
-3. Add functionality to display game zone boundaries
-4. Create optimized geolocation tracking with battery-saving strategies
-5. Implement bar selection interface for chicken role
-6. Develop bar visit marking for hunter teams
-7. Add location-based validation (proximity checking)
-8. Implement caching for offline map data
-9. Extract map rendering logic into separate components (<200 lines each)
-10. Create custom hooks for geolocation data management
-11. Implement Context API for sharing location state
-12. Use MockData for location and map testing
+Connect the existing PlayerPage.tsx to Supabase. Implement bar visit marking and validation flow (GPS/photo). Create challenge list view with filtering and status indicators. Build challenge submission interface with camera integration for proof photos. Implement newsfeed view for game events and chicken hints. Create progress tracking UI (bars visited, challenges completed, current score). Develop found-chicken reporting mechanism.
 
 # Test Strategy:
-Test geolocation accuracy in different environments. Verify map rendering and interactions. Test boundary detection for game zones. Measure battery impact of location tracking. Verify location caching works when offline. Test component rerendering efficiency with React DevTools.
+Test bar visit marking and validation process. Verify challenge list displays correctly with proper status indicators. Test photo submission for challenges and bar visits. Confirm newsfeed displays game events and chicken hints correctly. Verify progress tracking updates correctly after actions.

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   IonContent,
   IonPage,
@@ -32,6 +33,8 @@ import ChatTabContent from '../components/chicken/ChatTabContent';
 import TeamsTabContent from '../components/chicken/TeamsTabContent';
 
 const ChickenPage: React.FC = () => {
+  const { gameId } = useParams<{ gameId: string }>();
+
   // Use the custom hook for game state
   const {
     gameState,
@@ -42,7 +45,7 @@ const ChickenPage: React.FC = () => {
     changeCurrentBar,
     sendMessage: sendGameMessage,
     hideChicken
-  } = useChickenGameState();
+  } = useChickenGameState(gameId);
 
   // UI state
   const [activeTab, setActiveTab] = useState('map');

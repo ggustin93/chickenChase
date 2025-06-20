@@ -1,22 +1,11 @@
 # Task ID: 4
-# Title: Develop Game Creation and Join Functionality
+# Title: Implement Chicken Role Interface
 # Status: pending
-# Dependencies: 2, 3
+# Dependencies: 3
 # Priority: high
-# Description: Build the interface for creating new games, setting parameters, and joining existing games
+# Description: Complete the Chicken role interface with all required functionality for managing the game
 # Details:
-1. Create game creation form with all required parameters (zone selection, time limit, etc.)
-2. Implement map integration for zone selection using Leaflet/Mapbox
-3. Build team creation functionality
-4. Develop invitation system with shareable links
-5. Implement game joining flow
-6. Create random chicken selection algorithm
-7. Develop game lobby UI showing participants and settings
-8. Add form validation and error handling
-9. Break large components (>200 lines) into smaller components following cursor_rules.mdc
-10. Create custom hooks for form logic and game creation
-11. Use Context API for sharing game creation state
-12. Use MockData for development and testing
+Connect the existing ChickenPage.tsx to Supabase. Implement initial bar selection and hiding confirmation. Create timer functionality for the hiding period. Build validation interface for challenges and bar visit submissions. Develop pot expense tracking for recording drinks bought for finder teams. Create custom challenge creation functionality. Implement team discovery confirmation mechanism. Build hint broadcasting feature for sending information to all hunters.
 
 # Test Strategy:
-Test game creation with various parameters. Verify invitation links work correctly. Test joining games as different users. Confirm chicken selection randomization works properly. Validate form inputs handle edge cases. Test component hierarchy with React DevTools to ensure proper component composition.
+Test initial bar selection and confirmation flow. Verify challenge and visit validation works correctly. Test pot expense tracking and updates. Confirm custom challenge creation and distribution. Verify team discovery confirmation updates team status correctly. Test the hint broadcasting system to ensure all hunters receive information.

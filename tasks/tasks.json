@@ -2,211 +2,198 @@
   "tasks": [
     {
       "id": 1,
-      "title": "Improve existing mockups with simulated data and refactor according to best practices",
-      "description": "Refine and visually improve ChickenPage.tsx and HunterTeamPage.tsx (renamed to PlayerPage.tsx) components using simulated data to achieve a complete user experience, while refactoring all files exceeding 200 lines according to cursor_rules.mdc guidelines",
-      "status": "done",
+      "title": "Setup Supabase Backend Infrastructure",
+      "description": "Configure Supabase project with authentication, database tables, and storage buckets needed for the game",
+      "status": "in-progress",
       "dependencies": [],
       "priority": "high",
-      "details": "1. Analyze existing ChickenPage.tsx and HunterTeamPage.tsx (renamed to PlayerPage.tsx) components\n2. Improve layout and UI of components following Ionic design guidelines\n3. Create complete simulated data structures to represent all features\n4. Implement user interactions with simulated data\n5. Enhance visual components (cards, lists, forms)\n6. Add animations and transitions to improve user experience\n7. Implement dark mode and game color palette\n8. Ensure responsiveness across different screen sizes\n9. Refactor all files exceeding 200 lines following cursor_rules.mdc guidelines\n10. Break large components into smaller, focused components with single responsibilities\n11. Extract stateful logic into reusable custom hooks\n12. Use Context API for state that needs to be shared across multiple components\n13. Ensure proper Ionic component hierarchy (IonPage > IonHeader/IonContent)\n14. Prefer functional components with hooks over class components\n15. Use TypeScript interfaces for component props\n16. Optimize with React.memo() and useCallback() where appropriate\n17. Use MockData to load data in components and pages during this stage",
-      "testStrategy": "Test interfaces on different screen sizes. Verify interactions with simulated data. Ensure all visual features work correctly. Validate appearance in light and dark modes. Verify that refactored components maintain functionality. Test component composition and hierarchy with React DevTools.",
+      "details": "Create a new Supabase project. Set up authentication with session/room join functionality (similar to Wooclap or Tricount). Create all database tables as defined in the PRD: games, teams, users, participants, visits, challenges, messages, and partner_bars (optional). Configure Row Level Security (RLS) policies for each table. Create storage buckets for challenge photos, team avatars, and visit validation photos with appropriate access rules. Enable Realtime features for newsfeed functionality and score updates.",
+      "testStrategy": "Verify each table schema matches the PRD specifications. Test RLS policies with different user roles (admin, chicken, hunter). Confirm storage buckets are created with proper permissions. Validate session/room joining authentication flow works with test users.",
       "subtasks": [
         {
           "id": 1,
-          "title": "Create simulated data structures for ChickenPage and HunterTeamPage (PlayerPage)",
-          "description": "Define and implement complete simulated data structures for ChickenPage and PlayerPage components that represent all necessary features",
+          "title": "Create Supabase Project and Configure Authentication",
+          "description": "Initialize a new Supabase project and set up the authentication system with session/room joining functionality",
           "dependencies": [],
-          "details": "1. Analyze data needs for ChickenPage and PlayerPage components\n2. Create TypeScript interfaces for data models (chickens, hunter teams, statistics, etc.)\n3. Implement static simulated data in separate files (mockData.ts)\n4. Include all necessary properties to display complete information\n5. Add variations in simulated data to test different scenarios\n6. Document data structure and intended use\n7. To test: Verify that data structures are complete and consistent by importing them into a simple component and displaying their content",
-          "status": "done",
+          "details": "1. Create a new Supabase project in the dashboard\n2. Configure the project settings with appropriate region and pricing plan\n3. Set up authentication providers, implementing session/room joining functionality similar to Wooclap or Tricount\n4. Configure email templates for session joining if needed\n5. Test the authentication flow by joining a test session/room\n6. Create initial authentication redirect pages in the frontend application\n7. Store Supabase credentials securely for use in the application\n8. Test the complete authentication flow from session join to successful authentication",
+          "status": "pending",
           "parentTaskId": 1
         },
         {
           "id": 2,
-          "title": "Improve layout and UI components of ChickenPage",
-          "description": "Refine ChickenPage user interface using simulated data and following Ionic design guidelines",
+          "title": "Create Database Tables with RLS Policies",
+          "description": "Set up all required database tables and implement Row Level Security policies for data protection",
           "dependencies": [
             1
           ],
-          "details": "1. Integrate simulated data into ChickenPage\n2. Restructure layout using IonGrid, IonRow, and IonCol for better responsiveness\n3. Enhance chicken cards with images, statistics, and actions\n4. Add filtering and sorting components for the chicken list\n5. Implement transition animations during loading and interactions\n6. Add dark mode support using Ionic CSS variables\n7. Optimize display for different screen sizes (mobile, tablet, desktop)\n8. To test: Verify rendering on different screen sizes, test user interactions, check visual consistency in light and dark modes",
-          "status": "done",
+          "details": "1. Design and create the following tables with appropriate columns and relationships:\n   - games (game sessions, rules, time periods)\n   - teams (name, score, members, etc.)\n   - users (profile information)\n   - participants (linking users to teams/games)\n   - visits (location check-ins)\n   - challenges (tasks for teams to complete)\n   - messages (for in-game communication)\n   - partner_bars (optional, for special locations)\n2. Define appropriate primary keys and foreign key relationships\n3. Create indexes for frequently queried columns\n4. Implement Row Level Security (RLS) policies for each table to restrict access based on user roles and ownership\n5. Test RLS policies by attempting to access data with different user accounts\n6. Document the database schema and RLS rules for future reference\n7. Create database migration scripts for version control",
+          "status": "pending",
           "parentTaskId": 1
         },
         {
           "id": 3,
-          "title": "Improve layout and UI components of PlayerPage (formerly HunterTeamPage)",
-          "description": "Refine PlayerPage user interface using simulated data and adding advanced user interactions",
+          "title": "Set Up Storage Buckets and Enable Realtime Features",
+          "description": "Configure storage for media files and enable Realtime functionality for live updates",
           "dependencies": [
-            1
+            1,
+            2
           ],
-          "details": "1. Integrate simulated data into PlayerPage\n2. Restructure layout to efficiently display hunter teams\n3. Create detailed cards for each team member with avatar and statistics\n4. Implement a summary dashboard of team performance\n5. Add animations during interactions (team selection, member details)\n6. Implement touch gestures for mobile interactions (swipe, pinch)\n7. Harmonize color palette with game theme and support dark mode\n8. Ensure visual consistency with ChickenPage\n9. To test: Verify user interactions, test responsiveness on different devices, validate correct display of simulated data",
-          "status": "done",
+          "details": "1. Create the following storage buckets in Supabase:\n   - challenge_photos: for storing images of completed challenges\n   - team_avatars: for team profile pictures\n   - visit_photos: for location check-in validation\n2. Configure appropriate access controls for each bucket using RLS policies\n3. Set up file size limits and allowed file types for each bucket\n4. Test file upload and retrieval functionality for each bucket\n5. Enable Realtime features in the Supabase project settings\n6. Configure Realtime subscriptions for:\n   - Newsfeed updates (new challenges, visits, etc.)\n   - Score updates for teams\n   - Message notifications\n7. Create test clients to verify Realtime functionality is working\n8. Document the storage structure and Realtime configuration\n9. Implement cleanup policies for storage (e.g., temporary files)",
+          "status": "pending",
           "parentTaskId": 1
         },
         {
           "id": 4,
-          "title": "Refactor components exceeding 200 lines",
-          "description": "Apply cursor_rules.mdc guidelines to break down large components and improve code quality",
+          "title": "Create Supabase Project and Configure Authentication",
+          "description": "Set up a new Supabase project and configure the authentication system with session/room joining functionality",
+          "dependencies": [],
+          "details": "1. Create a new Supabase project from the dashboard\n2. Configure project settings including region and pricing plan\n3. Set up authentication settings in the Auth section\n4. Implement session/room joining functionality similar to Wooclap or Tricount\n5. Configure any necessary email templates for session joining\n6. Test the authentication flow by joining a test session/room\n7. Store project URL and API keys securely for future use\n\nTesting approach: Create a test session and verify users can join and authenticate successfully.",
+          "status": "pending",
+          "parentTaskId": 1
+        },
+        {
+          "id": 5,
+          "title": "Create Database Tables and Configure RLS Policies",
+          "description": "Set up all required database tables and implement Row Level Security policies for proper data access control",
           "dependencies": [
-            2,
-            3
+            4
           ],
-          "details": "1. Identify components exceeding 200 lines in the codebase\n2. Break large components into smaller, focused components\n3. Extract stateful logic into custom hooks (e.g., useChickenData, usePlayerData)\n4. Implement Context API for shared state management\n5. Ensure proper Ionic component hierarchy throughout the app\n6. Convert any class components to functional components with hooks\n7. Add TypeScript interfaces for all component props\n8. Apply React.memo() to prevent unnecessary re-renders\n9. Use useCallback() for optimizing event handlers\n10. To test: Verify all components maintain functionality after refactoring, check performance improvements with React DevTools",
-          "status": "done",
+          "details": "1. Define and create the following tables with appropriate columns and relationships:\n   - games (game_id, name, start_date, end_date, etc.)\n   - teams (team_id, name, score, game_id, etc.)\n   - users (user_id, email, name, etc.)\n   - participants (participant_id, user_id, team_id, etc.)\n   - visits (visit_id, team_id, location, timestamp, etc.)\n   - challenges (challenge_id, game_id, description, points, etc.)\n   - messages (message_id, sender_id, content, timestamp, etc.)\n   - partner_bars (optional) (bar_id, name, location, etc.)\n2. Set up foreign key relationships between tables\n3. Create indexes for frequently queried columns\n4. Configure Row Level Security (RLS) policies for each table:\n   - Enable RLS on all tables\n   - Define policies for read/write access based on user roles and team membership\n   - Test policies with different user contexts\n\nTesting approach: Write SQL queries to test table relationships and RLS policies by simulating different user roles and verifying proper access control.",
+          "status": "pending",
+          "parentTaskId": 1
+        },
+        {
+          "id": 6,
+          "title": "Set Up Storage Buckets and Enable Realtime Features",
+          "description": "Configure storage buckets for media files and enable Realtime functionality for dynamic updates",
+          "dependencies": [
+            4,
+            5
+          ],
+          "details": "1. Create storage buckets for:\n   - challenge_photos: for storing challenge submission photos\n   - team_avatars: for team profile images\n   - visit_validation: for photos validating team visits to locations\n2. Configure access policies for each bucket:\n   - Set appropriate public/private access rules\n   - Configure CORS settings if needed\n   - Set up bucket-specific RLS policies\n3. Enable Realtime features in Supabase:\n   - Configure publication/subscription settings for relevant tables\n   - Enable Realtime for tables requiring live updates (messages, teams, visits)\n   - Set up Realtime channels for newsfeed functionality\n   - Configure Realtime for score updates\n4. Test file uploads and Realtime functionality\n\nTesting approach: Upload test files to each bucket and verify access controls. Test Realtime functionality by making changes to tables and confirming that updates are broadcast in real-time.",
+          "status": "pending",
           "parentTaskId": 1
         }
       ]
     },
     {
       "id": 2,
-      "title": "Setup Supabase Infrastructure and Authentication",
-      "description": "Initialize the Supabase project with authentication, database schema, and storage buckets for the application",
+      "title": "Implement User Authentication and Game Creation",
+      "description": "Develop session/room joining authentication and game creation functionality for the Admin/Organizer role",
       "status": "pending",
-      "dependencies": [],
+      "dependencies": [
+        1
+      ],
       "priority": "high",
-      "details": "1. Create a Supabase project\n2. Configure authentication methods (Magic Link, optional SMS OTP)\n3. Set up database tables according to data model (games, teams, users, participants, visits, challenges, messages)\n4. Create appropriate indexes and relationships between tables\n5. Configure RLS (Row Level Security) policies for data access\n6. Set up Storage buckets for photos with appropriate permissions\n7. Create initial Supabase Edge Functions for core functionality\n8. Create MockData files for development and testing",
-      "testStrategy": "Verify authentication flow works with test users. Test database queries for basic CRUD operations. Confirm storage bucket configuration with test uploads. Validate RLS policies with different user roles. Ensure MockData can be used in place of actual Supabase data."
+      "details": "Connect the existing Home.tsx and AdminPage.tsx to Supabase authentication. Implement session/room joining functionality similar to Wooclap or Tricount for easy game access. Create the game configuration form that allows admins to: define geographic zone on interactive map, set initial pot amount, define maximum participants/teams, select initial challenges from predefined list. Generate and enable sharing of unique game invite code/link. Store game configuration in Supabase.",
+      "testStrategy": "Test session/room joining authentication flow. Verify game creation form saves all required parameters correctly. Confirm invite links are generated and work properly. Test geographic zone selection on the map."
     },
     {
       "id": 3,
-      "title": "Implement Basic Ionic React App Structure with Navigation",
-      "description": "Create the foundational app structure with routing, authentication flow, and core UI components",
-      "status": "done",
+      "title": "Develop Map Integration and Geolocation Features",
+      "description": "Integrate mapping service and implement core geolocation features for both Chicken and Hunter roles",
+      "status": "pending",
       "dependencies": [
-        1,
         2
       ],
       "priority": "high",
-      "details": "1. Initialize Ionic React project with Capacitor\n2. Set up routing system with protected routes\n3. Implement authentication UI (login, registration)\n4. Create navigation components and layout structure\n5. Implement Supabase client integration\n6. Configure theming (light/dark mode support)\n7. Create reusable UI components (buttons, cards, forms)\n8. Set up state management approach (context/hooks)",
-      "testStrategy": "Test navigation flow between screens. Verify authentication redirects work correctly. Ensure components render properly on different screen sizes. Test dark/light mode switching."
+      "details": "Integrate Mapbox/Leaflet via Capacitor for interactive maps. Implement geolocation tracking with Capacitor Geolocation plugin. Create map filtering to show only bars within the game zone. Build location selection interface for Chicken role. Develop bar visit validation flow for Hunter teams using GPS proximity checking. Implement fallback photo validation when GPS fails. Create map and list views of bars for Hunter interface.",
+      "testStrategy": "Test map rendering and zoom functionality. Verify geolocation tracking accuracy. Confirm bar filtering works within defined game zones. Test GPS validation of bar visits and photo fallback mechanism. Verify the list view displays correct bar information and visit status."
     },
     {
       "id": 4,
-      "title": "Develop Game Creation and Join Functionality",
-      "description": "Build the interface for creating new games, setting parameters, and joining existing games",
+      "title": "Implement Chicken Role Interface",
+      "description": "Complete the Chicken role interface with all required functionality for managing the game",
       "status": "pending",
       "dependencies": [
-        2,
         3
       ],
       "priority": "high",
-      "details": "1. Create game creation form with all required parameters (zone selection, time limit, etc.)\n2. Implement map integration for zone selection using Leaflet/Mapbox\n3. Build team creation functionality\n4. Develop invitation system with shareable links\n5. Implement game joining flow\n6. Create random chicken selection algorithm\n7. Develop game lobby UI showing participants and settings\n8. Add form validation and error handling\n9. Break large components (>200 lines) into smaller components following cursor_rules.mdc\n10. Create custom hooks for form logic and game creation\n11. Use Context API for sharing game creation state\n12. Use MockData for development and testing",
-      "testStrategy": "Test game creation with various parameters. Verify invitation links work correctly. Test joining games as different users. Confirm chicken selection randomization works properly. Validate form inputs handle edge cases. Test component hierarchy with React DevTools to ensure proper component composition."
+      "details": "Connect the existing ChickenPage.tsx to Supabase. Implement initial bar selection and hiding confirmation. Create timer functionality for the hiding period. Build validation interface for challenges and bar visit submissions. Develop pot expense tracking for recording drinks bought for finder teams. Create custom challenge creation functionality. Implement team discovery confirmation mechanism. Build hint broadcasting feature for sending information to all hunters.",
+      "testStrategy": "Test initial bar selection and confirmation flow. Verify challenge and visit validation works correctly. Test pot expense tracking and updates. Confirm custom challenge creation and distribution. Verify team discovery confirmation updates team status correctly. Test the hint broadcasting system to ensure all hunters receive information."
     },
     {
       "id": 5,
-      "title": "Implement Core Geolocation and Map Functionality",
-      "description": "Integrate map visualization and geolocation services for both chicken and hunter teams",
+      "title": "Implement Hunter Role Interface",
+      "description": "Complete the Hunter team interface with bar visiting, challenge completion, and team coordination features",
       "status": "pending",
       "dependencies": [
-        3,
-        4
-      ],
-      "priority": "high",
-      "details": "1. Integrate Capacitor Geolocation plugin\n2. Implement map component with Leaflet/Mapbox\n3. Add functionality to display game zone boundaries\n4. Create optimized geolocation tracking with battery-saving strategies\n5. Implement bar selection interface for chicken role\n6. Develop bar visit marking for hunter teams\n7. Add location-based validation (proximity checking)\n8. Implement caching for offline map data\n9. Extract map rendering logic into separate components (<200 lines each)\n10. Create custom hooks for geolocation data management\n11. Implement Context API for sharing location state\n12. Use MockData for location and map testing",
-      "testStrategy": "Test geolocation accuracy in different environments. Verify map rendering and interactions. Test boundary detection for game zones. Measure battery impact of location tracking. Verify location caching works when offline. Test component rerendering efficiency with React DevTools."
-    },
-    {
-      "id": 6,
-      "title": "Build Chicken Role Interface",
-      "description": "Develop the specialized interface for players with the chicken role",
-      "status": "pending",
-      "dependencies": [
-        3,
-        5
-      ],
-      "priority": "medium",
-      "details": "1. Intégrer et adapter le composant ChickenPage.tsx amélioré\n2. Implement timer for head start period\n3. Create bar selection interface on map\n4. Build challenge validation UI for reviewing team submissions\n5. Develop hint broadcasting functionality\n6. Add photo gallery to view team submissions\n7. Implement real-time updates for team movements/status\n8. Create specialized communication tools for chicken role\n9. Break ChickenPage.tsx into smaller components (<200 lines each)\n10. Extract logic to custom hooks (useTimer, useBarSelection, etc.)\n11. Use Context API for chicken role state management\n12. Implement proper Ionic component hierarchy\n13. Use MockData for development and testing",
-      "testStrategy": "Test timer functionality for accuracy. Verify challenge validation flow works correctly. Test hint broadcasting to all teams. Confirm real-time updates are received properly. Test photo gallery rendering and navigation. Verify component composition and state management with React DevTools."
-    },
-    {
-      "id": 7,
-      "title": "Develop Hunter Team Interface",
-      "description": "Create the interface for hunter teams to search for the chicken, visit bars, and complete challenges",
-      "status": "pending",
-      "dependencies": [
-        3,
-        5
-      ],
-      "priority": "medium",
-      "details": "1. Intégrer et adapter le composant PlayerPage.tsx (anciennement HunterTeamPage.tsx) amélioré\n2. Implement bar visit tracking and history\n3. Create photo capture functionality using Capacitor Camera\n4. Build challenge list and completion interface\n5. Develop team chat functionality\n6. Add bar marking system on map\n7. Implement bar visit counter and visualization\n8. Create found chicken reporting mechanism\n9. Break PlayerPage.tsx into smaller components (<200 lines each)\n10. Extract logic to custom hooks (useBarVisits, usePhotoCapture, etc.)\n11. Use Context API for hunter team state management\n12. Implement proper Ionic component hierarchy\n13. Use MockData for development and testing",
-      "testStrategy": "Test bar visit tracking for accuracy. Verify photo capture and upload works correctly. Test challenge completion flow. Confirm team chat messages are delivered properly. Test found chicken reporting mechanism. Verify component composition and state management with React DevTools."
-    },
-    {
-      "id": 8,
-      "title": "Implement Communication System",
-      "description": "Develop the real-time communication features including global chat, team chat, and notifications",
-      "status": "pending",
-      "dependencies": [
-        2,
-        3,
-        6,
-        7
-      ],
-      "priority": "medium",
-      "details": "1. Implement Supabase Realtime subscriptions for chat\n2. Create global chat interface accessible to all players\n3. Develop team-specific chat channels\n4. Implement private messaging between chicken and admin\n5. Add hint broadcasting system\n6. Integrate Capacitor Push Notifications\n7. Create notification triggers for key game events\n8. Implement message persistence and history loading\n9. Break chat components into smaller modules (<200 lines each)\n10. Create custom hooks for chat functionality (useChat, useNotifications)\n11. Implement ChatContext using Context API\n12. Optimize message rendering with React.memo()\n13. Use MockData for chat and notification testing",
-      "testStrategy": "Test real-time message delivery in different chat channels. Verify notifications are received properly. Test hint broadcasting to specific teams. Measure performance with multiple active chats. Test offline message queuing and delivery. Verify component rerendering efficiency with React DevTools."
-    },
-    {
-      "id": 9,
-      "title": "Develop Scoring and Ranking System",
-      "description": "Build the scoring logic, leaderboard, and game results functionality",
-      "status": "pending",
-      "dependencies": [
-        4,
-        7
-      ],
-      "priority": "medium",
-      "details": "1. Implement scoring algorithm based on bar visits and challenges\n2. Create Supabase Function for score calculation\n3. Develop real-time leaderboard with Supabase Realtime\n4. Build game results screen showing final standings\n5. Implement last team detection logic\n6. Create game history storage\n7. Add team statistics tracking\n8. Develop animations and visual feedback for score changes\n9. Break leaderboard and scoring components into smaller modules (<200 lines each)\n10. Create custom hooks for score calculation and leaderboard data\n11. Use Context API for sharing score and ranking state\n12. Optimize leaderboard rendering with React.memo()\n13. Use MockData for scoring and leaderboard testing",
-      "testStrategy": "Test scoring algorithm with various scenarios. Verify leaderboard updates in real-time. Test last team detection accuracy. Confirm game results are calculated and displayed correctly. Test history retrieval for past games. Verify component rerendering efficiency with React DevTools."
-    },
-    {
-      "id": 10,
-      "title": "Implement Challenge System with CMS Integration",
-      "description": "Develop the challenge creation, assignment, and validation system with PageCMS integration",
-      "status": "pending",
-      "dependencies": [
-        6,
-        7,
-        9
-      ],
-      "priority": "low",
-      "details": "1. Set up PageCMS for challenge content management\n2. Create challenge models and templates in CMS\n3. Implement API integration to fetch challenges\n4. Develop challenge assignment algorithm\n5. Build challenge completion UI for hunter teams\n6. Create challenge validation interface for chicken\n7. Implement proof submission with photo upload\n8. Add scoring integration for completed challenges\n9. Break challenge components into smaller modules (<200 lines each)\n10. Create custom hooks for challenge data and submission logic\n11. Use Context API for challenge state management\n12. Implement proper Ionic component hierarchy\n13. Use MockData for challenge testing",
-      "testStrategy": "Test CMS integration for reliable challenge retrieval. Verify challenge assignment works correctly. Test proof submission and validation flow. Confirm scoring updates properly after challenge completion. Test with various challenge types. Verify component composition and state management with React DevTools."
-    },
-    {
-      "id": 11,
-      "title": "Finalize UX Enhancements and Optimizations",
-      "description": "Implement final UI polish, performance optimizations, and prepare for deployment",
-      "status": "pending",
-      "dependencies": [
-        6,
-        7,
-        8,
-        9,
-        10
-      ],
-      "priority": "low",
-      "details": "1. Perfectionner les animations et effets sonores pour les interactions clés\n2. Finaliser le mode sombre sur toute l'application\n3. Optimize image handling (compression, caching)\n4. Add avatar and team customization options\n5. Implement battery optimization strategies\n6. Create onboarding tutorials/tooltips\n7. Add accessibility improvements\n8. Perform performance audits and optimizations\n9. Configure PWA settings for installation\n10. Prepare for testing deployment\n11. Conduct final review of all components to ensure none exceed 200 lines\n12. Apply React.memo() to prevent unnecessary rerenders\n13. Refine Context API usage to prevent performance issues\n14. Ensure all MockData is easily replaceable with real data sources",
-      "testStrategy": "Test UI on various devices and screen sizes. Measure and verify performance improvements. Test battery consumption during extended gameplay. Verify accessibility with screen readers. Test PWA installation and offline functionality. Use React DevTools to identify and fix performance bottlenecks."
-    },
-    {
-      "id": 12,
-      "title": "Refactor Files Exceeding 200 Lines According to Best Practices",
-      "description": "Systematically refactor any files exceeding 200 lines according to cursor_rules.mdc guidelines to improve maintainability and performance",
-      "status": "pending",
-      "dependencies": [
-        1,
         3
       ],
       "priority": "high",
-      "details": "1. Identify all files in the codebase exceeding 200 lines\n2. Break large components into smaller, focused components with single responsibilities\n3. Extract stateful logic into reusable custom hooks\n4. Implement Context API for state that needs to be shared across multiple components\n5. Ensure proper Ionic component hierarchy (IonPage > IonHeader/IonContent)\n6. Convert any class components to functional components with hooks\n7. Use TypeScript interfaces for component props\n8. Apply React.memo() and useCallback() where appropriate for performance optimization\n9. Utilize Ionic navigation patterns with IonRouterOutlet\n10. Implement slot attributes for proper element positioning within Ionic components\n11. Use Ionic lifecycle hooks where appropriate\n12. Ensure all components load data from MockData during this stage\n13. Apply consistent naming conventions and file organization",
-      "testStrategy": "Verify that refactored components maintain the same functionality as original components. Test performance improvements using React DevTools. Ensure proper component composition and hierarchy. Validate that all components render correctly across different screen sizes and in both light and dark modes. Check that MockData is properly integrated."
+      "details": "Connect the existing PlayerPage.tsx to Supabase. Implement bar visit marking and validation flow (GPS/photo). Create challenge list view with filtering and status indicators. Build challenge submission interface with camera integration for proof photos. Implement newsfeed view for game events and chicken hints. Create progress tracking UI (bars visited, challenges completed, current score). Develop found-chicken reporting mechanism.",
+      "testStrategy": "Test bar visit marking and validation process. Verify challenge list displays correctly with proper status indicators. Test photo submission for challenges and bar visits. Confirm newsfeed displays game events and chicken hints correctly. Verify progress tracking updates correctly after actions."
+    },
+    {
+      "id": 6,
+      "title": "Develop Scoring and Leaderboard System",
+      "description": "Implement the scoring logic, leaderboard, and game completion mechanics",
+      "status": "pending",
+      "dependencies": [
+        4,
+        5
+      ],
+      "priority": "medium",
+      "details": "Create Supabase Edge Function for score calculation. Implement scoring based on challenges completed and chicken discovery order. Build real-time leaderboard UI with filtering options. Develop game completion detection when all teams have found the chicken. Create final results display with top 3 winners highlighted. Implement score history tracking for post-game review.",
+      "testStrategy": "Test score calculation for different scenarios (challenges, finding chicken). Verify leaderboard updates in real-time when scores change. Test game completion detection and final results display. Confirm filtering options work correctly in the leaderboard view."
+    },
+    {
+      "id": 7,
+      "title": "Implement Communication System",
+      "description": "Develop the centralized communication features including notifications, hints, and game event newsfeed",
+      "status": "pending",
+      "dependencies": [
+        4,
+        5
+      ],
+      "priority": "medium",
+      "details": "Implement game event newsfeed using Supabase Realtime to display game updates to all players. Develop hint broadcasting system for the Chicken role to send information to all hunters. Integrate push notifications for key events (new challenges, submissions waiting for validation, team found chicken). Build newsfeed UI for game events and chicken messages. Create notification preferences settings.",
+      "testStrategy": "Verify hint broadcasting reaches all intended recipients. Test push notifications for various event types. Confirm newsfeed displays all relevant game events chronologically. Test that only the Chicken can send information to players."
+    },
+    {
+      "id": 8,
+      "title": "Implement Challenge Management System",
+      "description": "Develop the complete challenge lifecycle including creation, submission, validation, and tracking",
+      "status": "pending",
+      "dependencies": [
+        6,
+        7
+      ],
+      "priority": "medium",
+      "details": "Integrate with PageCMS for predefined challenges. Create interface for Chicken to add custom challenges during the game. Implement challenge assignment to teams. Build submission flow with photo capture and upload. Develop validation interface for Chicken to approve/reject submissions. Create resubmission flow for rejected challenges. Implement challenge completion tracking and notification system.",
+      "testStrategy": "Test challenge retrieval from CMS. Verify custom challenge creation and distribution. Test photo submission and storage. Confirm validation flow works correctly with proper status updates. Test resubmission of rejected challenges. Verify completion tracking and point assignment."
+    },
+    {
+      "id": 9,
+      "title": "Optimize Performance and User Experience",
+      "description": "Enhance app performance, implement dark mode, and optimize battery usage",
+      "status": "pending",
+      "dependencies": [
+        6,
+        7,
+        8
+      ],
+      "priority": "low",
+      "details": "Implement dark mode theme using Ionic CSS variables. Optimize GPS usage frequency to balance accuracy and battery life. Add loading states and error handling throughout the app. Implement image compression before upload to reduce data usage. Add animations and sound effects for key interactions. Create offline support for basic functionality. Standardize styling across components for consistent UX. Optimize Supabase queries and subscriptions for performance.",
+      "testStrategy": "Test dark mode on various screens and components. Measure battery impact with different GPS polling strategies. Verify image compression reduces upload size without sacrificing quality. Test app behavior under poor network conditions. Confirm animations and sounds enhance rather than detract from the experience."
+    },
+    {
+      "id": 10,
+      "title": "Finalize App and Prepare for Deployment",
+      "description": "Complete testing, bug fixing, and prepare the app for production deployment",
+      "status": "pending",
+      "dependencies": [
+        9
+      ],
+      "priority": "low",
+      "details": "Perform comprehensive testing across different devices and screen sizes. Fix any identified bugs and issues. Implement analytics to track app usage and performance. Create user onboarding flows with game rules explanation. Add proper error messages and recovery paths. Prepare privacy policy and terms of service. Configure PWA manifest and icons. Create deployment pipeline for continuous updates. Document codebase and architecture for future maintenance.",
+      "testStrategy": "Conduct end-to-end testing of complete game flows. Perform usability testing with target audience. Test PWA installation and offline capability. Verify analytics events are properly tracked. Confirm all error states have appropriate recovery paths. Test onboarding flow with new users."
     }
   ],
   "metadata": {
-    "projectName": "The Chicken Chase Implementation",
-    "totalTasks": 12,
+    "projectName": "The Chicken Chase",
+    "totalTasks": 10,
     "sourceFile": "PRD.md",
-    "generatedAt": "2023-11-21",
-    "updatedAt": "2023-11-23"
+    "generatedAt": "2023-11-13"
   }
 }

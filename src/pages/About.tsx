@@ -1,5 +1,6 @@
 import React from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonBackButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
+import '../theme/variables.css'; // Ensure CSS is imported if not globally applied
 
 const About: React.FC = () => {
   return (
@@ -9,7 +10,7 @@ const About: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" color="light" text="" />
           </IonButtons>
-          <IonTitle color="light" style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}>À Propos</IonTitle>
+          <IonTitle color="light" className="fantasy-title">À Propos</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
@@ -18,7 +19,7 @@ const About: React.FC = () => {
             <IonButtons slot="start">
               <IonBackButton defaultHref="/" color="light" text="" />
             </IonButtons>
-            <IonTitle color="light" style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}>À Propos</IonTitle>
+            <IonTitle color="light" className="fantasy-title">À Propos</IonTitle>
           </IonToolbar>
         </IonHeader>
         

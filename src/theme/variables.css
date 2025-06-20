@@ -220,3 +220,26 @@ http://ionicframework.com/docs/theming/ */
 ion-title {
   font-family: var(--ion-font-fantasy); /* Utilise 'Papyrus', fantasy par défaut */
 }
+
+/* Apply custom fantasy font to titles and override default bolding */
+.fantasy-title {
+  font-family: var(--ion-font-fantasy);
+  font-weight: normal; /* Override Ionic's default title boldness if needed */
+}
+
+/* Ensure back button text is hidden if desired globally */
+/*
+ion-back-button {
+  --color: var(--ion-color-light);
+  &::part(text) {
+    display: none;
+  }
+}
+*/
+
+/* Example of further global styles */
+/*
+ion-card {
+  border-radius: 8px; 
+}
+*/

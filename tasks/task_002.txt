@@ -1,18 +1,11 @@
 # Task ID: 2
-# Title: Setup Supabase Infrastructure and Authentication
+# Title: Implement User Authentication and Game Creation
 # Status: pending
-# Dependencies: None
+# Dependencies: 1
 # Priority: high
-# Description: Initialize the Supabase project with authentication, database schema, and storage buckets for the application
+# Description: Develop session/room joining authentication and game creation functionality for the Admin/Organizer role
 # Details:
-1. Create a Supabase project
-2. Configure authentication methods (Magic Link, optional SMS OTP)
-3. Set up database tables according to data model (games, teams, users, participants, visits, challenges, messages)
-4. Create appropriate indexes and relationships between tables
-5. Configure RLS (Row Level Security) policies for data access
-6. Set up Storage buckets for photos with appropriate permissions
-7. Create initial Supabase Edge Functions for core functionality
-8. Create MockData files for development and testing
+Connect the existing Home.tsx and AdminPage.tsx to Supabase authentication. Implement session/room joining functionality similar to Wooclap or Tricount for easy game access. Create the game configuration form that allows admins to: define geographic zone on interactive map, set initial pot amount, define maximum participants/teams, select initial challenges from predefined list. Generate and enable sharing of unique game invite code/link. Store game configuration in Supabase.
 
 # Test Strategy:
-Verify authentication flow works with test users. Test database queries for basic CRUD operations. Confirm storage bucket configuration with test uploads. Validate RLS policies with different user roles. Ensure MockData can be used in place of actual Supabase data.
+Test session/room joining authentication flow. Verify game creation form saves all required parameters correctly. Confirm invite links are generated and work properly. Test geographic zone selection on the map.

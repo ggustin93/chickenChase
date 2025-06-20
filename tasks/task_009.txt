@@ -1,23 +1,11 @@
 # Task ID: 9
-# Title: Develop Scoring and Ranking System
+# Title: Optimize Performance and User Experience
 # Status: pending
-# Dependencies: 4, 7
-# Priority: medium
-# Description: Build the scoring logic, leaderboard, and game results functionality
+# Dependencies: 6, 7, 8
+# Priority: low
+# Description: Enhance app performance, implement dark mode, and optimize battery usage
 # Details:
-1. Implement scoring algorithm based on bar visits and challenges
-2. Create Supabase Function for score calculation
-3. Develop real-time leaderboard with Supabase Realtime
-4. Build game results screen showing final standings
-5. Implement last team detection logic
-6. Create game history storage
-7. Add team statistics tracking
-8. Develop animations and visual feedback for score changes
-9. Break leaderboard and scoring components into smaller modules (<200 lines each)
-10. Create custom hooks for score calculation and leaderboard data
-11. Use Context API for sharing score and ranking state
-12. Optimize leaderboard rendering with React.memo()
-13. Use MockData for scoring and leaderboard testing
+Implement dark mode theme using Ionic CSS variables. Optimize GPS usage frequency to balance accuracy and battery life. Add loading states and error handling throughout the app. Implement image compression before upload to reduce data usage. Add animations and sound effects for key interactions. Create offline support for basic functionality. Standardize styling across components for consistent UX. Optimize Supabase queries and subscriptions for performance.
 
 # Test Strategy:
-Test scoring algorithm with various scenarios. Verify leaderboard updates in real-time. Test last team detection accuracy. Confirm game results are calculated and displayed correctly. Test history retrieval for past games. Verify component rerendering efficiency with React DevTools.
+Test dark mode on various screens and components. Measure battery impact with different GPS polling strategies. Verify image compression reduces upload size without sacrificing quality. Test app behavior under poor network conditions. Confirm animations and sounds enhance rather than detract from the experience.

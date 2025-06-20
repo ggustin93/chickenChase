@@ -17,6 +17,7 @@ import {
   IonCard
 } from '@ionic/react';
 import { businessOutline, mailOutline, callOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import '../theme/variables.css';
 
 const Partner: React.FC = () => {
   const [barName, setBarName] = useState('');
@@ -40,7 +41,7 @@ const Partner: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/" color="light" text="" />
           </IonButtons>
-          <IonTitle color="light" style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}>Bar Partenaire</IonTitle>
+          <IonTitle color="light" className="fantasy-title">Bar Partenaire</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
@@ -50,7 +51,7 @@ const Partner: React.FC = () => {
             <IonButtons slot="start">
                <IonBackButton defaultHref="/" color="light" text="" />
             </IonButtons>
-            <IonTitle color="light" style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}>Bar Partenaire</IonTitle>
+            <IonTitle color="light" className="fantasy-title">Bar Partenaire</IonTitle>
           </IonToolbar>
         </IonHeader>
 
