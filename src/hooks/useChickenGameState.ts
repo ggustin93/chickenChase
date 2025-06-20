@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChickenGameState, Challenge, Message } from '../data/types';
 import { mockChickenGameState } from '../data/mock/mockData';
-// import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export const useChickenGameState = (gameId?: string) => {
   const [gameState, setGameState] = useState<ChickenGameState>(mockChickenGameState);
@@ -230,8 +230,8 @@ export const useChickenGameState = (gameId?: string) => {
   };
   
   // Fonction pour indiquer que le poulet est caché
-  const hideChicken = useCallback(() => {
-    if (!gameState.currentBar) return;
+  const hideChicken = useCallback(async () => {
+    if (!gameId || !gameState.currentBar) return;
     
     // Arrêter le timer de cachette si actif
     if (hidingTimerRef.current) {
@@ -239,21 +239,45 @@ export const useChickenGameState = (gameId?: string) => {
       hidingTimerRef.current = null;
     }
     
-    // Reset the timer to 3 hours when the chicken is hidden
-    const gameTimeInHours = 3;
-    const formattedGameTime = `${gameTimeInHours}:00:00`;
-    
-    // Mettre à jour l'état
-    setGameState(prevState => ({
-      ...prevState,
-      isChickenHidden: true,
-      hidingTimeLeft: '00:00',
-      timeLeft: formattedGameTime // Reset to 3 hours
-    }));
-    
-    // Message système indiquant que la chasse a commencé
-    sendMessage(`🔔 Le poulet est caché ! La chasse est officiellement ouverte et durera ${gameTimeInHours} heures !`);
-  }, [gameState.currentBar]);
+    try {
+      // Appeler la fonction Supabase pour mettre à jour le statut du jeu
+      const { data, error } = await supabase
+        .rpc('update_chicken_hidden_status', { game_id: gameId });
+      
+      if (error) throw error;
+      
+      console.log("Chicken hidden status updated:", data);
+      
+      // Reset the timer to 3 hours when the chicken is hidden
+      const gameTimeInHours = 3;
+      const formattedGameTime = `${gameTimeInHours}:00:00`;
+      
+      // Mettre à jour l'état local
+      setGameState(prevState => ({
+        ...prevState,
+        isChickenHidden: true,
+        hidingTimeLeft: '00:00',
+        timeLeft: formattedGameTime, // Reset to 3 hours
+        game: {
+          ...prevState.game,
+          status: 'chicken_hidden',
+          chicken_hidden_at: new Date().toISOString()
+        }
+      }));
+      
+      // Message système indiquant que la chasse a commencé
+      sendMessage(`🔔 Le poulet est caché ! La chasse est officiellement ouverte et durera ${gameTimeInHours} heures !`);
+    } catch (err) {
+      console.error("Error updating chicken hidden status:", err);
+      // Fallback en cas d'erreur
+      setGameState(prevState => ({
+        ...prevState,
+        isChickenHidden: true,
+        hidingTimeLeft: '00:00',
+        timeLeft: `3:00:00` // Reset to 3 hours
+      }));
+    }
+  }, [gameId, gameState.currentBar, sendMessage]);
 
   return {
     gameState,

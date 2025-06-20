@@ -16,8 +16,9 @@ const mockGame: Game = {
   name: 'La Course du Poulet - Édition Bruxelles',
   startTime: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   endTime: new Date(Date.now() + 135 * 60 * 1000).toISOString(),
-  status: 'active',
-  maxTeams: 8
+  status: 'in_progress',
+  maxTeams: 8,
+  chicken_hidden_at: undefined
 };
 
 // Données simulées pour les bars
@@ -286,58 +287,63 @@ const mockTeamMembers5: TeamMember[] = [
 const mockTeams: Team[] = [
   {
     id: 'team-001',
-    name: 'Les Chasseurs de Poulet',
+    name: 'Les Poulets Fous',
     avatarUrl: 'https://picsum.photos/seed/team1/200/200',
-    score: 325,
+    score: 150,
     barsVisited: 3,
     challengesCompleted: 2,
     foundChicken: false,
     members: mockTeamMembers1,
-    lastLocation: mockLocations['team-001']
+    lastLocation: mockLocations['team-001'],
+    is_chicken_team: true
   },
   {
     id: 'team-002',
-    name: 'Équipe KFC',
+    name: 'Les Renards Rusés',
     avatarUrl: 'https://picsum.photos/seed/team2/200/200',
-    score: 410,
-    barsVisited: 4,
+    score: 120,
+    barsVisited: 2,
     challengesCompleted: 3,
     foundChicken: false,
     members: mockTeamMembers2,
-    lastLocation: mockLocations['team-002']
+    lastLocation: mockLocations['team-002'],
+    is_chicken_team: false
   },
   {
     id: 'team-003',
-    name: 'Équipe Poule Position',
+    name: 'Les Loups Agiles',
     avatarUrl: 'https://picsum.photos/seed/team3/200/200',
-    score: 275,
-    barsVisited: 2,
-    challengesCompleted: 3,
-    foundChicken: false,
-    members: mockTeamMembers3,
-    lastLocation: mockLocations['team-003']
-  },
-  {
-    id: 'team-004',
-    name: 'Équipe Cocorico',
-    avatarUrl: 'https://picsum.photos/seed/team4/200/200',
-    score: 225,
+    score: 90,
     barsVisited: 2,
     challengesCompleted: 1,
     foundChicken: false,
+    members: mockTeamMembers3,
+    lastLocation: mockLocations['team-003'],
+    is_chicken_team: false
+  },
+  {
+    id: 'team-004',
+    name: 'Les Pandas Tranquilles',
+    avatarUrl: 'https://picsum.photos/seed/team4/200/200',
+    score: 60,
+    barsVisited: 1,
+    challengesCompleted: 1,
+    foundChicken: false,
     members: mockTeamMembers4,
-    lastLocation: mockLocations['team-004']
+    lastLocation: mockLocations['team-004'],
+    is_chicken_team: false
   },
   {
     id: 'team-005',
-    name: 'Chicken Run',
+    name: 'Les Aigles Perspicaces',
     avatarUrl: 'https://picsum.photos/seed/team5/200/200',
-    score: 500,
-    barsVisited: 0,
-    challengesCompleted: 0,
+    score: 200,
+    barsVisited: 4,
+    challengesCompleted: 2,
     foundChicken: true,
     members: mockTeamMembers5,
-    lastLocation: mockLocations['team-005']
+    lastLocation: mockLocations['team-005'],
+    is_chicken_team: false
   }
 ];
 

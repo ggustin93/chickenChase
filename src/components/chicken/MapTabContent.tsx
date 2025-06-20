@@ -113,12 +113,12 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
       // Send notification about hiding
       if (onSendNotification && gameState.currentBar) {
         onSendNotification(
-          `Le poulet est maintenant caché ! La chasse est lancée pour ${gameState.timeLeft} !`,
+          `🚨 ATTENTION : Le poulet est maintenant caché au bar "${gameState.currentBar.name}" ! La chasse est officiellement lancée pour ${gameState.timeLeft} ! Bonne chance à toutes les équipes ! 🚨`,
           'clue'
         );
       }
       
-      setToastMessage('Vous êtes maintenant caché ! La chasse peut commencer !');
+      setToastMessage('Vous êtes maintenant caché ! Votre position a été enregistrée dans la base de données.');
       setShowToast(true);
     }
   };

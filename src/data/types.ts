@@ -1,12 +1,16 @@
 // Game related types for Chicken Chase app
 
+// Type pour le statut du jeu
+export type GameStatus = "pending" | "active" | "in_progress" | "chicken_hidden" | "completed" | "finished";
+
 export interface Game {
   id: string;
   name: string;
+  status: GameStatus;
   startTime: string;
   endTime: string;
-  status: 'active' | 'completed' | 'pending';
   maxTeams: number;
+  chicken_hidden_at?: string;
 }
 
 export interface Location {
@@ -26,6 +30,7 @@ export interface Team {
   challengesCompleted: number;
   foundChicken: boolean;
   lastLocation?: Location; // Dernière position connue de l'équipe
+  is_chicken_team: boolean;
 }
 
 export interface TeamMember {
