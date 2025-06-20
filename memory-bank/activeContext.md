@@ -1,42 +1,34 @@
-# Active Context: The Chicken Chase
+# Active Context
 
-## 1. Current Work Focus
-*   **Completing the Player Experience:** The immediate priority is to finish wiring up the `PlayerPage.tsx` with live data. While challenges are connected, the Map, Chat, and Leaderboard tabs still use mock data.
-*   **Building the Host/Chicken UI:** The game is currently unmanageable after it starts. We need to build the interface for the game host (the "Chicken") to validate pending challenge submissions.
+## Current Focus
 
-## 2. Recent Changes & Decisions
-*   **Architectural Pivot to "No Signup" Model:** The entire application was refactored to support an anonymous, session-based flow using `localStorage` persistence. The previous user-account model was removed.
-*   **Streamlined Game Creation:** The `HomePage` was redesigned. It now lists active lobbies and features a one-click "Create Game" button, completely removing the need for a separate, complex admin page.
-*   **Backend & Core Logic Implemented:**
-    *   The Supabase database schema was rebuilt from scratch to support the new anonymous flow.
-    *   A real-time lobby with team creation/joining is fully functional.
-    *   A `usePlayerGameData` hook was created to manage live game data for players.
-    *   The challenge submission flow (both photo and unlock types) is live and connected to the backend.
+Nous travaillons actuellement sur l'amélioration de la fonctionnalité de redirection automatique lorsque le poulet lance la partie. Nous avons identifié et résolu un problème critique où le champ `chicken_team_id` dans la table `games` n'était pas correctement mis à jour, ce qui empêchait la mise à jour du statut du jeu.
 
-## 3. Next Steps (Immediate)
-1.  **Build the Host Challenge Validation UI:**
-    *   Create a new page or component for the host.
-    *   This UI must fetch and display all submissions from the `challenge_submissions` table with a `pending` status for the current game.
-    *   It needs "Approve" and "Reject" buttons for each submission.
-2.  **Implement the Validation Logic:**
-    *   Clicking "Approve" should update the submission's `status` to 'approved' and, critically, trigger an update to the corresponding team's score in the `teams` table.
-    *   Clicking "Reject" should update the `status` to 'rejected'.
-3.  **Complete `PlayerPage` Live Data Integration:**
-    *   Connect the `LeaderboardTab` to the `teams` table to show a live scoreboard.
-    *   Connect the `ChatTab` to the `messages` table using Supabase Realtime.
-    *   (Optional for now) Connect the `MapTab` to a `bars` table if we decide to implement that feature.
+### Problèmes récemment résolus
 
-## 4. Active Decisions & Considerations
-*   **Host/Chicken Role:** How does a player become the host/chicken? Currently, the first player to create a game is the host. We need to decide if we want a more explicit role-selection step or if this implicit assignment is sufficient for the MVP.
-*   **Refactoring `PlayerPage.tsx`:** This component is still very large and holds a lot of state and logic related to the old mock data. As we connect more live features, we should progressively refactor it, moving logic into custom hooks and breaking the UI into smaller components.
-*   **Scoring Logic:** We need to implement the actual score update logic. This will likely be a Supabase Edge Function that is triggered when a challenge submission is approved, ensuring the logic is secure and centralized.
+1. **Problème de redirection après le lancement de la partie** : Lorsque le poulet lançait la partie, les joueurs n'étaient pas automatiquement redirigés vers la page de jeu appropriée.
+   - **Cause identifiée** : Le champ `chicken_team_id` dans la table `games` était NULL, ce qui causait une erreur lors de la mise à jour du statut du jeu.
+   - **Solution implémentée** : Nous avons modifié la fonction `handleBeChicken` pour mettre à jour automatiquement le champ `chicken_team_id` dans la table `games` lorsqu'une équipe Chicken est créée ou rejointe.
 
-## 5. Important Patterns & Preferences (Emerging)
-*   **Real-time First:** The application relies heavily on Supabase Realtime for a live, interactive experience. New features should follow this pattern.
-*   **Custom Hooks for Data Fetching:** The `usePlayerGameData` hook is a good pattern. We should create similar hooks for other data-heavy components (like the upcoming Host UI).
-*   **Client-Side Session Management:** The use of `crypto.randomUUID()` for player IDs and `localStorage` for session storage is the core of our auth-less system.
+2. **Erreur lors de la mise à jour du statut du jeu** : L'erreur "Aucune partie trouvée avec cet ID" apparaissait lors du lancement de la partie.
+   - **Solution implémentée** : Nous avons amélioré la gestion des erreurs dans les requêtes Supabase en évitant d'utiliser `.single()` qui échoue si aucune ligne n'est retournée, et en vérifiant d'abord l'existence de la partie avant de tenter de mettre à jour son statut.
 
-## 6. Learnings & Project Insights
-*   Pivoting to a simpler user flow, even if it requires significant refactoring, is worth it for user experience. The "no signup" model is a huge win.
-*   A clean, logical database schema makes frontend development much faster. The time spent designing the tables in `todo.md` paid off.
-*   The core gameplay loop is now tangible. We can play a basic version of the game, which is a massive milestone and will make it easier to identify the most important features to build next. 
+### Prochaines étapes
+
+1. **Tester la redirection automatique** : Vérifier que les joueurs sont correctement redirigés vers leurs pages respectives (chicken ou player) lorsque le poulet lance la partie.
+
+2. **Améliorer la robustesse des requêtes Supabase** : Continuer à renforcer la gestion des erreurs dans les requêtes Supabase pour éviter les erreurs similaires à l'avenir.
+
+3. **Finaliser l'interface utilisateur** : S'assurer que tous les composants UI reflètent correctement l'état du jeu et fournissent un feedback approprié aux utilisateurs.
+
+## Décisions actives et considérations
+
+- Nous avons décidé de mettre à jour automatiquement le champ `chicken_team_id` dans la table `games` pour éviter les problèmes de synchronisation.
+- Nous avons choisi d'améliorer la gestion des erreurs dans les requêtes Supabase en évitant d'utiliser `.single()` et en vérifiant d'abord l'existence des données.
+- Nous avons ajouté des logs de débogage supplémentaires pour faciliter l'identification des problèmes futurs.
+
+## Apprentissages et insights du projet
+
+- L'importance de maintenir une cohérence entre les champs de la base de données, en particulier pour les relations clés comme `chicken_team_id`.
+- La nécessité de gérer correctement les erreurs dans les requêtes Supabase, en particulier lorsqu'on utilise `.single()` qui peut échouer si aucune ligne n'est retournée.
+- L'utilité des logs de débogage pour identifier rapidement les problèmes dans les applications en temps réel. 

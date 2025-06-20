@@ -1,36 +1,68 @@
-# Progress: The Chicken Chase
+# Progress
 
-## 1. What Works (Current State - Robust Foundations)
-*   **"No Signup" Anonymous Flow:** The entire application is built on a "Wooclap-style" anonymous session model.
-*   **Robust Backend:**
-    *   **Transactional Functions:** Core logic like game creation is handled by atomic SQL functions (`create_game_and_host`), ensuring data integrity.
-    *   **Version-Controlled Schema:** The database schema is now fully managed by version-controlled **SQL migrations** in the `supabase/migrations` directory. This makes the setup reproducible and robust.
-*   **Modern Frontend Architecture:**
-    *   **Centralized Session State:** The application now uses a **React Context (`SessionContext`)** as the single source of truth for session data, completely replacing `localStorage`.
-    *   **Decomposed Components:** Complex pages like the Lobby have been successfully refactored into smaller, single-responsibility components (`TeamSelectionView`, `WaitingRoomView`) and a centralized type system (`src/types/types.ts`).
-*   **Core User Flow (End-to-End):**
-    *   **Game Creation/Joining:** The flow for creating a game (as a host) or joining one is fully functional, secure, and resilient.
-    *   **Real-time Lobby:** The `LobbyPage` works, allowing players to join, see each other, form teams, and leave, with all changes reflected in real-time via Supabase.
+## Ce qui fonctionne
 
-## 2. What's Next (Next Immediate Steps from `todo.md`)
-The core lobby and session management is complete and robust. The next phase focuses entirely on building out the **actual gameplay** from the Hunter's perspective.
-*   **Flesh out the `PlayerPage`:**
-    *   Connect the UI to live game data by creating and using a `useGameData` hook.
-    *   Implement the live newsfeed/chat.
-    *   Display the list of available challenges.
-    *   Display the team's score and the game's cagnotte.
-*   **Implement Challenge Submission:** Although the backend tables exist, the UI for submitting a challenge from the `PlayerPage` needs to be wired up.
+### Infrastructure et Backend
+- ✅ Base de données Supabase configurée avec toutes les tables nécessaires
+- ✅ Système de session basé sur localStorage (sans authentification)
+- ✅ API Supabase configurée avec les requêtes nécessaires
+- ✅ Système de temps réel pour les mises à jour des joueurs, équipes et statut du jeu
+- ✅ Gestion des erreurs robuste pour les requêtes Supabase, évitant les problèmes avec `.single()`
+- ✅ Mise à jour automatique du champ `chicken_team_id` dans la table `games`
 
-## 3. Current Status of PRD-Defined Features
-*   **Game Config/Launch:** Complete. Reimagined as a one-click-creation flow.
-*   **Lobby/Team Management:** Complete. Refactored for robustness and maintainability.
-*   **Hunter/Player Interface:** **This is the next major focus.** The page exists, but needs to be connected to live data.
+### Interface Utilisateur
+- ✅ Page d'accueil avec création et rejoindre une partie
+- ✅ Page de lobby avec sélection d'équipe
+- ✅ Interface de lancement de partie pour l'équipe Chicken
+- ✅ Redirection automatique vers les pages appropriées (Chicken ou Player) lors du lancement de la partie
+- ✅ Interface joueur avec onglets (Map, Challenges, Chat, Leaderboard)
+- ✅ Interface poulet avec fonctionnalités de base
 
-## 4. Known Issues/Risks
-*   **`PlayerPage` Complexity:** The `PlayerPage.tsx` file is the next "monolith" that will need careful refactoring as we add features, following the pattern we established with the `LobbyPage`.
+### Fonctionnalités de Jeu
+- ✅ Création et gestion des équipes
+- ✅ Système de défis avec validation
+- ✅ Système de chat en temps réel
+- ✅ Système de statut de jeu (lobby, in_progress, chicken_hidden, finished)
+- ✅ Gestion de la cagnotte
 
-## 5. Evolution of Project Decisions
-*   **Pivotal Decision 1: Anonymous Flow:** The project successfully moved from a user-account model to a frictionless, anonymous session model.
-*   **Pivotal Decision 2: Context over `localStorage`:** We have replaced a brittle `localStorage`-based session with a modern and robust React Context, simplifying state management.
-*   **Pivotal Decision 3: Backend Logic:** We have moved critical, atomic operations from the client to transactional SQL functions in the database, increasing security and reliability.
-*   **Pivotal Decision 4: Infrastructure as Code:** All database schema changes are now treated as code and managed through a migration system, a professional standard. 
+## Ce qui reste à construire
+
+### Améliorations Backend
+- [ ] Optimisation des requêtes Supabase pour réduire la latence
+- [ ] Mise en place d'un système de sauvegarde des données
+- [ ] Amélioration de la sécurité des requêtes
+
+### Améliorations UI
+- [ ] Finalisation de l'interface poulet caché
+- [ ] Amélioration de l'interface de validation des défis
+- [ ] Ajout d'animations et de transitions pour une meilleure expérience utilisateur
+- [ ] Adaptation pour les différentes tailles d'écran
+
+### Nouvelles Fonctionnalités
+- [ ] Système de notification pour les événements importants
+- [ ] Timer visible pour le temps restant de la partie
+- [ ] Système de classement final
+- [ ] Possibilité de rejouer une partie
+
+## Problèmes connus
+- ✅ Résolu : Problème de redirection après le lancement de la partie
+- ✅ Résolu : Erreur "Aucune partie trouvée avec cet ID" lors de la mise à jour du statut du jeu
+- [ ] Latence occasionnelle dans les mises à jour en temps réel
+- [ ] Problèmes potentiels de performance avec un grand nombre de joueurs
+
+## Évolution des décisions du projet
+
+### Architecture
+- Adoption d'un modèle sans authentification pour simplifier l'expérience utilisateur
+- Utilisation intensive de Supabase Realtime pour les mises à jour en temps réel
+- Mise en place d'une gestion des erreurs plus robuste pour les requêtes Supabase
+
+### Interface Utilisateur
+- Simplification des flux d'utilisateurs pour une meilleure expérience
+- Utilisation de composants Ionic pour une interface cohérente
+- Ajout de logs de débogage détaillés pour faciliter le développement
+
+### Fonctionnalités
+- Mise en place d'un système de statut de jeu avec contraintes dans la base de données
+- Amélioration du système de redirection automatique lors du lancement de la partie
+- Mise à jour automatique du champ `chicken_team_id` dans la table `games` pour éviter les problèmes de synchronisation 

@@ -193,6 +193,10 @@ This detailed schema gives us a powerful yet flexible foundation. It fully suppo
         -   Clicking "Join Team" updates the `team_id` for that player in the `players` table. This change should appear instantly for everyone.
         -   Clicking "Create Team" adds a new row to the `teams` table and updates the player's `team_id`.
     - [x] **Add "Start Game" Button:** This button is only visible to the first player who created the game (the "host"). When clicked, it updates the game's `status` in the `games` table from 'lobby' to 'active', which will then navigate all players to the main game interface.
+    - [x] **Corriger le problème de redirection:** 
+        -   Assurer que le champ `chicken_team_id` dans la table `games` est correctement mis à jour lorsqu'une équipe Chicken est créée ou rejointe.
+        -   Améliorer la gestion des erreurs dans les requêtes Supabase en évitant d'utiliser `.single()` qui échoue si aucune ligne n'est retournée.
+        -   Vérifier l'existence de la partie avant de tenter de mettre à jour son statut.
 
 - [x] **Action 4: Wire Up a Single Page (`PlayerPage`) with Live Data**
     -   *Why we're doing this:* It's time to connect our beautiful, already-built UI to our live backend. We'll focus on just the `PlayerPage` to prove the concept from end to end.
@@ -248,23 +252,3 @@ Let's start with Action 1. How does that sound?
 
     - [ ] **Implement "Approve/Reject" Handlers:**
         -   Create functions that are called when the host clicks the buttons.
-        -   These functions will update the status of the `challenge_submissions` row to 'approved' or 'rejected'.
-    - [ ] **Create a `update_score` Supabase Function:** This is a crucial security and consistency step.
-        -   Create a new Edge Function in Supabase called `update_score`.
-        -   This function should be called *after* a submission is approved. It will take a `team_id` and `challenge_id` as arguments.
-        -   Inside the function, it will securely fetch the challenge's point value and add it to the team's score in the `teams` table.
-        -   **Security:** This ensures that scores can only be updated via a trusted server-side process, not directly from the client.
-    - [ ] **Update Host UI in Real-time:** When a submission is approved or rejected, it should be removed from the host's pending list.
-
-- [ ] **Action 8: Complete the `PlayerPage` Live Data Integration**
-    -   *Why we're doing this:* To make the game feel truly alive for the players. Their actions and the actions of other teams should be reflected instantly.
-
-    - [ ] **Connect the `LeaderboardTab`:**
-        -   Update the `usePlayerGameData` hook to also fetch all teams for the game, ordered by `score`.
-        -   Subscribe to real-time updates on the `teams` table.
-        -   Feed this live data into the `LeaderboardTab` component so that scores update automatically when the host approves a challenge.
-    - [ ] **Connect the `ChatTab`:**
-        -   Create a simple chat input component.
-        -   When a player sends a message, insert a new row into the `messages` table.
-        -   Update the `usePlayerGameData` hook to fetch and subscribe to the `messages` table for the current game.
-        -   Display the messages in the `ChatTab`.
