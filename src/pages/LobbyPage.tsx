@@ -9,10 +9,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { logOut, personCircle } from 'ionicons/icons';
 import { useSession } from '../contexts/SessionContext';
-import { Game, Player, Team, GameStatus } from '../types/types';
+import { PostgrestError, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { Game, Player, Team } from '../types/types';
 import TeamSelectionView from '../components/TeamSelectionView';
 import WaitingRoomView from '../components/WaitingRoomView';
-import { PostgrestError } from '@supabase/supabase-js';
 
 // Supprimer la définition redondante de GameStatus car elle est maintenant importée
 
@@ -81,88 +81,10 @@ const LobbyPage: React.FC = () => {
         isChickenTeam: isPlayerInChickenTeam
       }));
       
-      console.log("Session mise à jour avant redirection:", {
-        gameId,
-        gameStatus: game.status,
-        isChickenTeam: isPlayerInChickenTeam
-      });
-      
       // Redirection immédiate pour éviter les problèmes de synchronisation
       redirectToGamePage();
     }
   }, [game?.status, isPlayerInChickenTeam, redirectToGamePage, gameId]);
-
-  // Fonction pour vérifier directement le statut du jeu dans Supabase
-  const checkGameStatus = useCallback(async () => {
-    if (!gameId) return;
-    
-    try {
-      console.log("Vérification périodique du statut du jeu:", gameId);
-      
-      // Ne pas utiliser .single() pour éviter l'erreur quand aucune ligne n'est retournée
-      const { data, error } = await supabase
-        .from('games')
-        .select('status, chicken_team_id')
-        .eq('id', gameId);
-      
-      if (error) {
-        console.error("Erreur lors de la vérification du statut du jeu:", error);
-        throw error;
-      }
-      
-      if (data && data.length > 0) {
-        const newStatus = data[0].status as GameStatus;
-        console.log("Statut du jeu récupéré depuis Supabase:", newStatus, "Status actuel:", game?.status);
-        
-        // Vérifier si le statut a changé
-        if (game?.status !== newStatus) {
-          console.log("Statut du jeu mis à jour depuis Supabase:", newStatus);
-          
-          // Mettre à jour l'état local
-          setGame(prevGame => prevGame ? { ...prevGame, status: newStatus } : null);
-          
-          // Déterminer si le joueur est dans l'équipe poulet
-          const chickenTeamId = data[0].chicken_team_id;
-          const isInChickenTeam = currentPlayerTeam?.id === chickenTeamId;
-          
-          // Mettre à jour la session locale avec toutes les informations nécessaires
-          const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
-          localStorage.setItem('player-session', JSON.stringify({
-            ...currentSession,
-            gameId: gameId,
-            gameStatus: newStatus,
-            isChickenTeam: isInChickenTeam
-          }));
-          
-          console.log("Session mise à jour avec le nouveau statut:", {
-            gameId,
-            gameStatus: newStatus,
-            isChickenTeam: isInChickenTeam
-          });
-          
-          // Si le jeu est en cours, rediriger
-          if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
-            console.log("Jeu en cours détecté, redirection...");
-            redirectToGamePage();
-          }
-        }
-      } else {
-        console.warn("Aucune partie trouvée avec l'ID:", gameId);
-      }
-    } catch (err) {
-      console.error("Erreur lors de la vérification du statut du jeu:", err);
-    }
-  }, [gameId, game?.status, redirectToGamePage, currentPlayerTeam?.id]);
-
-  useEffect(() => {
-    // Vérifier immédiatement le statut au chargement
-    checkGameStatus();
-    
-    // Puis vérifier périodiquement le statut du jeu (toutes les 3 secondes)
-    const interval = setInterval(checkGameStatus, 3000);
-    
-    return () => clearInterval(interval);
-  }, [checkGameStatus]);
 
   const fetchGameData = useCallback(async () => {
     if (!gameId) return;
@@ -238,27 +160,67 @@ const LobbyPage: React.FC = () => {
       return;
     }
 
-    // Canal pour écouter tous les changements pertinents (players, teams)
+    const handlePlayerChanges = (payload: RealtimePostgresChangesPayload<Player>) => {
+      console.log('Player change received:', payload);
+      const { eventType, new: newPlayer, old: oldPlayer } = payload;
+      
+      switch (eventType) {
+        case 'INSERT':
+          setPlayers(currentPlayers => [...currentPlayers, newPlayer]);
+          break;
+        case 'UPDATE':
+          setPlayers(currentPlayers => 
+            currentPlayers.map(p => p.id === newPlayer.id ? newPlayer : p)
+          );
+          break;
+        case 'DELETE':
+          if (oldPlayer?.id) {
+            setPlayers(currentPlayers => currentPlayers.filter(p => p.id !== oldPlayer.id));
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    const handleTeamChanges = (payload: RealtimePostgresChangesPayload<Team>) => {
+      console.log('Team change received:', payload);
+      const { eventType, new: newTeam, old: oldTeam } = payload;
+
+      switch (eventType) {
+        case 'INSERT':
+          setTeams(currentTeams => [...currentTeams, newTeam]);
+          break;
+        case 'UPDATE':
+          setTeams(currentTeams => 
+            currentTeams.map(t => t.id === newTeam.id ? newTeam : t)
+          );
+          break;
+        case 'DELETE':
+          if (oldTeam?.id) {
+            setTeams(currentTeams => currentTeams.filter(t => t.id !== oldTeam.id));
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    // Canal unifié pour les changements de joueurs et d'équipes
     const generalChannel = supabase
-      .channel(`lobby-general-${gameId}`)
+      .channel(`lobby-updates-${gameId}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public',
         table: 'players',
         filter: `game_id=eq.${gameId}` 
-      }, () => {
-        console.log("Players change detected, refreshing data...");
-        fetchGameData();
-      })
+      }, handlePlayerChanges)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public',
         table: 'teams',
         filter: `game_id=eq.${gameId}` 
-      }, () => {
-        console.log("Teams change detected, refreshing data...");
-        fetchGameData();
-      })
+      }, handleTeamChanges)
       .subscribe();
 
     // Canal spécifique pour les changements de statut du jeu
@@ -271,33 +233,18 @@ const LobbyPage: React.FC = () => {
         filter: `id=eq.${gameId}` 
       }, (payload) => {
         console.log("Game status change detected:", payload);
-        const newStatus = payload.new.status;
+        const newStatus = (payload.new as Game).status;
         
-        // Mettre à jour le statut du jeu dans la session locale
         const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
-        const updatedSession = {
-          ...currentSession,
-          gameStatus: newStatus
-        };
+        const updatedSession = { ...currentSession, gameStatus: newStatus };
         localStorage.setItem('player-session', JSON.stringify(updatedSession));
-        console.log("Session mise à jour avec le nouveau statut:", updatedSession);
         
-        // Mettre à jour l'état local du jeu immédiatement
         setGame(prevGame => {
-          const updatedGame = prevGame ? { ...prevGame, status: newStatus } : null;
-          console.log("État du jeu mis à jour:", updatedGame);
-          return updatedGame;
+          if (prevGame) return { ...prevGame, status: newStatus };
+          return null;
         });
         
-        // Si le jeu est en cours, préparer la redirection
-        if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
-          console.log("Jeu en cours détecté, préparation de la redirection...");
-          // Petit délai pour laisser le temps à l'interface de se mettre à jour
-          setTimeout(() => {
-            // Forcer un rafraîchissement complet des données
-            fetchGameData();
-          }, 500);
-        }
+        // La redirection est gérée par le premier useEffect qui observe game.status
       })
       .subscribe();
 

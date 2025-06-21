@@ -28,8 +28,7 @@ const JoinGamePage: React.FC = () => {
     }
   }, [location.search]);
 
-  const handleJoinGame = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleJoinGame = async () => {
     if (!joinCode.trim() || !nickname.trim()) {
       present({
         message: 'Le code de la partie et le pseudo sont requis.',
@@ -52,13 +51,13 @@ const JoinGamePage: React.FC = () => {
       if (gameError || !gameData) {
         throw new Error("Partie non trouvée ou code invalide.");
       }
-      const game_id = gameData.id;
+      const gameId = gameData.id;
 
       // 2. Vérifier si le pseudo est déjà utilisé dans cette partie
       const { data: existingPlayer } = await supabase
         .from('players')
         .select('id')
-        .eq('game_id', game_id)
+        .eq('game_id', gameId)
         .eq('nickname', nickname)
         .maybeSingle();
         
@@ -69,32 +68,38 @@ const JoinGamePage: React.FC = () => {
       // 3. Créer le nouveau joueur dans cette partie
       const { data: playerData, error: playerError } = await supabase
         .from('players')
-        .insert({ game_id: game_id, nickname: nickname })
-        .select('id')
+        .insert({ game_id: gameId, nickname: nickname.trim() })
+        .select()
         .single();
 
-      if (playerError) {
-        // Vérifier spécifiquement l'erreur de conflit
-        if (playerError.code === '23505') {
-          throw new Error("Ce pseudo est déjà utilisé dans cette partie. Veuillez en choisir un autre.");
-        }
-        throw playerError;
-      }
+      if (playerError) throw playerError;
       
       if (!playerData) {
         throw new Error("Impossible de créer le joueur.");
       }
-      const player_id = playerData.id;
 
-      // 4. Mettre à jour la session dans le contexte
-      setSession({ playerId: player_id, gameId: game_id, nickname });
+      // Authentification anonyme pour obtenir un user_id
+      const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
       
-      // 5. Redirection avec un court délai pour s'assurer que la session est bien mise à jour
-      // et utiliser history au lieu de router pour une navigation plus fiable
-      setTimeout(() => {
-        console.log("Redirection vers le lobby...", game_id);
-        history.replace(`/lobby/${game_id}`);
-      }, 100);
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Authentication failed.");
+
+      // Lier l'utilisateur authentifié au joueur que nous venons de créer
+      const { error: updatePlayerError } = await supabase
+        .from('players')
+        .update({ user_id: authData.user.id })
+        .eq('id', playerData.id);
+
+      if (updatePlayerError) throw updatePlayerError;
+
+      setSession({
+        playerId: playerData.id,
+        nickname: playerData.nickname,
+        gameId: gameId,
+        teamId: null
+      });
+      
+      history.push(`/lobby/${gameId}`);
 
     } catch (error) {
       console.error('Erreur lors de la tentative de rejoindre une partie:', error);

@@ -76,10 +76,12 @@ COMMENT ON TABLE public.teams IS 'Équipes participant à une partie';
 -- Table players
 CREATE TABLE public.players (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
     game_id uuid NOT NULL REFERENCES public.games(id) ON DELETE CASCADE,
     team_id uuid REFERENCES public.teams(id) ON DELETE SET NULL,
     nickname text NOT NULL,
-    UNIQUE(game_id, nickname)
+    UNIQUE(game_id, nickname),
+    UNIQUE(game_id, user_id)
 );
 
 COMMENT ON TABLE public.players IS 'Joueurs participant à une partie';
@@ -150,18 +152,51 @@ ALTER TABLE public.challenge_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.game_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.game_status_history ENABLE ROW LEVEL SECURITY;
 
--- Créer des politiques RLS pour permettre l'accès anonyme
-CREATE POLICY games_policy ON public.games FOR ALL TO anon, authenticated USING (true);
-CREATE POLICY challenges_policy ON public.challenges FOR ALL TO anon, authenticated USING (true);
-CREATE POLICY teams_policy ON public.teams FOR ALL TO anon, authenticated USING (true);
-CREATE POLICY players_policy ON public.players FOR ALL TO anon, authenticated USING (true);
-CREATE POLICY messages_policy ON public.messages FOR ALL TO anon, authenticated USING (true);
-CREATE POLICY challenge_submissions_policy ON public.challenge_submissions FOR ALL TO anon, authenticated USING (true);
-CREATE POLICY game_events_policy ON public.game_events FOR ALL TO anon, authenticated USING (true);
-CREATE POLICY game_status_history_policy ON public.game_status_history FOR ALL TO anon, authenticated USING (true);
+-- Supprimer les politiques RLS permissives existantes
+DROP POLICY IF EXISTS games_policy ON public.games;
+DROP POLICY IF EXISTS challenges_policy ON public.challenges;
+DROP POLICY IF EXISTS teams_policy ON public.teams;
+DROP POLICY IF EXISTS players_policy ON public.players;
+DROP POLICY IF EXISTS messages_policy ON public.messages;
+DROP POLICY IF EXISTS challenge_submissions_policy ON public.challenge_submissions;
+DROP POLICY IF EXISTS game_events_policy ON public.game_events;
+DROP POLICY IF EXISTS game_status_history_policy ON public.game_status_history;
+
+-- Créer des politiques RLS plus sécurisées
+-- Tout le monde peut voir toutes les parties (pour rejoindre) et les défis
+CREATE POLICY "Allow public read access to games" ON public.games FOR SELECT USING (true);
+CREATE POLICY "Allow public read access to challenges" ON public.challenges FOR SELECT USING (true);
+
+-- Les utilisateurs peuvent insérer des joueurs et des équipes
+CREATE POLICY "Allow all users to create players" ON public.players FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow all users to create teams" ON public.teams FOR INSERT WITH CHECK (true);
+
+-- Les joueurs peuvent voir les autres joueurs et les équipes de la même partie
+CREATE POLICY "Players can view players in the same game" ON public.players FOR SELECT to authenticated
+  USING (game_id IN (SELECT game_id FROM public.players WHERE user_id = auth.uid()));
+
+CREATE POLICY "Players can view teams in the same game" ON public.teams FOR SELECT to authenticated
+  USING (game_id IN (SELECT game_id FROM public.players WHERE user_id = auth.uid()));
+  
+-- Les joueurs peuvent mettre à jour leur propre personnage (ex: rejoindre une équipe) ou l'équipe qu'ils ont créée
+CREATE POLICY "Players can update their own player data" ON public.players FOR UPDATE to authenticated
+  USING (user_id = auth.uid());
+
+CREATE POLICY "Players can update their own team" ON public.teams FOR UPDATE to authenticated
+  USING (id IN (SELECT team_id FROM public.players WHERE user_id = auth.uid()));
+  
+-- Seul l'hôte de la partie peut la mettre à jour (ex: démarrer la partie)
+CREATE POLICY "Host can update their game" ON public.games FOR UPDATE to authenticated
+  USING (host_player_id IN (SELECT id FROM public.players WHERE user_id = auth.uid()));
+  
+-- Les joueurs peuvent voir les messages de leur partie
+CREATE POLICY "Players can view messages in their game" ON public.messages FOR SELECT to authenticated
+  USING (game_id IN (SELECT game_id FROM public.players p WHERE user_id = auth.uid()));
 
 -- Activer les publications pour les notifications en temps réel
 ALTER PUBLICATION supabase_realtime ADD TABLE public.game_events;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.players;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.teams;
 
 -- =================================================================
 --  Fonction : create_game_and_host
@@ -330,3 +365,6 @@ $$;
 -- Accorder les permissions d'exécution
 GRANT EXECUTE ON FUNCTION public.update_chicken_hidden_status(uuid) TO anon;
 GRANT EXECUTE ON FUNCTION public.update_chicken_hidden_status(uuid) TO authenticated; 
+
+-- Supprimer la fonction d'aide JWT qui est incorrecte
+DROP FUNCTION IF EXISTS public.requesting_user_claim(text); 

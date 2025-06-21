@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-Nous travaillons actuellement sur l'amélioration de l'architecture de la base de données et la résolution des problèmes de synchronisation du statut de jeu. Nous avons refactorisé la structure de la base de données en un seul fichier de migration complet et mis en place un système robuste de mise à jour du statut de jeu.
+Nous finalisons la fiabilisation du système temps réel de Supabase. Après avoir constaté que les mises à jour n'étaient pas instantanées pour tous les joueurs dans le lobby, nous avons entrepris une refonte de la gestion des événements temps réel et des politiques de sécurité de la base de données.
 
 ### Problèmes récemment résolus
 
@@ -20,10 +20,20 @@ Nous travaillons actuellement sur l'amélioration de l'architecture de la base d
 4. **Erreur lors de la mise à jour du statut du jeu** : L'erreur "Aucune partie trouvée avec cet ID" apparaissait lors du lancement de la partie.
    - **Solution implémentée** : Amélioration de la gestion des erreurs dans les requêtes Supabase et dans la fonction `update_game_status`.
 
+5. **Fiabilité du temps réel Supabase** : Les mises à jour dans le lobby (nouveaux joueurs, équipes) n'étaient pas diffusées à tous les clients, en particulier au joueur "Poulet".
+   - **Cause identifiée** : 
+     1.  **Politiques RLS (Row Level Security)** trop permissives et incorrectement configurées pour la diffusion temps réel.
+     2.  **Gestion inefficace des événements** : Le client rappelait une fonction `fetch` complète au lieu de mettre à jour son état local avec le payload de l'événement.
+     3.  **Absence d'informations critiques (player_id) dans le JWT**, empêchant les politiques RLS de fonctionner correctement.
+   - **Solution implémentée** :
+     1.  **Réécriture des politiques RLS** pour `players` et `teams` afin d'autoriser la lecture uniquement pour les joueurs de la même partie.
+     2.  **Modification du `signInAnonymously`** pour inclure le `player_id` dans les `claims` du JWT.
+     3.  **Refactorisation des écouteurs temps réel** dans `LobbyPage.tsx` pour mettre à jour l'état local directement depuis le payload de l'événement, rendant les mises à jour atomiques et instantanées.
+     4.  Suppression des mécanismes de secours (vérification périodique `checkGameStatus`).
+
 ### Prochaines étapes
 
-1. **Tester la robustesse du système** : Vérifier que le système de mise à jour du statut et les notifications fonctionnent correctement dans tous les cas.
-
+1. **Valider la solution temps réel** : Confirmer sur tous les rôles (Poulet, Chasseur) que les mises à jour dans le lobby sont bien instantanées.
 2. **Optimiser les performances** : Analyser et optimiser les performances des requêtes SQL et des fonctions.
 
 3. **Améliorer la documentation** : Mettre à jour la documentation technique pour refléter la nouvelle architecture de la base de données.

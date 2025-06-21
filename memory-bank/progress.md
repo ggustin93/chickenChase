@@ -6,7 +6,7 @@
 - ✅ Base de données Supabase configurée avec toutes les tables nécessaires
 - ✅ Système de session basé sur localStorage (sans authentification)
 - ✅ API Supabase configurée avec les requêtes nécessaires
-- ✅ Système de temps réel pour les mises à jour des joueurs, équipes et statut du jeu
+- ✅ Système temps réel robuste (via RLS et JWT) pour les mises à jour atomiques de l'état du jeu.
 - ✅ Gestion des erreurs robuste pour les requêtes Supabase, évitant les problèmes avec `.single()`
 - ✅ Mise à jour automatique du champ `chicken_team_id` dans la table `games`
 - ✅ Fonction SQL centralisée `update_game_status` pour la gestion cohérente des changements de statut
@@ -54,14 +54,14 @@
 - ✅ Résolu : Erreur "Aucune partie trouvée avec cet ID" lors de la mise à jour du statut du jeu
 - ✅ Résolu : Incohérences dans la mise à jour du statut de jeu
 - ✅ Résolu : Duplication des tables et fonctions dans la base de données
-- [ ] Latence occasionnelle dans les mises à jour en temps réel
+- ✅ Résolu : Latence et manque de fiabilité des mises à jour temps réel dans le lobby. Corrigé via des politiques RLS plus strictes, l'injection du `player_id` dans le JWT, et la refactorisation de la gestion des événements côté client.
 - [ ] Problèmes potentiels de performance avec un grand nombre de joueurs
 
 ## Évolution des décisions du projet
 
 ### Architecture
 - Adoption d'un modèle sans authentification pour simplifier l'expérience utilisateur
-- Utilisation intensive de Supabase Realtime pour les mises à jour en temps réel
+- Utilisation de Supabase Realtime avec des politiques RLS spécifiques et des JWT personnalisés pour garantir la sécurité et la fiabilité des diffusions.
 - Mise en place d'une gestion des erreurs plus robuste pour les requêtes Supabase
 - Centralisation de la logique critique dans des fonctions SQL robustes
 - Consolidation des fichiers de migration pour simplifier la maintenance
