@@ -9,6 +9,10 @@
 - ✅ Système de temps réel pour les mises à jour des joueurs, équipes et statut du jeu
 - ✅ Gestion des erreurs robuste pour les requêtes Supabase, évitant les problèmes avec `.single()`
 - ✅ Mise à jour automatique du champ `chicken_team_id` dans la table `games`
+- ✅ Fonction SQL centralisée `update_game_status` pour la gestion cohérente des changements de statut
+- ✅ Système de notification en temps réel via la table `game_events`
+- ✅ Historique complet des changements de statut via la table `game_status_history`
+- ✅ Structure de base de données consolidée en un seul fichier de migration
 
 ### Interface Utilisateur
 - ✅ Page d'accueil avec création et rejoindre une partie
@@ -28,9 +32,10 @@
 ## Ce qui reste à construire
 
 ### Améliorations Backend
-- [ ] Optimisation des requêtes Supabase pour réduire la latence
+- [ ] Optimisation des performances des fonctions SQL
 - [ ] Mise en place d'un système de sauvegarde des données
 - [ ] Amélioration de la sécurité des requêtes
+- [ ] Ajout de tests automatisés pour les fonctions SQL
 
 ### Améliorations UI
 - [ ] Finalisation de l'interface poulet caché
@@ -47,6 +52,8 @@
 ## Problèmes connus
 - ✅ Résolu : Problème de redirection après le lancement de la partie
 - ✅ Résolu : Erreur "Aucune partie trouvée avec cet ID" lors de la mise à jour du statut du jeu
+- ✅ Résolu : Incohérences dans la mise à jour du statut de jeu
+- ✅ Résolu : Duplication des tables et fonctions dans la base de données
 - [ ] Latence occasionnelle dans les mises à jour en temps réel
 - [ ] Problèmes potentiels de performance avec un grand nombre de joueurs
 
@@ -56,6 +63,10 @@
 - Adoption d'un modèle sans authentification pour simplifier l'expérience utilisateur
 - Utilisation intensive de Supabase Realtime pour les mises à jour en temps réel
 - Mise en place d'une gestion des erreurs plus robuste pour les requêtes Supabase
+- Centralisation de la logique critique dans des fonctions SQL robustes
+- Consolidation des fichiers de migration pour simplifier la maintenance
+- Mise en place d'un système de notification en temps réel via `game_events`
+- Implémentation d'un historique complet des changements via `game_status_history`
 
 ### Interface Utilisateur
 - Simplification des flux d'utilisateurs pour une meilleure expérience

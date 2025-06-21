@@ -1,0 +1,70 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.logo-img {
+  max-width: 200px !important;
+  width: 60% !important;
+  height: auto !important;
+  margin: 2rem auto;
+}
+
+.button-group {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Assurer que tous les éléments ont la même largeur */
+.home-container ion-list,
+.home-container h2,
+.home-container p {
+  width: 100%;
+}
+
+/* Style pour la liste des parties */
+.full-width-list {
+  width: 100% !important;
+}
+
+.full-width-list ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* Style pour les boutons */
+.home-container ion-button {
+  --border-radius: 8px;
+  height: 48px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.create-game-button {
+  --background: var(--ion-color-primary);
+  --color: white;
+}
+
+.join-game-button {
+  --border-color: var(--ion-color-primary);
+  --color: var(--ion-color-primary);
+}
+
+@media (max-width: 576px) {
+  .logo-img {
+    max-width: 150px !important;
+    width: 50% !important;
+    margin: 1.5rem auto;
+  }
+}

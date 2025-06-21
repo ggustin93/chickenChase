@@ -7,12 +7,13 @@
 La base de données est hébergée sur Supabase et comprend les tables suivantes :
 
 1. **games** - Stocke les informations sur les parties en cours
-   - Contient désormais un champ `chicken_team_id` qui doit être correctement mis à jour lorsqu'une équipe Chicken est créée ou rejointe
+   - Contient un champ `chicken_team_id` qui doit être correctement mis à jour lorsqu'une équipe Chicken est créée ou rejointe
    - Utilise un champ `status` avec contrainte CHECK pour contrôler les transitions d'état valides
+   - Stocke le timestamp `chicken_hidden_at` pour suivre quand le poulet s'est caché
 
 2. **teams** - Stocke les informations sur les équipes
    - Liée aux tables `games` et `players`
-   - Différencie les équipes Chicken des équipes Player
+   - Différencie les équipes Chicken des équipes Player via le champ `is_chicken_team`
 
 3. **players** - Stocke les informations sur les joueurs
    - Utilise un système de session sans authentification basé sur localStorage
@@ -27,6 +28,157 @@ La base de données est hébergée sur Supabase et comprend les tables suivantes
    - Lien vers le défi et l'équipe
 
 6. **messages** - Stocke les messages du chat pour chaque partie
+
+7. **game_events** - Stocke les événements pour les notifications en temps réel
+   - Utilisée pour informer tous les clients des changements importants
+   - Structure flexible avec `event_type` et `event_data` (JSON)
+
+8. **game_status_history** - Stocke l'historique des changements de statut
+   - Garde une trace complète de tous les changements pour audit et débogage
+   - Stocke l'ancien et le nouveau statut, ainsi que des métadonnées
+
+### Fonctions SQL centralisées
+
+Pour garantir la cohérence des données et simplifier la maintenance, nous avons implémenté des fonctions SQL centralisées :
+
+1. **update_game_status** - Fonction principale pour mettre à jour le statut d'une partie
+   ```sql
+   CREATE OR REPLACE FUNCTION public.update_game_status(game_id uuid, new_status text)
+   RETURNS json
+   LANGUAGE plpgsql
+   SECURITY DEFINER
+   AS $$
+   DECLARE
+     game_record record;
+     updated_game record;
+     old_status text;
+   BEGIN
+     -- 1. Vérifier que la partie existe et récupérer ses informations
+     SELECT * INTO game_record FROM public.games WHERE id = game_id;
+     
+     IF NOT FOUND THEN
+       RAISE EXCEPTION 'Partie non trouvée avec l''ID: %', game_id;
+     END IF;
+     
+     old_status := game_record.status;
+     
+     -- 2. Vérifier que le nouveau statut est valide
+     IF new_status NOT IN ('lobby', 'in_progress', 'chicken_hidden', 'finished', 'cancelled') THEN
+       RAISE EXCEPTION 'Statut invalide: %. Les statuts valides sont: lobby, in_progress, chicken_hidden, finished, cancelled', new_status;
+     END IF;
+     
+     -- 3. Vérifier que chicken_team_id est défini si on passe à in_progress ou chicken_hidden
+     IF (new_status = 'in_progress' OR new_status = 'chicken_hidden') AND game_record.chicken_team_id IS NULL THEN
+       RAISE EXCEPTION 'L''équipe poulet n''est pas définie pour cette partie';
+     END IF;
+     
+     -- 4. Mettre à jour le statut
+     UPDATE public.games
+     SET 
+       status = new_status,
+       updated_at = NOW(),
+       -- Mettre à jour chicken_hidden_at uniquement si on passe à chicken_hidden
+       chicken_hidden_at = CASE WHEN new_status = 'chicken_hidden' THEN NOW() ELSE chicken_hidden_at END
+     WHERE id = game_id
+     RETURNING * INTO updated_game;
+     
+     -- 5. Enregistrer le changement de statut dans l'historique
+     INSERT INTO public.game_status_history (
+       game_id,
+       old_status,
+       new_status,
+       metadata
+     ) VALUES (
+       game_id,
+       old_status,
+       new_status,
+       jsonb_build_object(
+         'chicken_team_id', updated_game.chicken_team_id,
+         'chicken_hidden_at', updated_game.chicken_hidden_at
+       )
+     );
+     
+     -- 6. Insérer un événement de notification pour tous les clients
+     INSERT INTO public.game_events (
+       game_id,
+       event_type,
+       event_data
+     ) VALUES (
+       game_id,
+       'status_change',
+       jsonb_build_object(
+         'status', new_status,
+         'message', CASE 
+           WHEN new_status = 'in_progress' THEN 'La partie a commencé!'
+           WHEN new_status = 'chicken_hidden' THEN 'Le poulet est caché! La chasse est lancée!'
+           WHEN new_status = 'finished' THEN 'La partie est terminée!'
+           WHEN new_status = 'cancelled' THEN 'La partie a été annulée!'
+           ELSE 'Le statut de la partie a changé!'
+         END
+       )
+     );
+     
+     -- 7. Retourner les informations mises à jour
+     RETURN jsonb_build_object(
+       'success', true,
+       'game_id', updated_game.id,
+       'old_status', old_status,
+       'new_status', updated_game.status,
+       'chicken_hidden_at', updated_game.chicken_hidden_at
+     );
+   END;
+   $$;
+   ```
+
+2. **create_game_and_host** - Crée une partie et un joueur hôte
+   ```sql
+   CREATE OR REPLACE FUNCTION public.create_game_and_host(host_nickname text default 'Hôte')
+   RETURNS json
+   LANGUAGE plpgsql
+   SECURITY DEFINER
+   AS $$
+   DECLARE
+     new_join_code text;
+     new_player_id uuid;
+     new_game_id uuid;
+     attempts integer := 0;
+   BEGIN
+     -- Génère un code de partie unique et facile à lire
+     LOOP
+       new_join_code := (
+         SELECT string_agg(ch, '')
+         FROM (
+           SELECT (array['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z','2','3','4','5','6','7','8','9'])[floor(random() * 32) + 1]
+           FROM generate_series(1, 6)
+         ) AS a(ch)
+       );
+       EXIT WHEN NOT EXISTS (SELECT 1 FROM public.games g WHERE g.join_code = new_join_code);
+       
+       attempts := attempts + 1;
+       IF attempts > 10 THEN
+         RAISE EXCEPTION 'Impossible de générer un code de partie unique.';
+       END IF;
+     END LOOP;
+
+     -- Crée la partie, le joueur hôte et retourne les informations
+     -- ...
+   END;
+   $$;
+   ```
+
+3. **update_chicken_hidden_status** - Fonction de rétrocompatibilité qui appelle update_game_status
+   ```sql
+   CREATE OR REPLACE FUNCTION public.update_chicken_hidden_status(game_id uuid)
+   RETURNS json
+   LANGUAGE plpgsql
+   SECURITY DEFINER
+   AS $$
+   BEGIN
+     -- Appeler simplement la nouvelle fonction update_game_status
+     RETURN public.update_game_status(game_id, 'chicken_hidden');
+   END;
+   $$;
+   ```
 
 ### Gestion des erreurs dans les requêtes Supabase
 
@@ -64,10 +216,13 @@ Pour éviter les erreurs liées à l'absence de données, nous avons adopté les
    }
    ```
 
-3. **Ajouter des logs de débogage détaillés** pour faciliter l'identification des problèmes :
+3. **Utiliser les fonctions RPC pour les opérations critiques** :
    ```typescript
-   console.log('Attempting to update game status:', { gameId, newStatus });
-   const { data, error } = await supabase.from('games').update({ status: newStatus }).eq('id', gameId);
+   // Utiliser la fonction RPC pour mettre à jour le statut
+   const { data, error } = await supabase.rpc('update_game_status', {
+     game_id: gameId,
+     new_status: 'in_progress'
+   });
    
    if (error) {
      console.error('Error updating game status:', error);
@@ -77,44 +232,37 @@ Pour éviter les erreurs liées à l'absence de données, nous avons adopté les
    }
    ```
 
-### Mise à jour automatique du chicken_team_id
+### Système de notification en temps réel
 
-Pour éviter les problèmes de synchronisation, nous avons implémenté une mise à jour automatique du champ `chicken_team_id` dans la table `games` lorsqu'une équipe Chicken est créée ou rejointe :
+Pour informer tous les clients des changements importants, nous avons mis en place un système de notification en temps réel :
 
-```typescript
-const handleBeChicken = async () => {
-  try {
-    // Créer ou rejoindre l'équipe Chicken
-    const { data: teamData, error: teamError } = await supabase
-      .from('teams')
-      .insert({
-        game_id: gameId,
-        name: 'Chicken Team',
-        is_chicken: true,
-        // autres champs...
-      })
-      .select();
+1. **Insertion d'événements dans la table `game_events`** :
+   - Chaque événement a un `event_type` et des `event_data` (JSON)
+   - Les événements sont insérés automatiquement par la fonction `update_game_status`
 
-    if (teamError) throw teamError;
-    
-    if (teamData && teamData.length > 0) {
-      const newTeamId = teamData[0].id;
-      
-      // Mettre à jour le chicken_team_id dans la table games
-      const { error: updateError } = await supabase
-        .from('games')
-        .update({ chicken_team_id: newTeamId })
-        .eq('id', gameId);
-        
-      if (updateError) throw updateError;
-      
-      console.log('Chicken team created and game updated successfully');
-    }
-  } catch (error) {
-    console.error('Error in handleBeChicken:', error);
-  }
-};
-```
+2. **Abonnement aux événements via Supabase Realtime** :
+   ```typescript
+   const subscription = supabase
+     .channel(`game-events-${gameId}`)
+     .on('postgres_changes', {
+       event: 'INSERT',
+       schema: 'public',
+       table: 'game_events',
+       filter: `game_id=eq.${gameId}`
+     }, (payload) => {
+       console.log('Nouvel événement:', payload);
+       // Traiter l'événement selon son type
+       if (payload.new.event_type === 'status_change') {
+         // Mettre à jour l'interface utilisateur
+       }
+     })
+     .subscribe();
+   
+   // Ne pas oublier de se désabonner
+   return () => {
+     subscription.unsubscribe();
+   };
+   ```
 
 ## Patterns de conception
 
@@ -168,8 +316,9 @@ const handleBeChicken = async () => {
    - Lancement de la partie par l'équipe Chicken
 
 2. **Gestion du statut du jeu**
-   - Transitions de statut contrôlées par la base de données
-   - Abonnements en temps réel pour les mises à jour de statut
+   - Transitions de statut contrôlées par la fonction `update_game_status`
+   - Historique complet des changements via la table `game_status_history`
+   - Notifications en temps réel via la table `game_events`
    - Redirection automatique basée sur les changements de statut
 
 3. **Soumission et validation des défis**

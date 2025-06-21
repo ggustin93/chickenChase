@@ -131,13 +131,13 @@ const JoinGamePage: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <IonLoading isOpen={loading} message={'Recherche de la partie...'} />
         <div className="flex flex-col items-center justify-center h-full">
-          <IonCard className="w-full max-w-md">
+          <IonCard className="w-full max-w-md mx-auto">
             <IonCardHeader>
               <IonCardTitle className="ion-text-center text-2xl">Entrez les informations</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
-              <form onSubmit={handleJoinGame}>
-                <IonItem className="mb-4">
+              <form onSubmit={handleJoinGame} style={{ width: '100%' }}>
+                <IonItem className="mb-4" style={{ width: '100%' }}>
                   <IonInput
                     label="Code de la partie"
                     labelPlacement="floating"
@@ -148,9 +148,10 @@ const JoinGamePage: React.FC = () => {
                     required
                     autocapitalize="characters"
                     onIonChange={(e) => setJoinCode(e.detail.value!.toUpperCase())}
+                    style={{ width: '100%' }}
                   ></IonInput>
                 </IonItem>
-                <IonItem className="mb-6">
+                <IonItem className="mb-6" style={{ width: '100%' }}>
                   <IonInput
                     label="Votre surnom"
                     labelPlacement="floating"
@@ -158,6 +159,7 @@ const JoinGamePage: React.FC = () => {
                     onIonInput={(e) => setNickname(e.detail.value!)}
                     clearInput
                     required
+                    style={{ width: '100%' }}
                   ></IonInput>
                 </IonItem>
                 <IonButton
@@ -166,6 +168,7 @@ const JoinGamePage: React.FC = () => {
                   expand="block"
                   size="large"
                   disabled={!joinCode || !nickname || loading}
+                  style={{ width: '100%', marginTop: '16px' }}
                 >
                   <IonIcon slot="start" icon={logInOutline} />
                   C'est Parti !

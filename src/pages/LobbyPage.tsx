@@ -76,58 +76,90 @@ const LobbyPage: React.FC = () => {
       const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
       localStorage.setItem('player-session', JSON.stringify({
         ...currentSession,
+        gameId: gameId, // S'assurer que gameId est bien dans la session
         gameStatus: game.status,
         isChickenTeam: isPlayerInChickenTeam
       }));
       
-      // Redirection après un court délai pour permettre à localStorage de se mettre à jour
-      setTimeout(() => {
-        redirectToGamePage();
-      }, 500);
+      console.log("Session mise à jour avant redirection:", {
+        gameId,
+        gameStatus: game.status,
+        isChickenTeam: isPlayerInChickenTeam
+      });
+      
+      // Redirection immédiate pour éviter les problèmes de synchronisation
+      redirectToGamePage();
     }
-  }, [game?.status, isPlayerInChickenTeam, redirectToGamePage]);
+  }, [game?.status, isPlayerInChickenTeam, redirectToGamePage, gameId]);
 
   // Fonction pour vérifier directement le statut du jeu dans Supabase
   const checkGameStatus = useCallback(async () => {
     if (!gameId) return;
     
     try {
+      console.log("Vérification périodique du statut du jeu:", gameId);
+      
+      // Ne pas utiliser .single() pour éviter l'erreur quand aucune ligne n'est retournée
       const { data, error } = await supabase
         .from('games')
-        .select('status')
-        .eq('id', gameId)
-        .single();
+        .select('status, chicken_team_id')
+        .eq('id', gameId);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur lors de la vérification du statut du jeu:", error);
+        throw error;
+      }
       
-      if (data && game?.status !== data.status) {
-        const newStatus = data.status as GameStatus;
-        console.log("Statut du jeu mis à jour depuis Supabase:", newStatus);
+      if (data && data.length > 0) {
+        const newStatus = data[0].status as GameStatus;
+        console.log("Statut du jeu récupéré depuis Supabase:", newStatus, "Status actuel:", game?.status);
         
-        // Mettre à jour l'état local
-        setGame(prevGame => prevGame ? { ...prevGame, status: newStatus } : null);
-        
-        // Mettre à jour la session locale
-        const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
-        localStorage.setItem('player-session', JSON.stringify({
-          ...currentSession,
-          gameStatus: newStatus
-        }));
-        
-        // Si le jeu est en cours, rediriger
-        if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
-          console.log("Jeu en cours détecté, redirection...");
-          redirectToGamePage();
+        // Vérifier si le statut a changé
+        if (game?.status !== newStatus) {
+          console.log("Statut du jeu mis à jour depuis Supabase:", newStatus);
+          
+          // Mettre à jour l'état local
+          setGame(prevGame => prevGame ? { ...prevGame, status: newStatus } : null);
+          
+          // Déterminer si le joueur est dans l'équipe poulet
+          const chickenTeamId = data[0].chicken_team_id;
+          const isInChickenTeam = currentPlayerTeam?.id === chickenTeamId;
+          
+          // Mettre à jour la session locale avec toutes les informations nécessaires
+          const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+          localStorage.setItem('player-session', JSON.stringify({
+            ...currentSession,
+            gameId: gameId,
+            gameStatus: newStatus,
+            isChickenTeam: isInChickenTeam
+          }));
+          
+          console.log("Session mise à jour avec le nouveau statut:", {
+            gameId,
+            gameStatus: newStatus,
+            isChickenTeam: isInChickenTeam
+          });
+          
+          // Si le jeu est en cours, rediriger
+          if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
+            console.log("Jeu en cours détecté, redirection...");
+            redirectToGamePage();
+          }
         }
+      } else {
+        console.warn("Aucune partie trouvée avec l'ID:", gameId);
       }
     } catch (err) {
       console.error("Erreur lors de la vérification du statut du jeu:", err);
     }
-  }, [gameId, game?.status, redirectToGamePage]);
+  }, [gameId, game?.status, redirectToGamePage, currentPlayerTeam?.id]);
 
   useEffect(() => {
-    // Vérifier périodiquement le statut du jeu
-    const interval = setInterval(checkGameStatus, 5000);
+    // Vérifier immédiatement le statut au chargement
+    checkGameStatus();
+    
+    // Puis vérifier périodiquement le statut du jeu (toutes les 3 secondes)
+    const interval = setInterval(checkGameStatus, 3000);
     
     return () => clearInterval(interval);
   }, [checkGameStatus]);
@@ -440,7 +472,7 @@ const LobbyPage: React.FC = () => {
       // Vérifier d'abord que la partie existe
       const { data: checkData, error: checkError } = await supabase
         .from('games')
-        .select('id, status')
+        .select('id, status, chicken_team_id')
         .eq('id', gameId);
       
       console.log("Check response:", checkData);
@@ -455,27 +487,48 @@ const LobbyPage: React.FC = () => {
         throw new Error(`Aucune partie trouvée avec l'ID ${gameId}`);
       }
       
-      // Mettre à jour le statut de la partie dans Supabase
-      console.log("Updating game status for game ID:", gameId);
-      const { data, error } = await supabase
-        .from('games')
-        .update({ status: 'in_progress' })
-        .eq('id', gameId)
-        .select();
+      // Vérifier que le chicken_team_id est correctement défini
+      const existingGame = checkData[0];
+      if (!existingGame.chicken_team_id) {
+        console.log("Le chicken_team_id n'est pas défini, mise à jour...");
+        // Mettre à jour le chicken_team_id avec l'ID de l'équipe du joueur actuel
+        const { error: updateChickenError } = await supabase
+          .from('games')
+          .update({ chicken_team_id: currentPlayerTeam?.id })
+          .eq('id', gameId);
+          
+        if (updateChickenError) {
+          console.error("Erreur lors de la mise à jour du chicken_team_id:", updateChickenError);
+          // Continuer malgré l'erreur, car ce n'est pas bloquant
+        } else {
+          console.log("chicken_team_id mis à jour avec succès:", currentPlayerTeam?.id);
+        }
+      }
+      
+      // Marquer une mise à jour locale pour éviter les conflits avec la vérification périodique
+      if (window._lastGameStatusUpdate !== undefined) {
+        window._lastGameStatusUpdate = Date.now();
+      }
 
-      console.log("Update response data:", data);
+      // Utiliser la nouvelle fonction RPC pour mettre à jour le statut du jeu
+      const { data: updateData, error } = await supabase
+        .rpc('update_game_status', { 
+          game_id: gameId,
+          new_status: 'in_progress'
+        });
+
+      console.log("Update response data:", updateData);
       console.log("Update response error:", error);
 
       if (error) throw error;
       
-      // Vérifier si des données ont été retournées
-      if (!data || data.length === 0) {
-        console.error("No data returned for game ID:", gameId);
-        throw new Error('Aucune partie trouvée avec cet ID');
+      // Vérifier si la mise à jour a réussi
+      if (!updateData || !updateData.success) {
+        console.error("La mise à jour du statut a échoué:", updateData);
+        throw new Error('Erreur lors de la mise à jour du statut du jeu');
       }
       
-      const updatedGame = data[0];
-      console.log("Game status updated:", updatedGame);
+      console.log("Game status updated:", updateData);
 
       // Mettre à jour la session locale avec le statut du jeu et l'information isChickenTeam
       const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
@@ -489,7 +542,7 @@ const LobbyPage: React.FC = () => {
       console.log("Session mise à jour:", updatedSession);
 
       // Mettre à jour l'état local immédiatement
-      setGame(updatedGame);
+      setGame(prev => prev ? {...prev, status: 'in_progress'} : null);
       
       present({ 
         message: 'La partie commence !', 
@@ -497,12 +550,9 @@ const LobbyPage: React.FC = () => {
         color: 'success' 
       });
       
-      // Redirection directe vers la page Chicken après un court délai
-      // pour laisser le temps aux autres joueurs de recevoir la mise à jour
-      setTimeout(() => {
-        console.log("Redirecting to chicken page:", `/chicken/${gameId}`);
-        window.location.href = `/chicken/${gameId}`;
-      }, 1500);
+      // Redirection directe vers la page Chicken sans délai
+      console.log("Redirecting to chicken page:", `/chicken/${gameId}`);
+      window.location.href = `/chicken/${gameId}`;
 
     } catch (error) {
       console.error('Error starting game:', error);

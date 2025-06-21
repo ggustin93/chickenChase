@@ -68,7 +68,7 @@ interface PlayerGameState {
 // const mapZoom = 15;
 
 const PlayerPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard'>('leaderboard');
+  const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard'>('map');
 
   // Get session info from localStorage - available to the whole component
   const session = useMemo(() => {

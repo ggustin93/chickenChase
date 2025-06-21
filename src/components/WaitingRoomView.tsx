@@ -75,11 +75,24 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
               // Si le jeu est en cours, rediriger vers la page appropriée
               if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
                 console.log("Redirection vers la page de jeu...");
-                setTimeout(() => {
-                  window.location.href = isChickenTeam 
-                    ? `/chicken/${currentPlayer.game_id}` 
-                    : `/player/${currentPlayer.game_id}`;
-                }, 1000);
+                // Mettre à jour la session avec toutes les informations nécessaires
+                const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+                localStorage.setItem('player-session', JSON.stringify({
+                  ...currentSession,
+                  gameId: currentPlayer.game_id,
+                  gameStatus: newStatus,
+                  isChickenTeam: isChickenTeam
+                }));
+                console.log("Session mise à jour avant redirection:", {
+                  gameId: currentPlayer.game_id,
+                  gameStatus: newStatus,
+                  isChickenTeam
+                });
+                
+                // Redirection immédiate sans délai
+                window.location.href = isChickenTeam 
+                  ? `/chicken/${currentPlayer.game_id}` 
+                  : `/player/${currentPlayer.game_id}`;
               }
             }
           } else {
@@ -184,16 +197,30 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
                 expand="block"
                 onClick={() => {
                   console.log("Forçage de la redirection...");
+                  // Mettre à jour la session avec toutes les informations nécessaires
+                  const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+                  localStorage.setItem('player-session', JSON.stringify({
+                    ...currentSession,
+                    gameId: currentPlayer?.game_id,
+                    gameStatus: realGameStatus,
+                    isChickenTeam: isChickenTeam
+                  }));
+                  console.log("Session mise à jour avant redirection forcée:", {
+                    gameId: currentPlayer?.game_id,
+                    gameStatus: realGameStatus,
+                    isChickenTeam
+                  });
+                  
                   window.location.href = isChickenTeam 
                     ? `/chicken/${currentPlayer?.game_id}` 
                     : `/player/${currentPlayer?.game_id}`;
                 }}
               >
                 <IonIcon icon={flame} slot="start" />
-                PROBLÈME? CLIQUEZ ICI POUR REJOINDRE LA PARTIE
+                REJOINDRE LA PARTIE
               </IonButton>
               <p className="text-sm text-center mt-2">
-                Si vous voyez ce bouton, c'est que la redirection automatique n'a pas fonctionné.
+                Cliquez sur le bouton ci-dessus pour rejoindre la partie en cours.
               </p>
             </div>
           )}

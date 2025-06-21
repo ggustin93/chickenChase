@@ -24,6 +24,7 @@ import {
   informationCircleOutline,
   helpCircleOutline,
   storefrontOutline,
+  logOutOutline,
 } from 'ionicons/icons';
 // Import the logo
 import logo from '../assets/images/logo.png';
@@ -34,7 +35,6 @@ interface SideMenuProps {
   appVersion?: string;
   logoSrc?: string;
   gameName?: string;
-  onQuitGame?: () => void;
 }
 
 // Configuration des modes
@@ -55,8 +55,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
   mode, 
   appVersion,
   logoSrc = logo,
-  gameName,
-  onQuitGame
+  gameName
 }) => {
   // Ensure menu closes properly when clicking outside
   useEffect(() => {
@@ -150,7 +149,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           <IonImg
             src={logoSrc}
             alt="Chicken Chase Logo"
-            style={{ width: '140px', height: '140px', margin: '0 auto' }}
+            style={{ maxWidth: '120px', width: '80%', height: 'auto', margin: '0 auto' }}
             className="rounded-md shadow-sm transform transition-transform hover:scale-105 duration-300"
           />
           <h1
@@ -182,6 +181,22 @@ const SideMenu: React.FC<SideMenuProps> = ({
           {renderModeSelectors()}
         </IonList>
 
+        {/* Bouton de déconnexion */}
+        <IonItem 
+          button 
+          detail={false}
+          lines="none" 
+          color="light" 
+          className="mx-3 mb-2 mt-4 rounded-lg shadow-sm opacity-80 logout-button"
+          onClick={() => {
+            localStorage.clear(); // Efface tout le localStorage
+            window.location.href = '/home'; // Redirection vers la page d'accueil
+          }}
+        >
+          <IonIcon slot="start" icon={logOutOutline} color="danger" className="ion-margin-start"/>
+          <IonLabel className="text-sm font-medium ion-text-default" color="danger">Se déconnecter</IonLabel>
+        </IonItem>
+        
         {/* Footer avec version de l'app */}
         {appVersion && (
           <div className="flex flex-col h-full"> 

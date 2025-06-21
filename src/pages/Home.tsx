@@ -89,20 +89,20 @@ const Home: React.FC = () => {
           <IonImg src={logo} className="logo-img ion-margin-bottom" />
 
           <div className="button-group">
-            <IonButton size="large" expand="block" onClick={handleCreateGame}>
+            <IonButton size="large" expand="block" onClick={handleCreateGame} className="create-game-button">
               <IonIcon slot="start" icon={add} />
               Créer une Partie
             </IonButton>
-            <IonButton size="large" expand="block" fill="outline" onClick={handleJoinGame}>
+            <IonButton size="large" expand="block" fill="outline" onClick={handleJoinGame} className="join-game-button">
               <IonIcon slot="start" icon={logIn} />
               Rejoindre avec un code
             </IonButton>
           </div>
           
-          <div className="ion-margin-top">
+          <div className="ion-margin-top" style={{ width: '100%' }}>
             <h2 className="ion-text-center">Parties en cours</h2>
             {loading ? <div className="ion-text-center"><IonSpinner /></div> : (
-              <IonList>
+              <IonList className="full-width-list">
                 {games.length > 0 ? games.map(game => (
                   <IonItem button key={game.id} onClick={() => handleJoinSpecificGame(game.join_code)}>
                     <IonIcon slot="start" icon={gameController} color="medium" />

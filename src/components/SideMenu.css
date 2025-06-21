@@ -1,9 +1,24 @@
 /* Ajouter ces styles à votre fichier global.css ou dans un fichier dédié au SideMenu */
 
-/* Styles pour le menu */
+/* Styles pour le menu latéral */
 .menu-container {
-  --ion-background-color: var(--ion-color-primary);
-  --ion-text-color: var(--ion-color-light);
+  --width: 280px;
+  --max-width: 90%;
+}
+
+/* Assurer une largeur cohérente pour tous les éléments */
+.menu-container ion-list {
+  width: 100%;
+}
+
+.menu-container ion-item {
+  width: 100%;
+  --border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.menu-container ion-label {
+  width: 100%;
 }
 
 /* Animation pour les items du menu */
@@ -49,8 +64,9 @@ ion-card.menu-header-card:hover {
 
 /* Style pour les séparateurs des sections */
 .section-header {
-  position: relative;
-  overflow: hidden;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .section-header::after {
@@ -86,10 +102,17 @@ ion-card.menu-header-card:hover {
 
 /* Style pour le bouton de déconnexion */
 .logout-button {
-  --background-hover: rgba(var(--ion-color-danger-rgb), 0.08);
-  transition: all 0.2s ease;
+  margin-top: 24px;
+  --border-radius: 8px;
 }
 
 .logout-button:hover {
   --color: var(--ion-color-danger);
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .menu-container {
+    --width: 260px;
+  }
 }
