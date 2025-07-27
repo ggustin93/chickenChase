@@ -6,7 +6,7 @@
     
     <base href="/" />
     
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light only" />
     <meta
       name="viewport"
       content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -21,7 +21,33 @@
     <!-- add to homescreen for ios -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Ionic App" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    
+    <!-- Force light mode prevention -->
+    <style>
+      /* Critical: Block all dark mode CSS immediately */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: light !important;
+        }
+        html, body {
+          background-color: #ffffff !important;
+          color: #000000 !important;
+        }
+      }
+      
+      /* Prevent any dark mode class applications */
+      .dark, .ion-palette-dark, [data-theme="dark"] {
+        color-scheme: light !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      
+      /* Ensure light mode is enforced at root level */
+      html {
+        color-scheme: light !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
