@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   IonContent, IonCard, IonCardContent, IonButton, IonIcon, IonChip,
-  IonInput, IonText, IonGrid, IonRow, IonCol,
+  IonInput, IonText,
   IonBadge, IonRippleEffect, IonSkeletonText, IonFab, IonFabButton
 } from '@ionic/react';
 import { 
@@ -50,6 +50,23 @@ const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
     setRefreshing(true);
     try {
       await onRefresh();
+      
+      // Vérifier si le jeu a commencé après le rafraîchissement
+      // Si oui, rediriger vers la page appropriée
+      const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+      const gameStatus = currentSession.gameStatus;
+      const gameId = currentSession.gameId;
+      const isChickenTeam = currentSession.isChickenTeam;
+      
+      if (gameStatus === 'in_progress' || gameStatus === 'chicken_hidden') {
+        console.log("Game is in progress after refresh, redirecting...");
+        if (isChickenTeam) {
+          window.location.href = `/chicken/${gameId}`;
+        } else {
+          window.location.href = `/player/${gameId}`;
+        }
+        return;
+      }
     } finally {
       setTimeout(() => setRefreshing(false), 500); // Petit délai pour le feedback visuel
     }

@@ -28,6 +28,7 @@ const LobbyPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [present] = useIonToast();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Log pour déboguer le gameId
   useEffect(() => {
@@ -43,34 +44,40 @@ const LobbyPage: React.FC = () => {
 
   // Fonction pour rediriger vers la page appropriée
   const redirectToGamePage = useCallback(() => {
-    if (!gameId) return;
+    if (!gameId || isRedirecting) return;
     
-    // Récupérer la session courante
-    const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
-    const isChickenTeam = currentPlayerTeam?.is_chicken_team || false;
-    
-    // Mettre à jour la session locale pour indiquer que le jeu est en cours
-    localStorage.setItem('player-session', JSON.stringify({
-      ...currentSession,
-      gameStatus: 'in_progress',
-      isChickenTeam: isChickenTeam
-    }));
-    
-    if (isChickenTeam) {
-      console.log("Redirecting to chicken page:", `/chicken/${gameId}`);
+    try {
+      setIsRedirecting(true);
+      
+      // Récupérer la session courante
+      const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+      const isChickenTeam = currentPlayerTeam?.is_chicken_team || false;
+      
+      // Mettre à jour la session locale pour indiquer que le jeu est en cours
+      localStorage.setItem('player-session', JSON.stringify({
+        ...currentSession,
+        gameId: gameId,
+        gameStatus: 'in_progress',
+        isChickenTeam: isChickenTeam
+      }));
+      
+      // Déterminer la page de destination
+      const targetPath = isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`;
+      console.log(`Redirecting to ${isChickenTeam ? 'chicken' : 'player'} page: ${targetPath}`);
+      
       // Utiliser window.location.href pour une redirection directe
-      window.location.href = `/chicken/${gameId}`;
-    } else {
-      console.log("Redirecting to player page:", `/player/${gameId}`);
-      window.location.href = `/player/${gameId}`;
+      window.location.href = targetPath;
+    } catch (error) {
+      console.error("Erreur lors de la redirection:", error);
+      setIsRedirecting(false);
     }
-  }, [gameId, currentPlayerTeam]);
+  }, [gameId, currentPlayerTeam, isRedirecting]);
 
   useEffect(() => {
     console.log("Game status changed:", game?.status);
     console.log("Is player in chicken team:", isPlayerInChickenTeam);
     
-    if (game?.status === 'in_progress' || game?.status === 'chicken_hidden') {
+    if ((game?.status === 'in_progress' || game?.status === 'chicken_hidden') && !isRedirecting) {
       console.log("Game is in progress, redirecting...");
       
       // Mettre à jour la session locale avec le nouveau statut
@@ -85,7 +92,7 @@ const LobbyPage: React.FC = () => {
       // Redirection immédiate pour éviter les problèmes de synchronisation
       redirectToGamePage();
     }
-  }, [game?.status, isPlayerInChickenTeam, redirectToGamePage, gameId]);
+  }, [game?.status, isPlayerInChickenTeam, redirectToGamePage, gameId, isRedirecting]);
 
   const fetchGameData = useCallback(async () => {
     if (!gameId) return;
@@ -136,6 +143,24 @@ const LobbyPage: React.FC = () => {
       
       if (teamsError) throw teamsError;
       setTeams(teamsData || []);
+      
+      // Vérifier si le jeu est déjà en cours après avoir récupéré les données
+      if (game.status === 'in_progress' || game.status === 'chicken_hidden') {
+        // Mettre à jour la session avec le statut actuel
+        const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+        const isChickenTeam = teamsData?.some(team => 
+          team.is_chicken_team && team.id === playersData?.find(p => p.id === session.playerId)?.team_id
+        ) || false;
+        
+        localStorage.setItem('player-session', JSON.stringify({
+          ...currentSession,
+          gameId: gameId,
+          gameStatus: game.status,
+          isChickenTeam: isChickenTeam
+        }));
+        
+        // Ne pas rediriger immédiatement - laisser le useEffect s'en charger
+      }
       
     } catch (error) {
       console.error('Error fetching game data:', error);
@@ -429,6 +454,7 @@ const LobbyPage: React.FC = () => {
     }
 
     try {
+      setIsRedirecting(true); // Empêcher les redirections multiples
       console.log("Starting game with ID:", gameId);
       console.log("Current player is in chicken team:", isPlayerInChickenTeam);
       
@@ -441,6 +467,7 @@ const LobbyPage: React.FC = () => {
           duration: 3000, 
           color: 'warning' 
         });
+        setIsRedirecting(false);
         return;
       }
 
@@ -480,11 +507,6 @@ const LobbyPage: React.FC = () => {
         } else {
           console.log("chicken_team_id mis à jour avec succès:", currentPlayerTeam?.id);
         }
-      }
-      
-      // Marquer une mise à jour locale pour éviter les conflits avec la vérification périodique
-      if (window._lastGameStatusUpdate !== undefined) {
-        window._lastGameStatusUpdate = Date.now();
       }
 
       // Utiliser la nouvelle fonction RPC pour mettre à jour le statut du jeu
@@ -538,6 +560,7 @@ const LobbyPage: React.FC = () => {
         duration: 3000, 
         color: 'danger' 
       });
+      setIsRedirecting(false);
     }
   };
 
