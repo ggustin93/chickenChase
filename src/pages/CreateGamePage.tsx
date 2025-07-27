@@ -41,7 +41,7 @@ const CreateGamePage: React.FC = () => {
   const [importingBars, setImportingBars] = useState(false);
   const [importedBarsCount, setImportedBarsCount] = useState(0);
   const [importedBars, setImportedBars] = useState<Bar[]>([]);
-  const [importMethod, setImportMethod] = useState<'link' | 'search'>('link');
+  const [importMethod, setImportMethod] = useState<'link' | 'search'>('search');
   const [searchLocation, setSearchLocation] = useState('Bruxelles');
   const [searchRadius, setSearchRadius] = useState(1000);
   const [searchCoordinates, setSearchCoordinates] = useState<{ lat: number; lng: number } | null>(null);
@@ -104,6 +104,61 @@ const CreateGamePage: React.FC = () => {
         duration: 3000,
         color: 'warning'
       });
+    }
+  };
+
+  const handleFixAddresses = async () => {
+    setImportingBars(true);
+    
+    try {
+      const { AddressService } = await import('../services/addressService');
+      let fixedCount = 0;
+      const updatedBars = [...importedBars];
+      
+      for (let i = 0; i < updatedBars.length; i++) {
+        const bar = updatedBars[i];
+        
+        if (bar.address === 'Adresse non disponible' && bar.latitude && bar.longitude) {
+          try {
+            const newAddress = await AddressService.reverseGeocode(bar.latitude, bar.longitude);
+            
+            if (newAddress) {
+              updatedBars[i] = { ...bar, address: newAddress };
+              fixedCount++;
+            }
+            
+            // Petite pause pour respecter les limites de l'API
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch (error) {
+            console.warn(`Erreur lors de la correction de l'adresse pour ${bar.name}:`, error);
+          }
+        }
+      }
+      
+      setImportedBars(updatedBars);
+      
+      if (fixedCount > 0) {
+        present({
+          message: `${fixedCount} adresse${fixedCount > 1 ? 's' : ''} corrigée${fixedCount > 1 ? 's' : ''} !`,
+          duration: 3000,
+          color: 'success'
+        });
+      } else {
+        present({
+          message: 'Aucune adresse n\'a pu être corrigée.',
+          duration: 3000,
+          color: 'warning'
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la correction des adresses:', error);
+      present({
+        message: 'Erreur lors de la correction des adresses.',
+        duration: 3000,
+        color: 'danger'
+      });
+    } finally {
+      setImportingBars(false);
     }
   };
 
@@ -571,14 +626,27 @@ const CreateGamePage: React.FC = () => {
                               Bars importés ({importedBars.length}) :
                             </IonLabel>
                           </IonListHeader>
-                          <IonButton 
-                            fill="clear" 
-                            size="small" 
-                            color="danger"
-                            onClick={handleClearAllBars}
-                          >
-                            Tout effacer
-                          </IonButton>
+                          <div className="flex gap-2">
+                            {importedBars.some(bar => bar.address === 'Adresse non disponible') && (
+                              <IonButton 
+                                fill="clear" 
+                                size="small" 
+                                color="primary"
+                                onClick={handleFixAddresses}
+                                disabled={importingBars}
+                              >
+                                Corriger adresses
+                              </IonButton>
+                            )}
+                            <IonButton 
+                              fill="clear" 
+                              size="small" 
+                              color="danger"
+                              onClick={handleClearAllBars}
+                            >
+                              Tout effacer
+                            </IonButton>
+                          </div>
                         </div>
                         <IonList className="rounded-lg overflow-hidden border border-gray-200">
                           {importedBars.map((bar, index) => (

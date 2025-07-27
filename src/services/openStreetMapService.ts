@@ -1,4 +1,5 @@
 import { GoogleMapsPlace } from './googleMapsImporter';
+import { AddressService } from './addressService';
 
 /**
  * Service pour importer des bars depuis OpenStreetMap
@@ -46,7 +47,7 @@ export class OpenStreetMapService {
         }
 
         const data = await response.json();
-        return this.convertOSMDataToPlaces(data);
+        return await this.convertOSMDataToPlaces(data);
       } else {
         // Production: Use Supabase Edge Function
         const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -82,48 +83,67 @@ export class OpenStreetMapService {
   /**
    * Convertit les données OpenStreetMap en format GoogleMapsPlace
    */
-  private static convertOSMDataToPlaces(osmData: any): GoogleMapsPlace[] {
+  private static async convertOSMDataToPlaces(osmData: any): Promise<GoogleMapsPlace[]> {
     if (!osmData.elements || !Array.isArray(osmData.elements)) {
       return [];
     }
 
-    return osmData.elements.map((element: any) => {
-      // Extraire les coordonnées
-      let latitude = element.lat;
-      let longitude = element.lon;
-      
-      // Pour les ways, utiliser le centre
-      if (element.type === 'way' && element.center) {
-        latitude = element.center.lat;
-        longitude = element.center.lon;
-      }
+    const places = await Promise.all(
+      osmData.elements.map(async (element: any) => {
+        // Extraire les coordonnées
+        let latitude = element.lat;
+        let longitude = element.lon;
+        
+        // Pour les ways, utiliser le centre
+        if (element.type === 'way' && element.center) {
+          latitude = element.center.lat;
+          longitude = element.center.lon;
+        }
 
-      // Déterminer le type d'établissement
-      let type = 'bar';
-      if (element.tags?.amenity === 'pub') type = 'pub';
-      if (element.tags?.craft === 'brewery') type = 'brewery';
+        // Déterminer le type d'établissement
+        let type = 'bar';
+        if (element.tags?.amenity === 'pub') type = 'pub';
+        if (element.tags?.craft === 'brewery') type = 'brewery';
 
-      // Construire l'adresse
-      const addressParts = [];
-      if (element.tags?.['addr:housenumber']) addressParts.push(element.tags['addr:housenumber']);
-      if (element.tags?.['addr:street']) addressParts.push(element.tags['addr:street']);
-      if (element.tags?.['addr:postcode']) addressParts.push(element.tags['addr:postcode']);
-      if (element.tags?.['addr:city']) addressParts.push(element.tags['addr:city']);
-      
-      const address = addressParts.length > 0 
-        ? addressParts.join(', ') 
-        : 'Adresse non disponible';
+        // Construire l'adresse à partir des tags OSM
+        const addressParts = [];
+        if (element.tags?.['addr:housenumber']) addressParts.push(element.tags['addr:housenumber']);
+        if (element.tags?.['addr:street']) addressParts.push(element.tags['addr:street']);
+        if (element.tags?.['addr:postcode']) addressParts.push(element.tags['addr:postcode']);
+        if (element.tags?.['addr:city']) addressParts.push(element.tags['addr:city']);
+        
+        let address = addressParts.length > 0 ? addressParts.join(', ') : null;
 
-      return {
-        name: element.tags?.name || `${type} sans nom`,
-        address: address,
-        latitude: latitude,
-        longitude: longitude,
-        types: [type, 'establishment'],
-        placeId: `osm_${element.type}_${element.id}`,
-        rating: element.tags?.rating ? parseFloat(element.tags.rating) : undefined
-      };
-    }).filter((place: GoogleMapsPlace) => 
+        // Si pas d'adresse dans les tags OSM, essayer le géocodage inverse
+        if (!address && latitude && longitude) {
+          try {
+            const { AddressService } = await import('./addressService');
+            const reverseGeocodedAddress = await AddressService.reverseGeocode(latitude, longitude);
+            address = reverseGeocodedAddress || 'Adresse non disponible';
+            
+            // Petite pause pour respecter les limites de l'API
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch (error) {
+            console.warn('Erreur lors du géocodage inverse pour', element.tags?.name, ':', error);
+            address = 'Adresse non disponible';
+          }
+        } else if (!address) {
+          address = 'Adresse non disponible';
+        }
+
+        return {
+          name: element.tags?.name || `${type} sans nom`,
+          address: address,
+          latitude: latitude,
+          longitude: longitude,
+          types: [type, 'establishment'],
+          placeId: `osm_${element.type}_${element.id}`,
+          rating: element.tags?.rating ? parseFloat(element.tags.rating) : undefined
+        };
+      })
+    );
+
+    return places.filter((place: GoogleMapsPlace) => 
       // Filtrer les éléments sans coordonnées valides
       place.latitude && place.longitude
     );
@@ -187,6 +207,19 @@ export class OpenStreetMapService {
     } catch (error) {
       console.error('Error geocoding address:', error);
       return null;
+    }
+  }
+
+  /**
+   * Met à jour les adresses manquantes des bars d'un jeu
+   */
+  static async updateMissingAddresses(gameId: string): Promise<{ updated: number; errors: number }> {
+    try {
+      const { AddressService } = await import('./addressService');
+      return await AddressService.updateGameBarAddresses(gameId);
+    } catch (error) {
+      console.error('Error updating missing addresses:', error);
+      return { updated: 0, errors: 1 };
     }
   }
 }
