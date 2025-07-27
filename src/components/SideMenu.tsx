@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, memo } from 'react';
 import {
   IonMenu,
   IonHeader,
@@ -38,19 +38,75 @@ interface SideMenuProps {
   onQuitGame?: () => void;
 }
 
-// Configuration des modes
+// Configuration des modes - memoized
 const MENU_MODES = [
   { key: 'chicken', icon: constructOutline, label: 'Mode Poulet', path: '/chicken' },
   { key: 'player', icon: personOutline, label: 'Mode Chasseur', path: '/player' },
   { key: 'admin', icon: settingsOutline, label: 'Mode Admin', path: '/admin' },
 ];
 
-// Configuration des items de navigation
+// Configuration des items de navigation - memoized
 const NAV_ITEMS = [
   { id: 'about', icon: informationCircleOutline, label: 'À propos', path: '/about' },
   { id: 'rules', icon: helpCircleOutline, label: 'Règles du jeu', path: '/rules' },
   { id: 'partner', icon: storefrontOutline, label: 'Devenir bar partenaire', path: '/partner' },
 ];
+
+// Composants memoized pour éviter les re-rendus inutiles
+const NavItem = memo(({ item }: { item: typeof NAV_ITEMS[0] }) => (
+  <IonMenuToggle key={item.id} autoHide={false}>
+    <IonItem 
+      button 
+      detail={false}
+      lines="none" 
+      color="light" 
+      className="mx-3 mb-2 rounded-lg shadow-sm opacity-80"
+      routerLink={item.path}
+    >
+      <IonIcon slot="start" icon={item.icon} color="medium" className="ion-margin-start"/>
+      <IonLabel className="text-sm font-medium ion-text-default">{item.label}</IonLabel>
+    </IonItem>
+  </IonMenuToggle>
+));
+
+const ModeSelector = memo(({ config, isCurrentMode }: { config: typeof MENU_MODES[0], isCurrentMode: boolean }) => (
+  <IonMenuToggle key={config.key} autoHide={false}>
+    <IonItem
+      button
+      detail={false}
+      routerLink={!isCurrentMode ? config.path : undefined}
+      color={isCurrentMode ? 'light' : 'light'} 
+      className={`mx-3 mb-2 rounded-lg shadow-sm ${isCurrentMode ? 'bg-primary-tint' : ''}`}
+      disabled={isCurrentMode}
+      lines="none" 
+    >
+      <IonIcon 
+        slot="start" 
+        icon={config.icon} 
+        color={isCurrentMode ? 'primary' : 'medium'} 
+        className="ion-margin-start" 
+      />
+      <IonLabel className={`text-sm ion-text-default ${isCurrentMode ? 'text-primary font-semibold' : 'font-medium'}`}>
+        {config.label}
+      </IonLabel>
+      {isCurrentMode && <div className="absolute left-0 top-1/2 w-1 h-2/3 bg-primary rounded-r-full transform -translate-y-1/2"></div>}
+    </IonItem>
+  </IonMenuToggle>
+));
+
+const LogoutButton = memo(({ onLogout }: { onLogout: () => void }) => (
+  <IonItem 
+    button 
+    detail={false}
+    lines="none" 
+    color="light" 
+    className="mx-3 mb-2 mt-4 rounded-lg shadow-sm opacity-80 logout-button"
+    onClick={onLogout}
+  >
+    <IonIcon slot="start" icon={logOutOutline} color="danger" className="ion-margin-start"/>
+    <IonLabel className="text-sm font-medium ion-text-default" color="danger">Se déconnecter</IonLabel>
+  </IonItem>
+));
 
 const SideMenu: React.FC<SideMenuProps> = ({ 
   mode, 
@@ -73,55 +129,29 @@ const SideMenu: React.FC<SideMenuProps> = ({
     };
   }, []);
   
-  // Rendu des items de navigation
-  const renderNavItems = () => (
+  // Memoized handlers
+  const handleLogout = useCallback(() => {
+    localStorage.clear(); // Efface tout le localStorage
+    window.location.href = '/home'; // Redirection vers la page d'accueil
+  }, []);
+  
+  // Memoized renderers
+  const renderNavItems = useCallback(() => (
     NAV_ITEMS.map(item => (
-      <IonMenuToggle key={item.id} autoHide={false}>
-        <IonItem 
-          button 
-          detail={false}
-          lines="none" 
-          color="light" 
-          className="mx-3 mb-2 rounded-lg shadow-sm opacity-80"
-          routerLink={item.path}
-        >
-          <IonIcon slot="start" icon={item.icon} color="medium" className="ion-margin-start"/>
-          <IonLabel className="text-sm font-medium ion-text-default">{item.label}</IonLabel>
-        </IonItem>
-      </IonMenuToggle>
+      <NavItem key={item.id} item={item} />
     ))
-  );
+  ), []);
 
-  // Rendu des sélecteurs de mode
-  const renderModeSelectors = () => (
-    MENU_MODES.map(config => {
-      const isCurrentMode = mode === config.key;
-      return (
-        <IonMenuToggle key={config.key} autoHide={false}>
-          <IonItem
-            button
-            detail={false}
-            routerLink={!isCurrentMode ? config.path : undefined}
-            color={isCurrentMode ? 'light' : 'light'} 
-            className={`mx-3 mb-2 rounded-lg shadow-sm transition-all duration-200 ${isCurrentMode ? 'bg-primary-tint' : 'hover:bg-light-shade'}`}
-            disabled={isCurrentMode}
-            lines="none" 
-          >
-            <IonIcon 
-              slot="start" 
-              icon={config.icon} 
-              color={isCurrentMode ? 'primary' : 'medium'} 
-              className="ion-margin-start transition-colors duration-200" 
-            />
-            <IonLabel className={`text-sm ion-text-default transition-colors duration-200 ${isCurrentMode ? 'text-primary font-semibold' : 'font-medium'}`}>
-              {config.label}
-            </IonLabel>
-            {isCurrentMode && <div className="absolute left-0 top-1/2 w-1 h-2/3 bg-primary rounded-r-full transform -translate-y-1/2"></div>}
-          </IonItem>
-        </IonMenuToggle>
-      );
-    })
-  );
+  // Memoized renderers
+  const renderModeSelectors = useCallback(() => (
+    MENU_MODES.map(config => (
+      <ModeSelector 
+        key={config.key} 
+        config={config} 
+        isCurrentMode={mode === config.key} 
+      />
+    ))
+  ), [mode]);
 
   return (
     <IonMenu 
@@ -151,7 +181,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
             src={logoSrc}
             alt="Chicken Chase Logo"
             style={{ maxWidth: '120px', width: '80%', height: 'auto', margin: '0 auto' }}
-            className="rounded-md shadow-sm transform transition-transform hover:scale-105 duration-300"
+            className="rounded-md shadow-sm"
           />
           <h1
             className="text-2xl text-white ion-text-default" 
@@ -183,20 +213,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
         </IonList>
 
         {/* Bouton de déconnexion */}
-        <IonItem 
-          button 
-          detail={false}
-          lines="none" 
-          color="light" 
-          className="mx-3 mb-2 mt-4 rounded-lg shadow-sm opacity-80 logout-button"
-          onClick={() => {
-            localStorage.clear(); // Efface tout le localStorage
-            window.location.href = '/home'; // Redirection vers la page d'accueil
-          }}
-        >
-          <IonIcon slot="start" icon={logOutOutline} color="danger" className="ion-margin-start"/>
-          <IonLabel className="text-sm font-medium ion-text-default" color="danger">Se déconnecter</IonLabel>
-        </IonItem>
+        <LogoutButton onLogout={handleLogout} />
         
         {/* Footer avec version de l'app */}
         {appVersion && (
@@ -212,4 +229,4 @@ const SideMenu: React.FC<SideMenuProps> = ({
   );
 };
 
-export default SideMenu;
+export default memo(SideMenu);

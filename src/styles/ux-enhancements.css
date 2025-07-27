@@ -31,53 +31,49 @@
   border: 2px solid rgba(0, 0, 0, 0.08);
 }
 
-/* 2. MICRO-ANIMATIONS & ÉTATS HOVER */
+/* 2. MICRO-ANIMATIONS & ÉTATS HOVER - OPTIMISÉES */
 
+/* Optimisé: Utiliser transform et opacity uniquement */
 .card-enhanced {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateY(0);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
   will-change: transform, box-shadow;
 }
 
+/* Désactiver les animations pour le SideMenu */
+.menu-container .card-enhanced {
+  transition: none;
+}
+
 .card-enhanced:hover {
-  transform: translateY(-4px) scale(1.01);
+  transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12) !important;
 }
 
 .card-enhanced:active {
-  transform: translateY(-2px) scale(1.005);
-  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(-2px);
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
 }
 
-/* Animations d'icônes */
+/* Animations d'icônes - simplifiées */
 .icon-enhanced {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease-out;
 }
 
-.card-enhanced:hover .icon-enhanced {
-  transform: scale(1.1) rotate(5deg);
+/* Désactiver pour le SideMenu */
+.menu-container .icon-enhanced {
+  transition: none;
 }
 
-/* Animations de boutons */
+/* Animations de boutons - simplifiées */
 .button-enhanced {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
   position: relative;
   overflow: hidden;
 }
 
-.button-enhanced::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s;
-}
-
-.button-enhanced:hover::before {
-  left: 100%;
+/* Désactiver les animations pour le SideMenu */
+.menu-container .button-enhanced {
+  transition: none;
 }
 
 .button-enhanced:hover {
@@ -104,29 +100,16 @@
   padding: 2rem 1.25rem !important;
 }
 
-/* 4. FEEDBACK TACTILE */
+/* 4. FEEDBACK TACTILE - OPTIMISÉ */
 
 .ripple-enhanced {
   position: relative;
   overflow: hidden;
 }
 
-.ripple-enhanced::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.ripple-enhanced:active::after {
-  width: 300px;
-  height: 300px;
+/* Désactiver pour le SideMenu */
+.menu-container .ripple-enhanced::after {
+  display: none;
 }
 
 /* 5. ÉTATS DE CHARGEMENT AMÉLIORÉS */
@@ -146,7 +129,7 @@
 
 @media (max-width: 768px) {
   .card-enhanced:hover {
-    transform: translateY(-2px) scale(1.005);
+    transform: translateY(-2px);
   }
   
   .content-spacing-enhanced {
@@ -194,17 +177,6 @@
   overflow: hidden;
 }
 
-.header-enhanced::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 80%, rgba(251, 146, 60, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
 /* 10. OPTIMISATION DES LISTES */
 
 .game-list-enhanced {
@@ -225,17 +197,12 @@
 
 .logo-enhanced {
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease-out;
 }
 
-.logo-enhanced:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.2));
-}
-
-.title-enhanced {
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  letter-spacing: 0.05em;
+/* Désactiver pour le SideMenu */
+.menu-container .logo-enhanced {
+  transition: none;
 }
 
 /* 12. ÉTATS D'INTERACTION AVANCÉS */
@@ -245,12 +212,38 @@
   user-select: none;
 }
 
-.card-interactive-enhanced:hover {
-  cursor: pointer;
+.card-interactive-enhanced:active {
+  transform: translateY(-1px);
 }
 
-.card-interactive-enhanced:active {
-  transform: translateY(-1px) scale(0.998);
+/* Optimisation des performances pour les appareils à faible puissance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .card-enhanced,
+  .button-enhanced,
+  .icon-enhanced,
+  .logo-enhanced,
+  .ripple-enhanced::after {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  .card-enhanced:hover,
+  .card-enhanced:active,
+  .button-enhanced:hover,
+  .button-enhanced:active {
+    transform: none !important;
+    box-shadow: none !important;
+  }
 }
 
 /* Styles pour la carte de l'équipe poulet */

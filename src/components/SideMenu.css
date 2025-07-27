@@ -21,45 +21,26 @@
   width: 100%;
 }
 
-/* Animation pour les items du menu */
+/* Animation pour les items du menu - simplifiée */
 ion-item.item-menu {
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
-ion-item.item-menu:hover {
-  --background: rgba(255, 255, 255, 0.07);
-  margin-left: 0.5rem;
-}
-
-/* Effet d'ombre pour la carte d'en-tête */
+/* Effet d'ombre pour la carte d'en-tête - simplifié */
 ion-card.menu-header-card {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
 }
 
-ion-card.menu-header-card:hover {
-  transform: translateY(-2px);
-}
-
-/* Effet pour le logo */
+/* Effet pour le logo - suppression des animations */
 .logo-container {
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  transition: transform 0.3s ease;
 }
 
-.logo-container:hover {
-  transform: scale(1.05);
-}
-
-/* Animation pour l'icône de fermeture */
+/* Animation pour l'icône de fermeture - simplifiée */
 .close-button {
   transition: transform 0.2s ease;
-}
-
-.close-button:hover {
-  transform: rotate(90deg);
 }
 
 /* Style pour les séparateurs des sections */
@@ -106,13 +87,17 @@ ion-card.menu-header-card:hover {
   --border-radius: 8px;
 }
 
-.logout-button:hover {
-  --color: var(--ion-color-danger);
-}
-
 /* Responsive adjustments */
 @media (max-width: 576px) {
   .menu-container {
     --width: 260px;
+  }
+}
+
+/* Optimisation des performances pour les appareils à faible puissance */
+@media (prefers-reduced-motion: reduce) {
+  .menu-container * {
+    transition: none !important;
+    animation: none !important;
   }
 }
