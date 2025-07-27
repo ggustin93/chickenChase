@@ -35,6 +35,7 @@ interface SideMenuProps {
   appVersion?: string;
   logoSrc?: string;
   gameName?: string;
+  onQuitGame?: () => void;
 }
 
 // Configuration des modes

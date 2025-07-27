@@ -2,13 +2,9 @@ import { IonContent, IonPage, IonImg, IonButton, IonIcon, IonList, IonItem, IonL
 import { add, logIn, gameController } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import { useEffect, useState } from 'react';
-// Remove ExploreContainer import if no longer used
-// import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
-// Import the logo
 import logo from '../assets/images/logo.png';
 import { supabase } from '../lib/supabase';
-import { useSession } from '../contexts/SessionContext';
 
 interface Game {
   id: string;
@@ -18,7 +14,6 @@ interface Game {
 
 const Home: React.FC = () => {
   const router = useIonRouter();
-  const { setSession } = useSession();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [present] = useIonToast();
@@ -43,29 +38,8 @@ const Home: React.FC = () => {
     fetchGames();
   }, [present]);
 
-  const handleCreateGame = async () => {
-    setLoading(true);
-    try {
-      // Call the new database function, passing an empty object as the arguments
-      const { data, error } = await supabase.rpc('create_game_and_host', {});
-
-      if (error || !data || data.length === 0) {
-        console.error('Error calling create_game_and_host:', error);
-        throw new Error("Impossible de créer la partie. Le majordome a échoué !");
-      }
-      
-      const { game_id, player_id } = data;
-
-      // Set session in the context and navigate to lobby
-      setSession({ playerId: player_id, gameId: game_id, nickname: 'Hôte' });
-      router.push(`/lobby/${game_id}`, 'forward', 'replace');
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error creating game';
-      present({ message: errorMessage, duration: 3000, color: 'danger'});
-    } finally {
-      setLoading(false);
-    }
+  const handleCreateGame = () => {
+    router.push('/create-game', 'forward', 'replace');
   };
 
   const handleJoinGame = () => {

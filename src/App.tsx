@@ -11,6 +11,7 @@ import Rules from './pages/Rules';
 import About from './pages/About';
 import Partner from './pages/Partner';
 import JoinGamePage from './pages/JoinGamePage';
+import CreateGamePage from './pages/CreateGamePage';
 import LobbyPage from './pages/LobbyPage';
 import SideMenu from './components/SideMenu';
 import { SessionProvider } from './contexts/SessionContext';
@@ -107,6 +108,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
         </Route>
         <Route exact path="/join-game">
           <JoinGamePage />
+        </Route>
+        <Route exact path="/create-game">
+          <CreateGamePage />
         </Route>
         <Route exact path="/lobby/:gameId">
           <LobbyPage />
