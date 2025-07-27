@@ -15,6 +15,7 @@ import CreateGamePage from './pages/CreateGamePage';
 import LobbyPage from './pages/LobbyPage';
 import SideMenu from './components/SideMenu';
 import { SessionProvider } from './contexts/SessionContext';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -153,6 +154,7 @@ const App: React.FC = () => {
       <IonReactRouter>
         <SessionProvider>
           <RouterContextWrapper />
+          <PWAInstallPrompt />
         </SessionProvider>
       </IonReactRouter>
     </IonApp>

@@ -166,7 +166,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
   mode, 
   appVersion,
   logoSrc = logo,
-  gameName
+  gameName,
+  onQuitGame
 }) => {
   const isIOS = isPlatform('ios');
   // Supprimer la variable non utilisée
@@ -194,8 +195,10 @@ const SideMenu: React.FC<SideMenuProps> = ({
   // Memoized handlers
   const handleLogout = useCallback(() => {
     localStorage.clear(); // Efface tout le localStorage
-    window.location.href = '/home'; // Redirection vers la page d'accueil
-  }, []);
+    if (onQuitGame) {
+      onQuitGame(); // Utilise la navigation fournie par le parent
+    }
+  }, [onQuitGame]);
   
   // Memoized renderers
   const renderNavItems = useCallback(() => (

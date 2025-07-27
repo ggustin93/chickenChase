@@ -31,6 +31,7 @@ import MapTabContent from '../components/chicken/MapTabContent';
 import ChallengesTabContent from '../components/chicken/ChallengesTabContent';
 import ChatTabContent from '../components/chicken/ChatTabContent';
 import TeamsTabContent from '../components/chicken/TeamsTabContent';
+import FinishGameButton from '../components/chicken/FinishGameButton';
 
 const ChickenPage: React.FC = () => {
   const { gameId } = useParams<{ gameId: string }>();
@@ -44,7 +45,8 @@ const ChickenPage: React.FC = () => {
     markTeamFound,
     changeCurrentBar,
     sendMessage: sendGameMessage,
-    hideChicken
+    hideChicken,
+    finishGame
   } = useChickenGameState(gameId);
 
   // UI state
@@ -186,6 +188,12 @@ const ChickenPage: React.FC = () => {
             <IonMenuButton />
           </IonButtons>
           <IonTitle color="light" className="ion-text-center page-title">{getTabTitle()}</IonTitle>
+          <IonButtons slot="end">
+            <FinishGameButton 
+              onFinishGame={finishGame}
+              isChickenHidden={gameState.isChickenHidden || false}
+            />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       

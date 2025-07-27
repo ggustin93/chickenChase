@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChickenGameState, Challenge, Message } from '../data/types';
 import { mockChickenGameState } from '../data/mock/mockData';
 import { supabase } from '../lib/supabase';
+import { GameEventService } from '../services/GameEventService';
 
 // Définir un type pour la fenêtre avec notre propriété personnalisée
 declare global {
@@ -388,6 +389,66 @@ export const useChickenGameState = (gameId?: string) => {
     }
   }, [gameId, gameState.currentBar, sendMessage, markLocalUpdate]);
 
+  // Fonction pour terminer la partie
+  const finishGame = useCallback(async () => {
+    if (!gameId) return;
+    
+    try {
+      console.log("Finishing game with ID:", gameId);
+      
+      // Utiliser la fonction RPC pour mettre à jour le statut
+      const { data, error } = await supabase
+        .rpc('update_game_status', { 
+          game_id: gameId,
+          new_status: 'finished'
+        });
+      
+      if (error) throw error;
+      
+      if (!data || !data.success) {
+        console.error("La mise à jour du statut a échoué:", data);
+        throw new Error('Erreur lors de la fin de la partie');
+      }
+      
+      console.log("Game finished successfully:", data);
+      
+      // Mettre à jour l'état local
+      setGameState(prevState => ({
+        ...prevState,
+        game: {
+          ...prevState.game,
+          status: 'finished',
+          end_time: new Date().toISOString()
+        }
+      }));
+      
+      // Message système indiquant que la partie est terminée
+      sendMessage(`🏁 La partie est terminée ! Merci d'avoir joué à Chicken Chase !`);
+      
+      // Créer un événement de fin de partie avec les scores finaux
+      const finalScores = gameState.teams.map(team => ({
+        teamId: team.id,
+        teamName: team.name,
+        score: team.score || 0,
+        barsVisited: team.barsVisited || 0,
+        challengesCompleted: team.challengesCompleted || 0
+      }));
+      
+      const gameEventService = new GameEventService();
+      await gameEventService.createEvent(gameId, 'game_finished', {
+        finalScores,
+        winner: finalScores.reduce((prev, current) => 
+          (prev.score > current.score) ? prev : current
+        ),
+        duration: gameState.timeLeft
+      });
+      
+    } catch (err) {
+      console.error("Error finishing game:", err);
+      throw err;
+    }
+  }, [gameId, gameState.teams, gameState.timeLeft, sendMessage]);
+
   return {
     gameState,
     isLoading,
@@ -398,7 +459,8 @@ export const useChickenGameState = (gameId?: string) => {
     toggleChallengeStatus,
     sendMessage,
     addChallenge,
-    hideChicken
+    hideChicken,
+    finishGame
   };
 };
 
