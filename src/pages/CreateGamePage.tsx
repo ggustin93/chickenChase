@@ -407,7 +407,7 @@ const CreateGamePage: React.FC = () => {
                 {/* Pseudo organisateur - REQUIS */}
                 <IonItem className="mb-4" style={{ width: '100%' }}>
                   <IonInput
-                    label="Votre pseudo (organisateur)"
+                    label="Votre pseudo"
                     labelPlacement="floating"
                     value={config.hostNickname}
                     onIonInput={(e) => setConfig(prev => ({ ...prev, hostNickname: e.detail.value! }))}
@@ -496,12 +496,12 @@ const CreateGamePage: React.FC = () => {
                           {importingBars ? (
                             <>
                               <IonIcon slot="start" icon={mapOutline} />
-                              Importation en cours...
+                              Importation...
                             </>
                           ) : (
                             <>
                               <IonIcon slot="start" icon={linkOutline} />
-                              Importer depuis le lien
+                              Importer
                             </>
                           )}
                         </IonButton>
@@ -549,12 +549,12 @@ const CreateGamePage: React.FC = () => {
                           {importingBars ? (
                             <>
                               <IonIcon slot="start" icon={searchOutline} />
-                              Recherche en cours...
+                              Recherche...
                             </>
                           ) : (
                             <>
                               <IonIcon slot="start" icon={searchOutline} />
-                              Chercher des bars
+                              Rechercher
                             </>
                           )}
                         </IonButton>
@@ -608,7 +608,7 @@ const CreateGamePage: React.FC = () => {
                           className="mt-4"
                         >
                           <IonIcon slot="start" icon={addOutline} />
-                          Ajouter ce bar
+                          Ajouter le bar
                         </IonButton>
                         
                         <IonNote className="text-center text-xs mt-2 block">
@@ -693,7 +693,7 @@ const CreateGamePage: React.FC = () => {
                     <IonItem className="mb-4" style={{ width: '100%' }}>
                       <IonIcon icon={peopleOutline} slot="start" />
                       <IonInput
-                        label="Limite d'équipes (optionnel)"
+                        label="Limite d'équipes"
                         labelPlacement="floating"
                         type="number"
                         min="1"

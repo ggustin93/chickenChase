@@ -108,16 +108,27 @@ const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
 
       <div className="modern-content-area">
         {/* Section Équipe Poulet */}
-        {!chickenTeam ? (
-          <ChickenTeamCallToAction onBeChicken={onBeChicken} />
-        ) : (
-          <ChickenTeamDisplay 
-            team={chickenTeam} 
-            players={getTeamPlayers(chickenTeam.id)}
-            onJoinChicken={!currentPlayer?.team_id ? onBeChicken : undefined}
-            isCurrentPlayerInChicken={currentPlayer?.team_id === chickenTeam.id}
-          />
-        )}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-800">Équipe Poulet</h2>
+            {chickenTeam && (
+              <IonChip color="chicken" outline>
+                <IonText>1 équipe</IonText>
+              </IonChip>
+            )}
+          </div>
+          
+          {!chickenTeam ? (
+            <ChickenTeamCallToAction onBeChicken={onBeChicken} />
+          ) : (
+            <ChickenTeamDisplay 
+              team={chickenTeam} 
+              players={getTeamPlayers(chickenTeam.id)}
+              onJoinChicken={!currentPlayer?.team_id ? onBeChicken : undefined}
+              isCurrentPlayerInChicken={currentPlayer?.team_id === chickenTeam.id}
+            />
+          )}
+        </div>
 
         {/* Section Équipes Chasseurs */}
         <div className="mb-6">
@@ -258,22 +269,21 @@ const ChickenTeamDisplay: React.FC<{
         <div className="team-title">
           <IonIcon icon={star} className="team-icon" />
           <h3>{team.name}</h3>
-          <div className="team-badge">Équipe Poulet</div>
         </div>
-        <div className="flex items-center gap-2">
-          <IonChip color="chicken" outline>
-            <IonText>{players.length} membre{players.length > 1 ? 's' : ''}</IonText>
-          </IonChip>
+        <div className="flex items-center">
           {onJoinChicken && (
-            <IonButton 
-              size="small" 
-              color="chicken"
-              fill="outline"
-              onClick={onJoinChicken}
-            >
-              <IonIcon icon={personAdd} slot="start" />
-              Rejoindre
-            </IonButton>
+            <div className="join-button-container">
+              <IonButton
+                size="small"
+                color="chicken"
+                fill="solid"
+                onClick={onJoinChicken}
+                className="join-chicken-button"
+              >
+                <IonIcon icon={personAdd} slot="start" />
+                Rejoindre
+              </IonButton>
+            </div>
           )}
         </div>
       </div>
@@ -289,6 +299,11 @@ const ChickenTeamDisplay: React.FC<{
           ))}
         </div>
       )}
+      
+      <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+        <IonIcon icon={person} />
+        <span>{players.length} membre{players.length > 1 ? 's' : ''}</span>
+      </div>
     </IonCardContent>
   </IonCard>
 );
