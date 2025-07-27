@@ -53,13 +53,7 @@ const CreateGamePage: React.FC = () => {
     setLoading(true);
 
     try {
-      // Authentification anonyme pour obtenir un user_id
-      const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-      
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Authentication failed.");
-
-      // Appeler la fonction améliorée avec tous les paramètres
+      // Appeler la fonction create_game_and_host qui fonctionne sans auth
       const { data, error } = await supabase.rpc('create_game_and_host', {
         host_nickname: config.hostNickname.trim(),
         cagnotte_initial: config.cagnotteInitial * 100, // Convertir en centimes
@@ -78,15 +72,24 @@ const CreateGamePage: React.FC = () => {
 
       const { game_id, player_id, join_code } = data;
 
-      // Lier l'utilisateur authentifié au joueur créé
-      const { error: updatePlayerError } = await supabase
-        .from('players')
-        .update({ user_id: authData.user.id })
-        .eq('id', player_id);
+      // Essayer l'authentification anonyme si disponible (optionnel)
+      try {
+        const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+        
+        if (!authError && authData.user) {
+          // Lier l'utilisateur authentifié au joueur créé
+          const { error: updatePlayerError } = await supabase
+            .from('players')
+            .update({ user_id: authData.user.id })
+            .eq('id', player_id);
 
-      if (updatePlayerError) {
-        console.warn('Warning updating player user_id:', updatePlayerError);
-        // Ne pas faire échouer la création pour ça
+          if (updatePlayerError) {
+            console.warn('Warning updating player user_id:', updatePlayerError);
+          }
+        }
+      } catch (authError) {
+        console.warn('Auth not available, continuing without:', authError);
+        // L'app fonctionne en mode session localStorage même sans auth
       }
 
       // Configurer la session
