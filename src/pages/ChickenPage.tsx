@@ -17,7 +17,7 @@ import {
 } from '@ionic/react';
 import { 
   locationOutline, chatbubbleOutline,
-  peopleOutline, ribbonOutline
+  peopleOutline, ribbonOutline, cashOutline
 } from 'ionicons/icons';
 
 import './ChickenPage.css';
@@ -32,6 +32,7 @@ import ChallengesTabContent from '../components/chicken/ChallengesTabContent';
 import ChatTabContent from '../components/chicken/ChatTabContent';
 import TeamsTabContent from '../components/chicken/TeamsTabContent';
 import FinishGameButton from '../components/chicken/FinishGameButton';
+import CagnotteManager from '../components/cagnotte/CagnotteManager';
 
 const ChickenPage: React.FC = () => {
   const { gameId } = useParams<{ gameId: string }>();
@@ -72,6 +73,8 @@ const ChickenPage: React.FC = () => {
         return 'Newsfeed';
       case 'teams':
         return 'Équipes';
+      case 'cagnotte':
+        return 'Cagnotte';
       default:
         return 'Vue Poulet';
     }
@@ -235,6 +238,18 @@ const ChickenPage: React.FC = () => {
           />
         )}
         
+        {activeTab === 'cagnotte' && (
+          <div className="cagnotte-tab-content">
+            <CagnotteManager 
+              gameId={gameId!}
+              playerId="chicken"
+              showHistory={true}
+              allowCustomOperations={true}
+              compact={false}
+            />
+          </div>
+        )}
+        
         {/* Bar selection modal */}
         <SelectHidingSpotModal 
           isOpen={showSelectBarModal}
@@ -265,6 +280,11 @@ const ChickenPage: React.FC = () => {
         <IonTabButton tab="teams" href="#" onClick={() => handleTabChange('teams')} selected={activeTab === 'teams'}>
           <IonIcon icon={peopleOutline} />
           <IonLabel>Équipes</IonLabel>
+        </IonTabButton>
+        
+        <IonTabButton tab="cagnotte" href="#" onClick={() => handleTabChange('cagnotte')} selected={activeTab === 'cagnotte'}>
+          <IonIcon icon={cashOutline} />
+          <IonLabel>Cagnotte</IonLabel>
         </IonTabButton>
       </IonTabBar>
       

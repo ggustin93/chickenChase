@@ -4,7 +4,7 @@ import {
   IonIcon, IonLabel, IonButtons, IonMenuButton, IonToast
 } from '@ionic/react';
 import {
-  mapOutline, checkmarkCircleOutline, chatbubbleOutline, trophyOutline,
+  mapOutline, checkmarkCircleOutline, chatbubbleOutline, trophyOutline, cashOutline,
 } from 'ionicons/icons';
 
 // Import types
@@ -27,6 +27,7 @@ import LeaderboardTab from '../components/player/LeaderboardTab';
 import CameraModal from '../components/player/CameraModal';
 import ChallengeDetailModal from '../components/player/ChallengeDetailModal';
 import UnlockModal from '../components/player/UnlockModal';
+import CagnotteManager from '../components/cagnotte/CagnotteManager';
 
 // Import Supabase
 import { supabase } from '../lib/supabase';
@@ -71,7 +72,7 @@ interface PlayerGameState {
 // const mapZoom = 15;
 
 const PlayerPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard' | 'cagnotte'>('map');
 
   // Get session info from localStorage - available to the whole component
   const session = useMemo(() => {
@@ -250,7 +251,7 @@ const PlayerPage: React.FC = () => {
   }, [gameState.challengeCompletions, gameState.challenges, gameState.team.id]);
 
   // --- Event Handlers ---
-  const handleTabChange = (tab: 'map' | 'challenges' | 'chat' | 'leaderboard') => {
+  const handleTabChange = (tab: 'map' | 'challenges' | 'chat' | 'leaderboard' | 'cagnotte') => {
     setActiveTab(tab);
   };
   
@@ -265,6 +266,8 @@ const PlayerPage: React.FC = () => {
         return 'Newsfeed'; // Garder le nom de l'équipe pour le chat
       case 'leaderboard':
         return 'Classement';
+      case 'cagnotte':
+        return 'Cagnotte';
       default:
         return gameState.team.name;
     }
@@ -535,6 +538,17 @@ const PlayerPage: React.FC = () => {
             currentPlayerTeamId={gameState.team.id}
           />
         )}
+        {activeTab === 'cagnotte' && (
+          <div className="cagnotte-tab-content">
+            <CagnotteManager 
+              gameId={session?.gameId || ''}
+              playerId={session?.playerId || 'player'}
+              showHistory={true}
+              allowCustomOperations={false}
+              compact={false}
+            />
+          </div>
+        )}
       </IonContent>
       
       {/* Bottom Navigation */}
@@ -550,6 +564,10 @@ const PlayerPage: React.FC = () => {
         <IonTabButton tab="chat" selected={activeTab === 'chat'} onClick={() => handleTabChange('chat')}>
           <IonIcon icon={chatbubbleOutline} />
           <IonLabel>Chat</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="cagnotte" selected={activeTab === 'cagnotte'} onClick={() => handleTabChange('cagnotte')}>
+          <IonIcon icon={cashOutline} />
+          <IonLabel>Cagnotte</IonLabel>
         </IonTabButton>
         <IonTabButton tab="leaderboard" selected={activeTab === 'leaderboard'} onClick={() => handleTabChange('leaderboard')}>
           <IonIcon icon={trophyOutline} />

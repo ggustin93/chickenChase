@@ -1,0 +1,325 @@
+/* =================================================================
+   CAGNOTTE MANAGER STYLES
+   ================================================================= */
+
+.cagnotte-manager {
+  --cagnotte-primary: #2dd4bf;
+  --cagnotte-success: #22c55e;
+  --cagnotte-warning: #f59e0b;
+  --cagnotte-danger: #ef4444;
+  --cagnotte-background: #f8fafc;
+  --cagnotte-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Header with current amount */
+.cagnotte-header {
+  margin-bottom: 1rem;
+  box-shadow: var(--cagnotte-card-shadow);
+  background: linear-gradient(135deg, var(--cagnotte-primary) 0%, #0891b2 100%);
+  color: white;
+}
+
+.cagnotte-header ion-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.cagnotte-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Quick actions section */
+.cagnotte-quick-actions {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.action-group {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--cagnotte-background);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.action-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-buttons ion-button {
+  --border-radius: 8px;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.action-buttons ion-button:hover:not([disabled]) {
+  transform: translateY(-1px);
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+/* Custom operations form */
+.custom-operations {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--cagnotte-card-shadow);
+}
+
+.cagnotte-custom-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--cagnotte-background);
+  border-radius: 8px;
+}
+
+.custom-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.custom-action-buttons ion-button {
+  flex: 1;
+  min-width: 100px;
+  --border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Transaction history */
+.cagnotte-history {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--cagnotte-card-shadow);
+}
+
+.cagnotte-history ion-item {
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --inner-padding-end: 0;
+  --border-color: rgba(0, 0, 0, 0.05);
+}
+
+.cagnotte-history ion-item:last-child {
+  --border-style: none;
+}
+
+.cagnotte-history ion-label h3 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.cagnotte-history ion-label p {
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.cagnotte-history ion-note {
+  font-size: 0.8rem;
+}
+
+.cagnotte-history ion-badge {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Statistics */
+.cagnotte-stats {
+  padding: 1rem;
+}
+
+.cagnotte-stats ion-card {
+  margin: 0;
+  box-shadow: var(--cagnotte-card-shadow);
+  border-radius: 12px;
+}
+
+.cagnotte-stats ion-card ion-card-content {
+  padding: 1rem;
+}
+
+.cagnotte-stats h2 {
+  margin: 0 0 0.25rem 0;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.cagnotte-stats p {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.stat-item h3 {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.stat-item p {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 0.8rem;
+}
+
+/* Compact mode adjustments */
+.cagnotte-manager.compact {
+  padding: 0.5rem;
+}
+
+.cagnotte-manager.compact .cagnotte-header {
+  margin-bottom: 0.75rem;
+}
+
+.cagnotte-manager.compact .cagnotte-amount {
+  font-size: 1.5rem;
+}
+
+.cagnotte-manager.compact .action-group {
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.cagnotte-manager.compact .action-buttons ion-button {
+  --padding-start: 0.5rem;
+  --padding-end: 0.5rem;
+  font-size: 0.85rem;
+  min-width: 70px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .cagnotte-amount {
+    font-size: 1.75rem !important;
+  }
+  
+  .action-buttons {
+    justify-content: center;
+  }
+  
+  .action-buttons ion-button {
+    min-width: 75px;
+    font-size: 0.85rem;
+  }
+  
+  .custom-action-buttons {
+    flex-direction: column;
+  }
+  
+  .custom-action-buttons ion-button {
+    width: 100%;
+  }
+  
+  .cagnotte-stats ion-grid ion-row ion-col {
+    padding: 0.25rem;
+  }
+  
+  .stat-item h3 {
+    font-size: 1rem;
+  }
+  
+  .stat-item p {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cagnotte-amount {
+    font-size: 1.5rem !important;
+  }
+  
+  .action-buttons ion-button {
+    min-width: 65px;
+    font-size: 0.8rem;
+    --padding-start: 0.5rem;
+    --padding-end: 0.5rem;
+  }
+  
+  .cagnotte-stats h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Animation and transitions */
+.cagnotte-manager * {
+  transition: all 0.2s ease;
+}
+
+.action-buttons ion-button:active {
+  transform: scale(0.95);
+}
+
+.cagnotte-header {
+  animation: slideInDown 0.3s ease-out;
+}
+
+.action-group {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.action-group:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.action-group:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

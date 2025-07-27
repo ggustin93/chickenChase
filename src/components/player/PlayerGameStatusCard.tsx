@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonCard, IonCardContent, IonIcon, IonRippleEffect } from '@ionic/react';
-import { trophyOutline, timeOutline, beerOutline, flagOutline, cardOutline } from 'ionicons/icons';
+import { trophyOutline, timeOutline, beerOutline, flagOutline, cashOutline } from 'ionicons/icons';
 // Remove unused Team import
 // import { Team } from '../../data/types';
 import './PlayerGameStatusCard.css';
@@ -18,6 +18,7 @@ interface PlayerGameStatusCardProps {
   cagnotteInitialAmount?: number;
   isCagnotteLoading?: boolean;
   onCagnotteConsumption?: (amount: number, reason: string) => void;
+  onCagnotteClick?: () => void;
 }
 
 const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
@@ -32,7 +33,8 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
   cagnotteCurrentAmount,
   cagnotteInitialAmount,
   isCagnotteLoading,
-  onCagnotteConsumption
+  onCagnotteConsumption,
+  onCagnotteClick
 }) => {
   const isTimeCritical = gameTime.includes('0:') || gameTime.includes('00:');
   // Remove unused percentage calculations
@@ -55,8 +57,8 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
           
           {/* Cagnotte replacing timer */}
           {cagnotteCurrentAmount !== undefined && cagnotteInitialAmount !== undefined ? (
-            <div className="stat-item cagnotte-item">
-              <IonIcon icon={cardOutline} />
+            <div className="stat-item cagnotte-item clickable" onClick={onCagnotteClick}>
+              <IonIcon icon={cashOutline} />
               <div className="stat-details">
                 <div className="stat-value">{cagnotteCurrentAmount}€</div>
                 <div className="stat-label">Cagnotte</div>
