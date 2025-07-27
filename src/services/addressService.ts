@@ -32,10 +32,13 @@ export class AddressService {
         return null;
       } else {
         // Production: Use Supabase Edge Function
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reverse-geocode`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+            'apikey': anonKey
           },
           body: JSON.stringify({ lat, lng })
         });
@@ -44,7 +47,9 @@ export class AddressService {
           if (response.status === 404) {
             return null; // Address not found
           }
-          throw new Error('Erreur lors du géocodage inverse');
+          const errorText = await response.text();
+          console.error('Error response from reverse-geocode:', response.status, errorText);
+          throw new Error(`Erreur lors du géocodage inverse: ${response.status}`);
         }
 
         const data = await response.json();

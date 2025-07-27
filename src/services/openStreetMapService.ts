@@ -49,10 +49,13 @@ export class OpenStreetMapService {
         return this.convertOSMDataToPlaces(data);
       } else {
         // Production: Use Supabase Edge Function
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
         const response = await fetch(`${this.SUPABASE_URL}/functions/v1/search-bars`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+            'apikey': anonKey
           },
           body: JSON.stringify({
             lat,
@@ -62,7 +65,9 @@ export class OpenStreetMapService {
         });
 
         if (!response.ok) {
-          throw new Error('Erreur lors de la requête de recherche de bars');
+          const errorText = await response.text();
+          console.error('Error response from search-bars:', response.status, errorText);
+          throw new Error(`Erreur lors de la requête de recherche de bars: ${response.status}`);
         }
 
         const places = await response.json();
@@ -153,10 +158,13 @@ export class OpenStreetMapService {
         return null;
       } else {
         // Production: Use Supabase Edge Function
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
         const response = await fetch(`${this.SUPABASE_URL}/functions/v1/geocode`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+            'apikey': anonKey
           },
           body: JSON.stringify({ address })
         });
@@ -165,7 +173,9 @@ export class OpenStreetMapService {
           if (response.status === 404) {
             return null; // Address not found
           }
-          throw new Error('Erreur lors du géocodage');
+          const errorText = await response.text();
+          console.error('Error response from geocode:', response.status, errorText);
+          throw new Error(`Erreur lors du géocodage: ${response.status}`);
         }
 
         const data = await response.json();
