@@ -205,35 +205,43 @@ const LobbySkeletonLoader: React.FC = () => (
 
 const ChickenTeamCallToAction: React.FC<{ onBeChicken: () => void }> = ({ onBeChicken }) => (
   <IonCard className="card-elevated mb-6 overflow-hidden relative">
-    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-10"></div>
-    <IonCardContent className="text-center py-8 relative z-10">
-      <div className="mb-4 animation-theme">
+    <div className="absolute inset-0 bg-gradient-to-r from-amber-200 to-orange-300 opacity-90"></div>
+    <IonCardContent className="text-center py-6 relative z-10">
+      <div className="mb-3">
         <IonIcon 
           icon={star} 
-          className="text-6xl text-yellow-500 pulse" 
+          className="text-5xl text-amber-600" 
         />
       </div>
-      <h3 className="text-xl font-bold text-gray-800 mb-2">
-        Prêt à être la star du jeu ?
+      <h3 className="text-lg font-bold text-gray-900 mb-2">
+        Devenir l'Équipe Poulet
       </h3>
-      <p className="text-gray-600 mb-6 leading-relaxed">
-        L'équipe Poulet est la cible de tous les chasseurs. 
-        <br />
-        <strong>Haut risque, haute récompense !</strong>
+      <p className="text-gray-800 text-sm mb-4 leading-relaxed max-w-sm mx-auto">
+        Soyez la cible de tous les chasseurs et menez le jeu !
       </p>
-      <div className="button-theme">
-        <IonButton 
-          size="large" 
-          expand="block"
-          onClick={onBeChicken}
-          className="btn-chicken"
-          color="chicken"
-        >
-          <IonIcon icon={star} slot="start" />
-          Devenir l'Équipe Poulet !
-          <IonRippleEffect />
-        </IonButton>
+      <div className="flex justify-center items-center gap-2 mb-4">
+        <IonBadge color="light" className="text-gray-800 font-medium px-3">
+          🎯 Haute Récompense
+        </IonBadge>
       </div>
+      <IonButton 
+        size="default" 
+        expand="block"
+        onClick={onBeChicken}
+        className="mx-4"
+        fill="solid"
+        style={{
+          '--background': '#f59e0b',
+          '--background-hover': '#d97706',
+          '--color': '#1f2937',
+          '--border-radius': '12px',
+          fontWeight: '600'
+        }}
+      >
+        <IonIcon icon={star} slot="start" />
+        Rejoindre l'Équipe Poulet
+        <IonRippleEffect />
+      </IonButton>
     </IonCardContent>
   </IonCard>
 );
