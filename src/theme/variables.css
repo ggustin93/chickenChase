@@ -6,6 +6,7 @@
 @import './design-system.css';
 @import './ionic-theme.css';
 @import './component-themes.css';
+@import './dark-mode-prevention.css';
 
 /* Legacy Support & Overrides */
 :root {
@@ -221,6 +222,15 @@
   --ion-color-contrast-rgb: 0, 0, 0;
   --ion-color-shade: #d8d8c3;
   --ion-color-tint: #f6f6e0;
+}
+
+.ion-color-chicken {
+  --ion-color-base: #f59e0b; /* amber-500 */
+  --ion-color-base-rgb: 245, 158, 11;
+  --ion-color-contrast: #1f2937; /* gray-800 */
+  --ion-color-contrast-rgb: 31, 41, 55;
+  --ion-color-shade: #d97706; /* amber-600 */
+  --ion-color-tint: #fbbf24; /* amber-400 */
 }
 
 ion-title {

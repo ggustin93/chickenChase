@@ -1,0 +1,12 @@
+/* Simple dark mode prevention */
+html {
+  color-scheme: light !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+    --ion-background-color: #ffffff;
+    --ion-text-color: #000000;
+  }
+}
