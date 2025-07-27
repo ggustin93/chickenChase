@@ -142,6 +142,15 @@
   color: white !important;
 }
 
+/* Force white text in stats row - high specificity */
+html body .lobby-content-modern .modern-lobby-header .simple-stats-row,
+html body .lobby-content-modern .modern-lobby-header .simple-stats-row .stat-simple,
+html body .lobby-content-modern .modern-lobby-header .simple-stats-row .stat-simple span,
+html body .lobby-content-modern .modern-lobby-header .simple-stats-row .stat-simple ion-icon,
+html body .lobby-content-modern .modern-lobby-header .simple-stats-row .stat-divider {
+  color: white !important;
+}
+
 .stat-divider {
   color: rgba(255, 255, 255, 0.5);
   font-weight: 300;
