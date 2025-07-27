@@ -2,7 +2,7 @@ import {
   IonContent, IonPage, IonHeader, IonToolbar, IonButtons,
   IonBackButton, IonTitle, IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonItem, IonInput, IonButton, IonIcon,
-  useIonToast, IonLoading
+  useIonToast, IonLoading, IonImg
 } from '@ionic/react';
 import { logInOutline } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
@@ -10,6 +10,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useSession } from '../contexts/SessionContext';
 import { PostgrestError } from '@supabase/supabase-js';
+import logo from '../assets/images/logo.png';
 
 const JoinGamePage: React.FC = () => {
   const [joinCode, setJoinCode] = useState('');
@@ -137,10 +138,26 @@ const JoinGamePage: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <IonLoading isOpen={loading} message={'Recherche de la partie...'} />
-        <div className="flex flex-col items-center justify-center h-full">
+        <div className="flex flex-col items-center" style={{ paddingTop: '2rem' }}>
+          
+          <div className="text-center mb-6">
+            <h1 
+              className="text-3xl font-bold text-gray-800 mb-2"
+              style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}
+            >
+              CHICKEN CHASE
+            </h1>
+            <IonImg
+              src={logo}
+              alt="Chicken Chase Logo"
+              style={{ maxWidth: '120px', margin: '0 auto' }}
+              className="rounded-md"
+            />
+          </div>
+
           <IonCard className="w-full max-w-md mx-auto">
             <IonCardHeader>
-              <IonCardTitle className="ion-text-center text-2xl">Entrez les informations</IonCardTitle>
+              <IonCardTitle className="ion-text-center text-2xl">Rejoindre une Partie</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
               <form onSubmit={(e) => handleJoinGame(e)} style={{ width: '100%' }}>

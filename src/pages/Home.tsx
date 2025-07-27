@@ -1,6 +1,6 @@
 import { 
   IonContent, IonPage, IonButton, IonIcon, IonCard, IonCardContent, 
-  IonSpinner, useIonToast, IonSkeletonText, IonText, IonChip, IonImg 
+  useIonToast, IonSkeletonText, IonText, IonChip, IonImg 
 } from '@ionic/react';
 import { add, logIn, gameController, time, person } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
@@ -66,90 +66,91 @@ const Home: React.FC = () => {
               <div className="mb-3">
                 <h1 
                   className="text-2xl font-bold text-white mb-3 title-enhanced"
-                  style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}
+                  style={{ 
+                    fontFamily: "var(--ion-font-fantasy)", 
+                    fontWeight: 'normal',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.1)' 
+                  }}
                 >
                   CHICKEN CHASE
                 </h1>
                 <IonImg
                   src={logo}
                   alt="Chicken Chase Logo"
-                  style={{ maxWidth: '100px', width: '50%', height: 'auto', margin: '0 auto' }}
-                  className="rounded-md shadow-sm logo-enhanced"
+                  style={{ 
+                    maxWidth: '100px', 
+                    width: '50%', 
+                    height: 'auto', 
+                    margin: '0 auto',
+                    filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.2))',
+                    transition: 'transform 0.3s ease-in-out'
+                  }}
+                  className="rounded-md shadow-sm logo-enhanced hover:scale-110"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="modern-content-area" style={{ padding: '1.5rem 1rem 2rem', minHeight: 'calc(100vh - 200px)' }}>
-          {/* Actions principales - 100vh focus */}
-          <div className="flex flex-col justify-center" style={{ minHeight: 'calc(100vh - 300px)' }}>
-            <div className="space-y-4 max-w-lg mx-auto w-full">
-              {/* CTA Principal - Créer une Partie */}
-              <IonCard className="card-elevated card-enhanced cta-primary-enhanced card-interactive-enhanced ripple-enhanced">
-                <IonCardContent className="text-center py-8">
-                  <div className="mb-4">
-                    <IonIcon icon={add} className="text-5xl text-orange-500 icon-enhanced" />
-                  </div>
-                  <h3 className="text-2xl enhanced-text-primary mb-4">Créer une Partie</h3>
-                  <p className="enhanced-text-secondary text-lg mb-6 leading-relaxed">
-                    Lancez une nouvelle partie
-                  </p>
-                  <IonButton 
-                    size="large" 
-                    expand="block"
-                    onClick={handleCreateGame}
-                    className="button-enhanced focus-enhanced"
-                    fill="solid"
-                    color="primary"
-                    style={{
-                      '--border-radius': '16px',
-                      fontWeight: '700',
-                      height: '60px',
-                      fontSize: '1.2rem'
-                    }}
-                  >
-                    <IonIcon icon={add} slot="start" />
-                    Créer une Partie
-                  </IonButton>
-                </IonCardContent>
-              </IonCard>
+        {/* Contenu principal avec espacement affiné */}
+        <div className="ion-padding" style={{ paddingTop: '2rem' }}>
+          <div className="space-y-4 max-w-lg mx-auto w-full">
+            {/* CTA Principal - Créer une Partie */}
+            <IonCard className="card-elevated card-enhanced cta-primary-enhanced card-interactive-enhanced ripple-enhanced">
+              <IonCardContent className="text-center py-6">
+                <IonButton 
+                  size="large" 
+                  expand="block"
+                  onClick={handleCreateGame}
+                  className="button-enhanced focus-enhanced"
+                  fill="solid"
+                  color="primary"
+                  style={{
+                    '--border-radius': '16px',
+                    fontWeight: '700',
+                    height: '60px',
+                    fontSize: '1.2rem'
+                  }}
+                >
+                  <IonIcon icon={add} slot="start" />
+                  Créer une Partie
+                </IonButton>
+                <p className="enhanced-text-muted text-xs mt-2 leading-relaxed">
+                  Lancez une nouvelle aventure et invitez vos amis.
+                </p>
+              </IonCardContent>
+            </IonCard>
 
-              {/* CTA Secondaire - Rejoindre */}
-              <IonCard className="card-elevated card-enhanced cta-secondary-enhanced card-interactive-enhanced ripple-enhanced">
-                <IonCardContent className="text-center py-8">
-                  <div className="mb-4">
-                    <IonIcon icon={logIn} className="text-5xl text-orange-500 icon-enhanced" />
-                  </div>
-                  <h3 className="text-2xl enhanced-text-primary mb-4">Rejoindre une Partie</h3>
-                  <p className="enhanced-text-secondary text-lg mb-6 leading-relaxed">
-                    Vous avez un code ?
-                  </p>
-                  <IonButton 
-                    size="large" 
-                    expand="block"
-                    onClick={handleJoinGame}
-                    className="button-enhanced focus-enhanced"
-                    fill="outline"
-                    color="dark"
-                    style={{
-                      '--border-radius': '16px',
-                      fontWeight: '700',
-                      height: '60px',
-                      fontSize: '1.2rem'
-                    }}
-                  >
-                    <IonIcon icon={logIn} slot="start" />
-                    Rejoindre avec un Code
-                  </IonButton>
-                </IonCardContent>
-              </IonCard>
-            </div>
+            {/* CTA Secondaire - Rejoindre */}
+            <IonCard className="card-elevated card-enhanced cta-secondary-enhanced card-interactive-enhanced ripple-enhanced">
+              <IonCardContent className="text-center py-6">
+                <IonButton 
+                  size="large" 
+                  expand="block"
+                  onClick={handleJoinGame}
+                  className="button-enhanced focus-enhanced"
+                  fill="outline"
+                  color="dark"
+                  style={{
+                    '--border-radius': '16px',
+                    fontWeight: '700',
+                    height: '60px',
+                    fontSize: '1.2rem'
+                  }}
+                >
+                  <IonIcon icon={logIn} slot="start" />
+                  Rejoindre une Partie
+                </IonButton>
+                <p className="enhanced-text-muted text-xs mt-2 leading-relaxed">
+                  Utilisez un code pour accéder à une partie existante.
+                </p>
+              </IonCardContent>
+            </IonCard>
           </div>
 
           {/* Lien discret vers Parties en cours */}
           {games.length > 0 && (
-            <div className="text-center mt-6 pb-4">
+            <div className="text-center mt-8 pb-2">
               <button 
                 onClick={() => {
                   const element = document.getElementById('parties-section');
@@ -162,38 +163,41 @@ const Home: React.FC = () => {
             </div>
           )}
           
-          {/* Section Parties en cours - en dessous du fold */}
-          <div id="parties-section" className="mt-12 pt-8 border-t border-gray-200">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="section-title-enhanced">Parties en cours</h2>
-              <IonChip 
-                color="medium" 
-                outline
-                className="transition-all duration-300 hover:scale-105"
-                style={{ 
-                  '--background': 'rgba(251, 146, 60, 0.1)',
-                  '--color': '#ea580c',
-                  fontWeight: '600'
-                }}
-              >
-                <IonText>{games.length} partie{games.length > 1 ? 's' : ''}</IonText>
-              </IonChip>
-            </div>
-
+          {/* Section Parties en cours - avec marge ajustée */}
+          <div id="parties-section" className="mt-8">
             {loading ? (
               <GameListSkeleton />
             ) : games.length > 0 ? (
-              <div className="game-list-enhanced">
-                {games.map(game => (
-                  <GameCard
-                    key={game.id}
-                    game={game}
-                    onJoin={() => handleJoinSpecificGame(game.join_code)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="section-title-enhanced">Parties en cours</h2>
+                  <IonChip 
+                    color="medium" 
+                    outline
+                    className="transition-all duration-300 hover:scale-105"
+                    style={{ 
+                      '--background': 'rgba(251, 146, 60, 0.1)',
+                      '--color': '#ea580c',
+                      fontWeight: '600'
+                    }}
+                  >
+                    <IonText>{games.length} partie{games.length > 1 ? 's' : ''}</IonText>
+                  </IonChip>
+                </div>
+                <div className="game-list-enhanced">
+                  {games.map(game => (
+                    <GameCard
+                      key={game.id}
+                      game={game}
+                      onJoin={() => handleJoinSpecificGame(game.join_code)}
+                    />
+                  ))}
+                </div>
+              </>
             ) : (
-              <EmptyGamesState />
+              <div className="pt-8">
+                <EmptyGamesState />
+              </div>
             )}
           </div>
         </div>
