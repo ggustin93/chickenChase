@@ -3,6 +3,7 @@ import { IonToast, IonActionSheet, IonFab, IonFabButton, IonIcon, IonChip } from
 import { ChickenGameState, Bar } from '../../data/types';
 import GameMap from '../GameMap';
 import GameStatusCard from './GameStatusCard';
+import UserInfoHeader from '../shared/UserInfoHeader';
 import { trashOutline, informationCircleOutline, timeOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import { useBarManagement } from '../../hooks/useBarManagement';
 import useGameTimerDisplay from '../../hooks/useGameTimerDisplay';
@@ -193,8 +194,19 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
     }
   };
 
+  // Find current player's team name
+  const chickenTeam = gameState.teams.find(team => team.is_chicken_team);
+  const teamName = chickenTeam ? chickenTeam.name : undefined;
+
   return (
     <div className="map-tab-container no-scroll">
+      {/* User Info Header */}
+      <UserInfoHeader 
+        totalPlayers={gameState.teams.reduce((total, team) => total + (team.members?.length || 0), 0)}
+        additionalInfo={gameState.teams?.length ? `${gameState.teams.length} équipe${gameState.teams.length > 1 ? 's' : ''}` : undefined}
+        teamName={teamName}
+      />
+      
       {/* Notification des bars retirés */}
       {removedBarsCount > 0 && (
         <div className="removed-bars-notification">
