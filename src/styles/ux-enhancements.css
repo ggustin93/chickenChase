@@ -252,3 +252,38 @@
 .card-interactive-enhanced:active {
   transform: translateY(-1px) scale(0.998);
 }
+
+/* Styles pour la carte de l'équipe poulet */
+.ion-text-center ion-card-header {
+  position: relative;
+  z-index: 2;
+}
+
+.ion-text-center ion-title {
+  position: relative;
+  z-index: 2;
+  font-weight: bold;
+}
+
+/* Ajout d'un fond semi-transparent pour améliorer la lisibilité */
+.ion-text-center ion-card-header,
+.ion-text-center ion-card-content {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+}
+
+/* Assurer que le contenu de la carte est au-dessus du fond */
+.ion-text-center ion-card-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Styles pour le titre "VOUS ÊTES DANS L'ÉQUIPE" */
+.ion-text-center ion-card-subtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ion-color-dark) !important;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 2;
+}
