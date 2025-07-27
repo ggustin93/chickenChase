@@ -4,7 +4,8 @@
 *   **Frontend Mobile App:**
     *   Framework: Ionic React
     *   Native Access: Capacitor (for Camera)
-    *   Target: PWA only (no native builds for MVP)
+    *   Target: PWA with full offline support and native installation prompts
+    *   Service Worker: Offline-first architecture with intelligent caching
 *   **Backend:**
     *   Provider: Supabase
     *   Services: Database (PostgreSQL with RLS), Storage, Realtime, DB Functions.

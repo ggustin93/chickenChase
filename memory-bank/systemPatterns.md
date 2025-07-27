@@ -324,4 +324,31 @@ Pour informer tous les clients des changements importants, nous avons mis en pla
 3. **Soumission et validation des défis**
    - Soumission de défis par les joueurs
    - Validation par l'équipe Chicken
-   - Mise à jour des scores en temps réel 
+   - Mise à jour des scores en temps réel
+
+## Patterns d'architecture avancés
+
+### PWA Pattern
+- **Service Worker** : Architecture offline-first avec intelligent caching
+- **PWA Install Prompt** : Cross-platform installation avec détection automatique
+- **Background Sync** : Synchronisation en arrière-plan pour actions offline
+- **Cache Strategy** : Multi-layer caching (shell, API, dynamic content)
+
+### Service Layer Pattern
+- **addressService** : Service pour la géolocalisation et géocodage avec cache intelligent et retry logic
+- **openStreetMapService** : Service d'intégration OpenStreetMap avec CORS fixes et network resilience
+- **GameEventService** : Service de gestion des événements de jeu avec notifications temps réel
+- **Data validation pattern** : Utilisation de TypeScript types et validation des données
+- **PWA Services** : Service worker avec offline-first caching et background sync
+
+### Game Flow Enhancement Pattern
+- **FinishGameButton Component** : Confirmation dialog pattern avec error handling
+- **Enhanced State Management** : Optimisations performance avec memoization
+- **Navigation Coordination** : Parent-controlled navigation avec session cleanup
+- **Event Service Integration** : Centralized event management avec real-time updates
+
+### Performance Optimization Patterns
+- **Memoization Strategy** : Component et callback memoization pour réduire re-renders
+- **Intelligent Caching** : Multi-level cache avec invalidation strategies
+- **Network Resilience** : Retry logic et fallback mechanisms
+- **Mobile Optimization** : Touch-friendly interfaces avec performance budgets 
