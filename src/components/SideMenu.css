@@ -101,3 +101,67 @@ ion-card.menu-header-card {
     animation: none !important;
   }
 }
+
+/* Optimisations spécifiques pour iOS */
+.ios-optimized {
+  /* Utiliser les accélérations matérielles pour les animations */
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Réduire les calculs de layout */
+  contain: layout style;
+  
+  /* Améliorer le rendu des textes */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Éviter les problèmes de flickering */
+  backface-visibility: hidden;
+}
+
+.ios-optimized ion-item {
+  /* Optimiser les items pour iOS */
+  contain: layout style;
+  will-change: transform;
+}
+
+.ios-content {
+  /* Optimiser le contenu pour iOS */
+  contain: content;
+  will-change: transform;
+  
+  /* Réduire les calculs de style */
+  isolation: isolate;
+}
+
+/* Optimisation pour le pré-rendu */
+ion-menu::part(backdrop) {
+  will-change: opacity;
+}
+
+ion-menu::part(container) {
+  will-change: transform;
+}
+
+/* Optimiser les transitions pour iOS */
+@supports (-webkit-touch-callout: none) {
+  .menu-container {
+    /* Utiliser des transitions plus simples sur iOS */
+    --ion-item-transition: none;
+  }
+  
+  .menu-container ion-item {
+    /* Désactiver les transitions complexes */
+    transition: none;
+  }
+  
+  /* Optimiser le rendu des ombres */
+  .menu-container ion-item,
+  .menu-container ion-button,
+  .menu-container .shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+}

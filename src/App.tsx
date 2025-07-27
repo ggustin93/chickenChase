@@ -44,11 +44,18 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import './theme/dark-mode-prevention.css'; // Optimisations pour iOS et désactivation du mode sombre
 
 /* Tailwind CSS - doit être importé après les styles Ionic */
 import './index.css';
 
-setupIonicReact();
+// Configurer Ionic React avec des options optimisées pour iOS
+setupIonicReact({
+  mode: 'ios', // Utiliser le mode iOS pour une meilleure cohérence
+  animated: true,
+  hardwareBackButton: true,
+  rippleEffect: false, // Désactiver l'effet ripple pour de meilleures performances
+});
 
 // Use the correct signature for router.push based on linter feedback
 interface MainLayoutProps {
@@ -130,69 +137,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
       </IonRouterOutlet>
     </>
   );
-}
+};
 
-// New intermediate component to capture router context
+// RouterContextWrapper provides the router context to MainLayout
 const RouterContextWrapper: React.FC = () => {
   const location = useLocation();
   const router = useIonRouter();
-
-  useEffect(() => {
-    const sessionData = localStorage.getItem('player-session');
-    if (sessionData) {
-      try {
-        const session = JSON.parse(sessionData);
-        const { gameId, gameStatus } = session;
-        
-        if (gameId) {
-          // Si le jeu est en cours, rediriger vers la page appropriée
-          if (gameStatus === 'in_progress') {
-            // Vérifier si l'utilisateur est dans l'équipe Chicken
-            const isChickenTeam = session.isChickenTeam === true;
-            
-            console.log("App: Checking redirection", {
-              isChickenTeam,
-              currentPath: location.pathname,
-              shouldBeChicken: isChickenTeam && !location.pathname.startsWith(`/chicken/${gameId}`),
-              shouldBePlayer: !isChickenTeam && !location.pathname.startsWith(`/player/${gameId}`)
-            });
-            
-            // Rediriger vers la page appropriée si on n'y est pas déjà
-            if (isChickenTeam && !location.pathname.startsWith(`/chicken/${gameId}`)) {
-              console.log("App: Redirecting to chicken page", `/chicken/${gameId}`);
-              router.push(`/chicken/${gameId}`, 'root', 'replace');
-            } else if (!isChickenTeam && !location.pathname.startsWith(`/player/${gameId}`)) {
-              console.log("App: Redirecting to player page", `/player/${gameId}`);
-              router.push(`/player/${gameId}`, 'root', 'replace');
-            }
-          } 
-          // Si le jeu est en attente (lobby), rediriger vers le lobby si nécessaire
-          else if (location.pathname !== `/lobby/${gameId}` && 
-                  !location.pathname.startsWith(`/chicken/${gameId}`) && 
-                  !location.pathname.startsWith(`/player/${gameId}`)) {
-            console.log("App: Redirecting to lobby", `/lobby/${gameId}`);
-            router.push(`/lobby/${gameId}`, 'root', 'replace');
-          }
-        }
-      } catch (e) {
-        console.error("Failed to parse player session:", e);
-        localStorage.removeItem('player-session');
-      }
-    }
-  }, [location.pathname, router]);
-
+  
   return <MainLayout location={location} router={router} />;
-}
+};
 
-// Main App component sets up IonApp and IonReactRouter
 const App: React.FC = () => {
   return (
     <IonApp>
-      <SessionProvider>
-        <IonReactRouter>
-          <RouterContextWrapper /> {/* Render the wrapper here */}
-        </IonReactRouter>
-      </SessionProvider>
+      <IonReactRouter>
+        <SessionProvider>
+          <RouterContextWrapper />
+        </SessionProvider>
+      </IonReactRouter>
     </IonApp>
   );
 };

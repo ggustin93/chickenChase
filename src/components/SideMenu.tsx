@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, memo } from 'react';
+import React, { useEffect, useCallback, memo, useState } from 'react';
 import {
   IonMenu,
   IonHeader,
@@ -14,6 +14,7 @@ import {
   IonNote,
   IonImg,
   IonMenuToggle,
+  isPlatform
 } from '@ionic/react';
 import { menuController } from '@ionic/core';
 import {
@@ -108,12 +109,68 @@ const LogoutButton = memo(({ onLogout }: { onLogout: () => void }) => (
   </IonItem>
 ));
 
+// Composant pour le logo pré-chargé
+const MenuLogo = memo(({ src, gameName }: { src: string, gameName?: string }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // Pré-charger l'image
+  useEffect(() => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => setImageLoaded(true);
+  }, [src]);
+  
+  return (
+    <div className="flex flex-col items-center justify-center text-center mb-4">
+      {imageLoaded ? (
+        <IonImg
+          src={src}
+          alt="Chicken Chase Logo"
+          style={{ 
+            maxWidth: '120px', 
+            width: '80%', 
+            height: 'auto', 
+            margin: '0 auto',
+            willChange: 'auto' // Optimisation pour iOS
+          }}
+          className="rounded-md shadow-sm"
+        />
+      ) : (
+        <div 
+          style={{ 
+            maxWidth: '120px', 
+            width: '80%', 
+            height: '80px', 
+            margin: '0 auto',
+            backgroundColor: 'rgba(255,255,255,0.1)'
+          }} 
+          className="rounded-md shadow-sm"
+        />
+      )}
+      <h1
+        className="text-2xl text-white ion-text-default" 
+        style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}
+      >
+        Chicken Chase
+      </h1>
+      {gameName && (
+        <h2 className="text-lg text-white ion-text-default mt-1 opacity-80">
+          {gameName}
+        </h2>
+      )}
+    </div>
+  );
+});
+
 const SideMenu: React.FC<SideMenuProps> = ({ 
   mode, 
   appVersion,
   logoSrc = logo,
   gameName
 }) => {
+  const isIOS = isPlatform('ios');
+  // Supprimer la variable non utilisée
+  
   // Ensure menu closes properly when clicking outside
   useEffect(() => {
     const handleBackdropClick = () => {
@@ -123,11 +180,16 @@ const SideMenu: React.FC<SideMenuProps> = ({
     // Add event listener for backdrop clicks
     document.addEventListener('ionBackdrop-click', handleBackdropClick);
     
+    // Pré-rendre le menu pour iOS
+    if (isIOS) {
+      menuController.enable(true, 'main-menu');
+    }
+    
     return () => {
       // Cleanup event listener on component unmount
       document.removeEventListener('ionBackdrop-click', handleBackdropClick);
     };
-  }, []);
+  }, [isIOS]);
   
   // Memoized handlers
   const handleLogout = useCallback(() => {
@@ -153,6 +215,10 @@ const SideMenu: React.FC<SideMenuProps> = ({
     ))
   ), [mode]);
 
+  // Optimisations spécifiques à iOS
+  const menuClasses = `menu-container max-w-xs w-full ${isIOS ? 'ios-optimized' : ''}`;
+  const contentClasses = `pt-2 ${isIOS ? 'ios-content' : ''}`;
+
   return (
     <IonMenu 
       side="start" 
@@ -160,7 +226,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
       contentId="main-content" 
       swipeGesture={true} 
       type="overlay"
-      className="menu-container max-w-xs w-full"
+      className={menuClasses}
+      style={isIOS ? { '--width': '280px', '--max-width': '90%' } : undefined}
     >
       <IonHeader className="ion-no-border">
         <IonToolbar color="primary" className="pt-3 pb-2">
@@ -174,27 +241,9 @@ const SideMenu: React.FC<SideMenuProps> = ({
         </IonToolbar>
       </IonHeader>
 
-      <IonContent color="primary" className="pt-2">
-        {/* Carte d'en-tête */}
-        <div className="flex flex-col items-center justify-center text-center mb-4">
-          <IonImg
-            src={logoSrc}
-            alt="Chicken Chase Logo"
-            style={{ maxWidth: '120px', width: '80%', height: 'auto', margin: '0 auto' }}
-            className="rounded-md shadow-sm"
-          />
-          <h1
-            className="text-2xl text-white ion-text-default" 
-            style={{ fontFamily: "var(--ion-font-fantasy)", fontWeight: 'normal' }}
-          >
-            Chicken Chase
-          </h1>
-          {gameName && (
-            <h2 className="text-lg text-white ion-text-default mt-1 opacity-80">
-              {gameName}
-            </h2>
-          )}
-        </div>
+      <IonContent color="primary" className={contentClasses}>
+        {/* Logo avec pré-chargement */}
+        <MenuLogo src={logoSrc} gameName={gameName} />
 
         {/* Section de navigation */}
         <IonList lines="none" className="ion-no-padding mt-2">
