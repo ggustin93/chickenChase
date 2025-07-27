@@ -1,0 +1,122 @@
+/* UserInfoHeader.css - Ultra-compact design with IonHeader */
+.user-info-ion-header {
+  height: auto !important;
+  min-height: auto !important;
+}
+
+.user-info-toolbar {
+  --background: rgba(255, 255, 255, 0.95);
+  --border-color: var(--ion-color-light-shade);
+  --min-height: auto; /* Hauteur automatique pour permettre 2 lignes */
+  --padding-top: 0.25rem;
+  --padding-bottom: 0.25rem;
+  backdrop-filter: blur(10px);
+}
+
+.user-info-title {
+  padding: 0;
+  text-align: center;
+  font-size: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif !important; /* Police système normale */
+}
+
+/* Ultra-compact horizontal layout like Lobby */
+.compact-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Gap réduit pour plus d'espace */
+  justify-content: center;
+  flex-wrap: wrap; /* Permet le retour à la ligne si besoin */
+}
+
+.stat-simple {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem; /* Plus petit en mode badge */
+  color: #2c3e50 !important; /* Force dark color for visibility */
+  font-weight: 400; /* Police normale, pas spéciale */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif !important; /* Police système normale */
+}
+
+.stat-simple ion-icon {
+  font-size: 0.8rem; /* Icônes plus petites */
+  color: #3498db !important; /* Force blue color for icons */
+}
+
+.stat-simple span {
+  color: #2c3e50 !important; /* Force dark color for text */
+  font-weight: 400; /* Police normale */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif !important; /* Police système normale */
+  /* Suppression de la troncature pour permettre l'affichage complet */
+}
+
+.stat-divider {
+  color: #7f8c8d !important; /* Force gray color for dividers */
+  font-size: 0.7rem; /* Plus petit pour le style badge */
+  opacity: 0.8;
+  font-weight: 400; /* Police normale */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif !important; /* Police système normale */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .user-info-toolbar {
+    --padding-top: 0.2rem;
+    --padding-bottom: 0.2rem;
+    --min-height: 2.5rem;
+  }
+
+  .compact-stats-row {
+    gap: 0.4rem; /* Reduced gap on mobile pour style badge */
+  }
+
+  .stat-simple {
+    font-size: 0.7rem; /* Plus petit sur mobile */
+  }
+
+  .stat-simple ion-icon {
+    font-size: 0.75rem; /* Icônes plus petites sur mobile */
+  }
+
+  .stat-simple span {
+    font-weight: 400;
+    /* Suppression de max-width pour éviter la troncature sur mobile */
+  }
+
+  .stat-divider {
+    font-size: 0.65rem; /* Plus petit sur mobile */
+  }
+}
+
+/* Theme integration */
+.user-info-header {
+  --header-bg: rgba(255, 255, 255, 0.95);
+  --header-text: var(--ion-color-dark);
+  --header-text-secondary: var(--ion-color-medium-shade);
+  --header-border: var(--ion-color-light-shade);
+}
+
+/* Dark mode support (if implemented) */
+@media (prefers-color-scheme: dark) {
+  .user-info-header {
+    --header-bg: rgba(32, 32, 32, 0.95);
+    --header-text: var(--ion-color-light);
+    --header-text-secondary: var(--ion-color-medium);
+    --header-border: var(--ion-color-dark-shade);
+  }
+
+  .user-info-header {
+    background: var(--header-bg);
+    border-bottom-color: var(--header-border);
+  }
+
+  .user-info-header .user-name {
+    color: var(--header-text);
+  }
+
+  .user-info-header .stat-text,
+  .user-info-header .additional-info {
+    color: var(--header-text-secondary);
+  }
+}
