@@ -2,7 +2,7 @@
  * Custom hook for address autocomplete functionality
  */
 
-import { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { AddressAutocompleteService, AddressSuggestion } from '../services/AddressAutocompleteService';
 
 interface UseAddressAutocompleteOptions {
@@ -33,7 +33,7 @@ export const useAddressAutocomplete = (
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<number | undefined>(undefined);
   const currentQueryRef = useRef<string>('');
 
   const searchSuggestions = useCallback(async (query: string) => {
@@ -52,7 +52,7 @@ export const useAddressAutocomplete = (
     }
 
     // Debounce the search
-    debounceRef.current = setTimeout(async () => {
+    debounceRef.current = window.setTimeout(async () => {
       // Check if this is still the current query
       if (currentQueryRef.current !== query) {
         return;
