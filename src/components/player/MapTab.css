@@ -1,17 +1,19 @@
 .map-tab-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
   width: 100%;
   overflow: hidden;
   background-color: #f7f7f7;
+  position: relative;
 }
 
 .map-list-view-wrapper {
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0; /* Important for flex children to shrink */
 }
 
 .map-list-segment {
@@ -35,19 +37,33 @@
 
 .map-section,
 .list-section {
-  flex-grow: 1;
+  flex: 1;
   position: relative;
   overflow: hidden;
+  min-height: 0; /* Important for flex children to shrink */
+  width: 100%;
 }
 
-.map-wrapper,
-.bar-list-container {
-  height: 100%;
+.map-section {
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
 .map-wrapper {
+  flex: 1;
+  width: 100%;
   position: relative;
+  min-height: 200px; /* Minimum height for mobile */
+  max-height: 60vh; /* Maximum height for mobile */
+  box-sizing: border-box;
+}
+
+.bar-list-container {
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .list-section {
@@ -55,6 +71,9 @@
   flex-direction: column;
   overflow-y: auto;
   max-height: 100%;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .bars-list-header {
@@ -72,13 +91,16 @@
   color: var(--ion-color-medium-shade);
 }
 
-.bar-list-container {
+.bars-list-content {
   flex-grow: 1;
   overflow-y: auto;
+  width: 100%;
 }
 
 .bar-list-player {
   padding: 0;
+  width: 100%;
+  margin: 0;
 }
 
 .bar-list-player ion-item {
@@ -355,5 +377,335 @@
   }
   100% {
     box-shadow: 0 0 0 0 rgba(var(--ion-color-tertiary-rgb), 0);
+  }
+}
+
+/* Game Status Card Container */
+.game-status-container {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  background: #f7f7f7;
+  border-top: 1px solid var(--ion-color-step-150, #e0e0e0);
+}
+
+/* Mobile fixed positioning */
+@media (max-width: 768px) {
+  .game-status-container {
+    position: fixed;
+    bottom: 60px; /* Above bottom navigation */
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 6px 10px;
+    background: rgba(247, 247, 247, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(224, 224, 224, 0.8);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Adjust map/list content to avoid overlap */
+  .map-list-view-wrapper {
+    padding-bottom: 90px; /* Space for fixed status card + margin */
+  }
+  
+  /* Ensure list content can scroll properly */
+  .list-section {
+    padding-bottom: 0; /* Remove bottom padding that might interfere */
+  }
+  
+  .bars-list-content {
+    padding-bottom: 20px; /* Add padding to the scrollable content */
+  }
+  
+  .bar-list-player {
+    padding-bottom: 10px;
+  }
+}
+
+/* Position indicator for mobile */
+.position-indicator {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 400;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  max-width: 60%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.position-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.position-icon {
+  font-size: 14px;
+  color: var(--ion-color-primary);
+  flex-shrink: 0;
+}
+
+.position-text {
+  font-size: 10px;
+  color: var(--ion-color-medium-shade);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Discrete timer overlay */
+.timer-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 400;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.timer-overlay:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.05);
+}
+
+.timer-icon {
+  font-size: 12px;
+  color: white;
+  opacity: 0.9;
+}
+
+.timer-text {
+  font-size: 11px;
+  color: white;
+  font-weight: 600;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.2px;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Critical time styling for timer overlay */
+.timer-overlay.critical {
+  background: rgba(244, 67, 54, 0.8);
+  animation: timer-pulse 2s infinite;
+}
+
+.timer-overlay.critical .timer-icon,
+.timer-overlay.critical .timer-text {
+  color: white;
+}
+
+@keyframes timer-pulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 0 rgba(244, 67, 54, 0.4);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(244, 67, 54, 0.1);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 0 rgba(244, 67, 54, 0);
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .map-wrapper {
+    max-height: 50vh; /* Smaller max height on mobile */
+    min-height: 180px;
+  }
+  
+  .game-status-container {
+    padding: 6px 10px;
+  }
+  
+  .center-position-button-container {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .center-position-button {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .center-position-button ion-icon {
+    font-size: 18px;
+  }
+  
+  .position-indicator {
+    bottom: 8px;
+    left: 8px;
+    padding: 3px 6px;
+    max-width: 55%;
+  }
+  
+  .position-text {
+    font-size: 9px;
+  }
+  
+  .timer-overlay {
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    border-radius: 16px;
+  }
+  
+  .timer-icon {
+    font-size: 10px;
+  }
+  
+  .timer-text {
+    font-size: 10px;
+    min-width: 45px;
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  .map-wrapper {
+    max-height: 45vh;
+    min-height: 160px;
+  }
+  
+  .position-indicator {
+    max-width: 50%;
+  }
+  
+  .position-text {
+    font-size: 8px;
+  }
+}
+
+/* Desktop responsiveness */
+@media (min-width: 769px) {
+  .map-tab-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0 20px;
+  }
+  
+  .map-wrapper {
+    max-height: 70vh;
+    min-height: 400px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .map-section {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+  
+  .map-list-view-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .bar-list-container {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .bar-list-player {
+    width: 100%;
+  }
+  
+  .bar-list-player ion-item {
+    --min-height: 70px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+  }
+  
+  .bar-list-player ion-item h2 {
+    font-size: 1rem;
+  }
+  
+  .bar-list-player ion-item ion-note {
+    font-size: 0.85rem;
+  }
+  
+  .bar-thumbnail-player {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .game-status-container {
+    padding: 12px 16px;
+  }
+  
+  .map-list-segment {
+    max-width: 200px;
+    margin: 12px auto;
+  }
+  
+  .map-list-segment ion-segment-button {
+    min-height: 45px;
+  }
+  
+  .map-list-segment ion-segment-button ion-icon {
+    font-size: 24px;
+  }
+  
+  .bars-list-header {
+    padding: 12px 20px 8px;
+  }
+  
+  .bars-list-title {
+    font-size: 1.1rem;
+  }
+  
+  /* Center UserInfoHeader and GameStatusCard on desktop */
+  .map-tab-container > :first-child {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+  }
+  
+  .game-status-container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Large desktop screens */
+@media (min-width: 1200px) {
+  .map-tab-container {
+    padding: 0 40px;
+  }
+  
+  .map-list-view-wrapper {
+    max-width: 1400px;
+  }
+  
+  .map-wrapper {
+    max-height: 75vh;
+    min-height: 500px;
+    width: 100%;
+  }
+  
+  .bar-list-player ion-item {
+    --min-height: 80px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+  }
+  
+  .bar-thumbnail-player {
+    width: 60px;
+    height: 60px;
   }
 } 

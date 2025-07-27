@@ -5,9 +5,10 @@ import {
 } from '@ionic/react';
 import { 
   locateOutline, checkmarkCircle, ellipseOutline,
-  navigateOutline, mapOutline, listOutline, helpCircleOutline
+  navigateOutline, mapOutline, listOutline, helpCircleOutline, timeOutline
 } from 'ionicons/icons';
 import GameMap from '../GameMap';
+import UserInfoHeader from '../shared/UserInfoHeader';
 import { Bar } from '../../data/types';
 import { Position } from '@capacitor/geolocation';
 import PlayerGameStatusCard from './PlayerGameStatusCard';
@@ -32,6 +33,9 @@ interface MapTabProps {
   isCagnotteLoading?: boolean;
   onCagnotteConsumption?: (amount: number, reason: string) => void;
   error?: GeolocationPositionError | Error | null;
+  totalPlayers?: number;
+  totalTeams?: number;
+  teamName?: string;
 }
 
 const MapTab: React.FC<MapTabProps> = ({ 
@@ -51,7 +55,10 @@ const MapTab: React.FC<MapTabProps> = ({
   cagnotteInitialAmount,
   isCagnotteLoading,
   onCagnotteConsumption,
-  error
+  error,
+  totalPlayers = 0,
+  totalTeams = 0,
+  teamName
 }) => {
   const [activeSegment, setActiveSegment] = useState<'map' | 'list'>('map');
   const [showLocationHelp, setShowLocationHelp] = useState<boolean>(false);
@@ -97,9 +104,18 @@ const MapTab: React.FC<MapTabProps> = ({
   });
 
   const visitedBarIds = visitedBars.map(bar => bar.id);
+  
+  // Check if time is critical for timer styling
+  const isTimeCritical = gameTime.includes('0:') || gameTime.includes('00:');
 
   return (
     <div className="map-tab-container">
+      {/* User Info Header */}
+      <UserInfoHeader 
+        totalPlayers={totalPlayers}
+        additionalInfo={totalTeams ? `${totalTeams} équipe${totalTeams > 1 ? 's' : ''}` : undefined}
+        teamName={teamName}
+      />
       
       {/* Wrapper for flex-grow content (Segment + Map/List) */}
       <div className="map-list-view-wrapper">
@@ -152,6 +168,12 @@ const MapTab: React.FC<MapTabProps> = ({
                     )}
                   </span>
                 </div>
+              </div>
+
+              {/* Discrete timer overlay - Top right */}
+              <div className={`timer-overlay ${isTimeCritical ? 'critical' : ''}`}>
+                <IonIcon icon={timeOutline} className="timer-icon" />
+                <span className="timer-text">{gameTime}</span>
               </div>
               
               {/* Location Help Button for iOS */}
@@ -223,7 +245,7 @@ const MapTab: React.FC<MapTabProps> = ({
             </div>
 
             {/* Bars List */}
-            <div className="bar-list-container">
+            <div className="bars-list-content">
               <IonList lines="full" className="bar-list-player">
                 {sortedBars.map(bar => {
                   const isVisited = visitedBarIds.includes(bar.id);
@@ -274,23 +296,21 @@ const MapTab: React.FC<MapTabProps> = ({
         )}
       </div> {/* End of map-list-view-wrapper */}
 
-      {/* Game Status Card (Stays at the bottom) - Only visible in map view */}
-      {activeSegment === 'map' && (
-        <div className="game-status-container">
-          <PlayerGameStatusCard
-            score={score}
-            gameTime={gameTime}
-            barsVisited={visitedBars.length}
-            totalBars={bars.length}
-            challengesCompleted={challengesCompleted}
-            totalChallenges={totalChallenges}
-            cagnotteCurrentAmount={cagnotteCurrentAmount}
-            cagnotteInitialAmount={cagnotteInitialAmount}
-            isCagnotteLoading={isCagnotteLoading}
-            onCagnotteConsumption={onCagnotteConsumption}
-          />
-        </div>
-      )}
+      {/* Game Status Card (Always visible at the bottom in both map and list view) */}
+      <div className="game-status-container">
+        <PlayerGameStatusCard
+          score={score}
+          gameTime={gameTime}
+          barsVisited={visitedBars.length}
+          totalBars={bars.length}
+          challengesCompleted={challengesCompleted}
+          totalChallenges={totalChallenges}
+          cagnotteCurrentAmount={cagnotteCurrentAmount}
+          cagnotteInitialAmount={cagnotteInitialAmount}
+          isCagnotteLoading={isCagnotteLoading}
+          onCagnotteConsumption={onCagnotteConsumption}
+        />
+      </div>
 
       {/* Add a help alert with iOS-specific instructions */}
       <IonAlert
