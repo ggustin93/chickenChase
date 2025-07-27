@@ -32,10 +32,12 @@
 ### Fonctionnalités de Jeu
 - ✅ Création et gestion des équipes
 - ✅ **Équipe Poulet accessible à tous** : N'importe qui peut rejoindre l'équipe poulet
+- ✅ **Import de bars avancé** : Recherche OpenStreetMap avec autocomplete d'adresses et géocodage inverse
+- ✅ **Gestion cagnotte complète** : Interface CRUD avec opérations preset, historique, et mises à jour temps réel
 - ✅ Système de défis avec validation
 - ✅ Système de chat en temps réel
 - ✅ Système de statut de jeu (lobby, in_progress, chicken_hidden, finished)
-- ✅ Gestion de la cagnotte
+- ✅ **Bouton terminer partie** pour équipe poulet avec confirmation
 
 ## Ce qui reste à construire
 
@@ -117,4 +119,6 @@
 - ✅ **Service Worker Architecture** : Offline-first caching, background sync, performance optimization
 - ✅ **Game Flow Enhancements** : FinishGameButton, GameEventService integration, improved navigation
 - ✅ **Location Services Optimization** : Enhanced geocoding, intelligent caching, network resilience
-- ✅ **Database Development Tools** : Clean data utility, schema preservation, development environment reset 
+- ✅ **Database Development Tools** : Clean data utility, schema preservation, development environment reset
+- ✅ **Advanced Bar Import System** : OpenStreetMap search with address autocomplete, radius selector, reverse geocoding
+- ✅ **Comprehensive Cagnotte Management** : Full CRUD operations, preset actions, real-time updates, transaction history 

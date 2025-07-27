@@ -513,6 +513,7 @@ const PlayerPage: React.FC = () => {
             cagnotteCurrentAmount={cagnotte.current}
             cagnotteInitialAmount={cagnotte.initial}
             onCagnotteConsumption={handleCagnotteConsumption}
+            onCagnotteClick={() => handleTabChange('cagnotte')}
             isCagnotteLoading={false}
             error={locationError}
             totalPlayers={gameState.leaderboard.reduce((total, team) => total + (team.members?.length || 0), 0)}

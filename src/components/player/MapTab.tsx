@@ -32,6 +32,7 @@ interface MapTabProps {
   cagnotteInitialAmount?: number;
   isCagnotteLoading?: boolean;
   onCagnotteConsumption?: (amount: number, reason: string) => void;
+  onCagnotteClick?: () => void;
   error?: GeolocationPositionError | Error | null;
   totalPlayers?: number;
   totalTeams?: number;
@@ -55,6 +56,7 @@ const MapTab: React.FC<MapTabProps> = ({
   cagnotteInitialAmount,
   isCagnotteLoading,
   onCagnotteConsumption,
+  onCagnotteClick,
   error,
   totalPlayers = 0,
   totalTeams = 0,
@@ -309,6 +311,7 @@ const MapTab: React.FC<MapTabProps> = ({
           cagnotteInitialAmount={cagnotteInitialAmount}
           isCagnotteLoading={isCagnotteLoading}
           onCagnotteConsumption={onCagnotteConsumption}
+          onCagnotteClick={onCagnotteClick}
         />
       </div>
 

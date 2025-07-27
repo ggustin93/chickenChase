@@ -132,6 +132,22 @@
   opacity: 0.9;
 }
 
+/* Clickable cagnotte styles */
+.stat-item.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stat-item.clickable:hover {
+  background: rgba(76, 175, 80, 0.12);
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.15);
+}
+
+.stat-item.clickable:active {
+  transform: translateY(0) scale(1);
+}
+
 /* Refined Critical Time Animation */
 .time-item.critical {
   animation: pulse-elegant 2.5s infinite;

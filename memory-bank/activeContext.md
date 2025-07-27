@@ -8,6 +8,20 @@ Le projet a achevé un cycle complet d'améliorations PWA avec installation nati
 
 ### Améliorations Récentes Complétées (2025-01-27)
 
+#### 16. **Système d'Import de Bars Avancé** ✅
+   - **Recherche Locale** : OpenStreetMap avec rayon configurable et autocomplete d'adresses
+   - **Géocodage Inverse** : Résolution automatique "Adresse non disponible" → adresses réelles
+   - **UX Améliorée** : Défaut onglet 'recherche', bouton position actuelle, correction manuelle
+   - **Components** : AddressInput avec autocomplete, RadiusSelector avec feedback visuel
+
+#### 17. **Système de Gestion Cagnotte Complet** ✅
+   - **CagnotteManager** : Interface complète CRUD avec opérations preset et personnalisées
+   - **Service Layer** : CagnotteService avec backend functions et gestion d'erreurs
+   - **Real-time Updates** : Synchronisation instantanée via Supabase subscriptions
+   - **Integration UI** : Onglets cagnotte dans ChickenPage et PlayerPage avec interface native
+
+### Améliorations Récentes Complétées (2025-01-27)
+
 #### 1. **Système d'Authentification Gracieuse** ✅
    - **Problème** : Erreurs "Anonymous sign-ins disabled" et "Signups not allowed"
    - **Solution** : Système hybride avec fallback gracieux - fonctionne avec ou sans Supabase auth
