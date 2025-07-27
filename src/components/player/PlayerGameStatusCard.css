@@ -1,15 +1,19 @@
 .player-status-card {
   margin: 0;
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
-  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  background: linear-gradient(145deg, #ffffff 0%, #fbfcfd 50%, #f6f8fa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.03);
   position: relative;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  backdrop-filter: blur(20px);
+  font-family: 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* Compact overall padding */
+/* Ultra-compact padding */
 .compact-content {
-  padding: 10px !important;
+  padding: 6px 10px !important;
 }
 
 /* Remove previous grid */
@@ -21,26 +25,38 @@
 }
 */
 
-/* New Grid Layout for Stats */
+/* Optimized Grid Layout */
 .status-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 columns */
-  gap: 8px; /* Reduced gap */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px; /* Ultra-compact gap */
 }
 
-/* General Stat Item Styling */
+/* Refined Stat Item Styling */
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 8px; /* Space between icon and text */
-  background-color: #f8f8f8;
-  border-radius: 8px; /* Smaller radius */
-  padding: 8px 10px; /* Reduced padding */
+  gap: 5px; /* Tighter spacing */
+  background: rgba(255, 255, 255, 0.5);
+  border: 0.5px solid rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 4px 6px; /* Ultra-compact padding */
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.75);
+  transform: translateY(-0.5px) scale(1.01);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .stat-item ion-icon {
-  font-size: 20px; /* Slightly smaller icon */
-  color: var(--ion-color-medium); /* Default icon color */
+  font-size: 18px; /* Larger icons as requested */
+  color: var(--ion-color-medium);
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 
 .stat-details {
@@ -50,39 +66,85 @@
 }
 
 .stat-value {
-  font-size: 1.1rem; /* Reduced value font size */
-  font-weight: 700;
+  font-size: 0.65rem; /* Even smaller as requested */
+  font-weight: 800;
   color: var(--ion-color-dark);
-  line-height: 1.2;
+  line-height: 1;
+  letter-spacing: -0.1px;
+  font-feature-settings: 'tnum' 1; /* Tabular numbers */
+  font-family: 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .stat-label {
-  font-size: 0.7rem; /* Reduced label font size */
+  font-size: 0.45rem; /* Even smaller as requested */
   color: var(--ion-color-medium);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  font-weight: 700;
+  margin-top: -1px;
+  opacity: 0.85;
+  font-family: 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Specific Item Colors */
+/* Refined Color System with Subtle Gradients */
+.score-item {
+  background: linear-gradient(135deg, rgba(56, 128, 255, 0.06) 0%, rgba(56, 128, 255, 0.02) 100%);
+  border-color: rgba(56, 128, 255, 0.12);
+}
 .score-item ion-icon {
-  color: var(--ion-color-primary);
+  color: #3880ff;
+  opacity: 0.9;
 }
 
+.time-item {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.06) 0%, rgba(255, 193, 7, 0.02) 100%);
+  border-color: rgba(255, 193, 7, 0.12);
+}
 .time-item ion-icon {
-  color: var(--ion-color-warning);
+  color: #ffc107;
+  opacity: 0.9;
 }
 
+.bars-item {
+  background: linear-gradient(135deg, rgba(245, 124, 0, 0.06) 0%, rgba(245, 124, 0, 0.02) 100%);
+  border-color: rgba(245, 124, 0, 0.12);
+}
 .bars-item ion-icon {
-  color: #f57c00; /* Orange */
+  color: #f57c00;
+  opacity: 0.9;
 }
 
+.challenges-item {
+  background: linear-gradient(135deg, rgba(92, 107, 192, 0.06) 0%, rgba(92, 107, 192, 0.02) 100%);
+  border-color: rgba(92, 107, 192, 0.12);
+}
 .challenges-item ion-icon {
-  color: var(--ion-color-secondary);
+  color: #5c6bc0;
+  opacity: 0.9;
 }
 
-/* Critical Time Animation */
+.cagnotte-item {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.06) 0%, rgba(76, 175, 80, 0.02) 100%);
+  border-color: rgba(76, 175, 80, 0.12);
+}
+.cagnotte-item ion-icon {
+  color: #4caf50;
+  opacity: 0.9;
+}
+
+/* Refined Critical Time Animation */
 .time-item.critical {
-  animation: pulse 2s infinite;
+  animation: pulse-elegant 2.5s infinite;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.08) 0%, rgba(244, 67, 54, 0.03) 100%);
+  border-color: rgba(244, 67, 54, 0.15);
+}
+.time-item.critical ion-icon {
+  color: #f44336;
+  opacity: 1;
+}
+.time-item.critical .stat-value {
+  color: #f44336;
+  font-weight: 700;
 }
 
 /* Remove old box styles */
@@ -110,58 +172,151 @@
 }
 */
 
-/* Compact Cagnotte Wrapper */
-.cagnotte-wrapper-compact {
-  margin-top: 10px; /* Space above cagnotte */
-  grid-column: 1 / -1; /* Span full width */
-}
 
-/* Keep embedded styles */
-.embedded-cagnotte {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.embedded-cagnotte .cagnotte-card {
-  border-radius: 8px; /* Smaller radius */
-  padding: 10px; /* Reduced padding */
-  background-color: rgba(var(--ion-color-tertiary-rgb), 0.08); 
-  border-left: 3px solid var(--ion-color-tertiary); /* Thinner border */
-}
-
-.embedded-cagnotte .cagnotte-header {
-  margin-bottom: 4px; /* Reduce space */
-}
-
-.embedded-cagnotte .cagnotte-header ion-icon {
-  font-size: 18px; /* Smaller icon */
-}
-
-.embedded-cagnotte .cagnotte-header h3 {
-  font-size: 0.85rem; /* Smaller title */
-}
-
-.embedded-cagnotte .cagnotte-amount {
-  font-size: 1.1rem; /* Smaller amount */
-  margin-bottom: 4px;
-}
-
-.embedded-cagnotte .cagnotte-label {
-  font-size: 0.75rem; /* Smaller label */
-}
-
-.embedded-cagnotte .cagnotte-progress-container {
-  height: 6px; /* Thinner bar */
-}
-
-@keyframes pulse {
+@keyframes pulse-elegant {
   0% {
-    box-shadow: 0 0 0 0 rgba(var(--ion-color-warning-rgb), 0.5);
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.3);
+    transform: scale(1);
+    opacity: 1;
   }
-  70% {
-    box-shadow: 0 0 0 6px rgba(var(--ion-color-warning-rgb), 0); 
+  50% {
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.08);
+    transform: scale(1.01);
+    opacity: 0.95;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(var(--ion-color-warning-rgb), 0);
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Subtle micro-interactions */
+.player-status-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 8px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Enhanced visual hierarchy */
+.stat-details {
+  min-width: 0; /* Allow text truncation */
+}
+
+.stat-value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Premium glass effect */
+@supports (backdrop-filter: blur(20px)) {
+  .player-status-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  
+  .stat-item {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Desktop Refinements */
+@media (min-width: 769px) {
+  .player-status-card {
+    margin: 0 auto;
+    max-width: 1200px;
+  }
+  
+  .compact-content {
+    padding: 8px 14px !important;
+  }
+  
+  .status-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px; /* Consistent compact spacing */
+  }
+  
+  .stat-item {
+    padding: 5px 8px; /* Refined compact padding */
+  }
+  
+  .stat-item ion-icon {
+    font-size: 16px; /* Refined icon size */
+  }
+  
+  .stat-value {
+    font-size: 0.9rem; /* Refined readable size */
+  }
+  
+  .stat-label {
+    font-size: 0.6rem;
+  }
+  
+}
+
+/* Mobile ultra-compact */
+@media (max-width: 768px) {
+  .player-status-card {
+    border-radius: 16px;
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.08) !important;
+  }
+  
+  .compact-content {
+    padding: 4px 8px !important;
+  }
+  
+  .status-grid {
+    gap: 3px;
+  }
+  
+  .stat-item {
+    padding: 3px 5px;
+    border-radius: 8px;
+  }
+  
+  .stat-item ion-icon {
+    font-size: 16px; /* Larger icons on mobile too */
+  }
+  
+  .stat-value {
+    font-size: 0.6rem; /* Even smaller on mobile */
+    font-weight: 800;
+  }
+  
+  .stat-label {
+    font-size: 0.4rem; /* Even smaller on mobile */
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Large Desktop Polish */
+@media (min-width: 1200px) {
+  .player-status-card {
+    max-width: 1400px;
+  }
+  
+  .compact-content {
+    padding: 10px 18px !important;
+  }
+  
+  .status-grid {
+    gap: 8px; /* Refined spacing */
+  }
+  
+  .stat-item {
+    padding: 6px 10px; /* Perfect balance */
+  }
+  
+  .stat-item ion-icon {
+    font-size: 20px; /* Larger icons on desktop */
+  }
+  
+  .stat-value {
+    font-size: 0.7rem; /* Smaller text on desktop */
+  }
+  
+  .stat-label {
+    font-size: 0.5rem;
   }
 } 

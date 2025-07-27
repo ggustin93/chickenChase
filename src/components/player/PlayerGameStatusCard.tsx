@@ -1,9 +1,8 @@
 import React from 'react';
 import { IonCard, IonCardContent, IonIcon, IonRippleEffect } from '@ionic/react';
-import { trophyOutline, timeOutline, beerOutline, flagOutline } from 'ionicons/icons';
+import { trophyOutline, timeOutline, beerOutline, flagOutline, cardOutline } from 'ionicons/icons';
 // Remove unused Team import
 // import { Team } from '../../data/types';
-import CagnotteSection from '../shared/CagnotteSection';
 import './PlayerGameStatusCard.css';
 
 interface PlayerGameStatusCardProps {
@@ -45,7 +44,7 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
       <IonCardContent className="player-status-content compact-content">
         
         <div className="status-grid">
-          {/* Top Row: Score & Time */}
+          {/* Top Row: Score & Cagnotte */}
           <div className="stat-item score-item">
             <IonIcon icon={trophyOutline} />
             <div className="stat-details">
@@ -54,13 +53,24 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
             </div>
           </div>
           
-          <div className={`stat-item time-item ${isTimeCritical ? 'critical' : ''}`}>
-            <IonIcon icon={timeOutline} />
-            <div className="stat-details">
-              <div className="stat-value">{gameTime}</div>
-              <div className="stat-label">Restant</div>
+          {/* Cagnotte replacing timer */}
+          {cagnotteCurrentAmount !== undefined && cagnotteInitialAmount !== undefined ? (
+            <div className="stat-item cagnotte-item">
+              <IonIcon icon={cardOutline} />
+              <div className="stat-details">
+                <div className="stat-value">{cagnotteCurrentAmount}€</div>
+                <div className="stat-label">Cagnotte</div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className={`stat-item time-item ${isTimeCritical ? 'critical' : ''}`}>
+              <IonIcon icon={timeOutline} />
+              <div className="stat-details">
+                <div className="stat-value">{gameTime}</div>
+                <div className="stat-label">Restant</div>
+              </div>
+            </div>
+          )}
           
           {/* Bottom Row: Bars & Challenges */}
           <div className="stat-item bars-item">
@@ -80,20 +90,6 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
           </div>
 
         </div>
-
-        {/* Cagnotte Section (if present) - Spans full width below grid */}
-        {cagnotteCurrentAmount !== undefined && cagnotteInitialAmount !== undefined && (
-          <div className="cagnotte-wrapper-compact">
-            <CagnotteSection 
-              currentAmount={cagnotteCurrentAmount}
-              initialAmount={cagnotteInitialAmount}
-              isLoading={isCagnotteLoading}
-              title="Cagnotte Équipe"
-              className="embedded-cagnotte"
-              onConsumption={onCagnotteConsumption}
-            />
-          </div>
-        )}
 
       </IonCardContent>
       <IonRippleEffect />
