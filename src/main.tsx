@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Development utilities - expose database initialization functions
 if (process.env.NODE_ENV === 'development') {
@@ -22,3 +23,6 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Register service worker for PWA support
+serviceWorkerRegistration.register();

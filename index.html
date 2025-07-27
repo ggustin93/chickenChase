@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Ionic App</title>
+    <title>Chicken Chase</title>
     
     <base href="/" />
     
@@ -14,14 +14,30 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
     
+    <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json" />
     
+    <!-- Favicons -->
     <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/icon/icon.png" />
     
-    <!-- add to homescreen for ios -->
+    <!-- iOS PWA tags -->
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Ionic App" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Chicken Chase" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="/assets/icon/icon-192.png" />
+    
+    <!-- Android PWA tags -->
+    <meta name="theme-color" content="#FE8A00" />
+    <meta name="application-name" content="Chicken Chase" />
+    
+    <!-- SEO and social -->
+    <meta name="description" content="Un jeu de poursuite amusant entre poulets et chasseurs dans les bars de la ville" />
+    <meta property="og:title" content="Chicken Chase" />
+    <meta property="og:description" content="Un jeu de poursuite amusant entre poulets et chasseurs dans les bars de la ville" />
+    <meta property="og:type" content="website" />
     
   </head>
   <body>

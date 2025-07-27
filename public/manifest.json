@@ -1,6 +1,7 @@
 {
   "short_name": "Chicken Chase",
-  "name": "Chicken Chase",
+  "name": "Chicken Chase - Jeu de poursuite",
+  "description": "Un jeu de poursuite amusant entre poulets et chasseurs dans les bars de la ville",
   "icons": [
     {
       "src": "assets/icon/favicon.png",
@@ -11,14 +12,35 @@
       "src": "assets/icon/icon.png",
       "type": "image/png",
       "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon/icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icon/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
       "purpose": "maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#FE8A00",
   "background_color": "#ffffff",
   "prefer_related_applications": false,
   "display_override": ["standalone", "minimal-ui"],
-  "orientation": "portrait-primary"
+  "orientation": "portrait-primary",
+  "categories": ["games", "social"],
+  "lang": "fr"
 }
