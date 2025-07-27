@@ -24,6 +24,7 @@ interface ImprovedLobbyViewProps {
   onCopyCode: () => void;
   onRefresh?: () => void;
   loading: boolean;
+  onNavigate?: (path: string) => void;
 }
 
 const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
@@ -38,7 +39,8 @@ const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
   setNewTeamName,
   onCopyCode,
   onRefresh,
-  loading
+  loading,
+  onNavigate
 }) => {
   const [refreshing, setRefreshing] = React.useState(false);
   const chickenTeam = teams.find(team => team.is_chicken_team);
@@ -60,10 +62,8 @@ const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
       
       if (gameStatus === 'in_progress' || gameStatus === 'chicken_hidden') {
         console.log("Game is in progress after refresh, redirecting...");
-        if (isChickenTeam) {
-          window.location.href = `/chicken/${gameId}`;
-        } else {
-          window.location.href = `/player/${gameId}`;
+        if (onNavigate) {
+          onNavigate(isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`);
         }
         return;
       }

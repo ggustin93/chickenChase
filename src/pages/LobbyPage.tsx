@@ -65,8 +65,8 @@ const LobbyPage: React.FC = () => {
       const targetPath = isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`;
       console.log(`Redirecting to ${isChickenTeam ? 'chicken' : 'player'} page: ${targetPath}`);
       
-      // Utiliser window.location.href pour une redirection directe
-      window.location.href = targetPath;
+      // Utiliser history.push pour une navigation SPA appropriée
+      history.push(targetPath);
     } catch (error) {
       console.error("Erreur lors de la redirection:", error);
       setIsRedirecting(false);
@@ -551,7 +551,7 @@ const LobbyPage: React.FC = () => {
       
       // Redirection directe vers la page Chicken sans délai
       console.log("Redirecting to chicken page:", `/chicken/${gameId}`);
-      window.location.href = `/chicken/${gameId}`;
+      history.push(`/chicken/${gameId}`);
 
     } catch (error) {
       console.error('Error starting game:', error);
@@ -706,6 +706,7 @@ const LobbyPage: React.FC = () => {
           onCopyCode={handleCopyCode}
           onRefresh={fetchGameData}
           loading={false}
+          onNavigate={(path) => history.push(path)}
         />
       ) : (
         /* Interface d'attente une fois dans une équipe */
@@ -719,6 +720,7 @@ const LobbyPage: React.FC = () => {
             isChickenTeam={isPlayerInChickenTeam}
             gameStatus={game?.status}
             onRefresh={fetchGameData}
+            onNavigate={(path) => history.push(path)}
           />
         </IonContent>
       )}

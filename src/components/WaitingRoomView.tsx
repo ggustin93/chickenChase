@@ -13,6 +13,7 @@ interface WaitingRoomViewProps {
   isChickenTeam: boolean;
   gameStatus?: string;
   onRefresh?: () => void;
+  onNavigate?: (path: string) => void;
 }
 
 const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
@@ -23,7 +24,8 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
   currentPlayerId,
   isChickenTeam,
   gameStatus = 'lobby',
-  onRefresh
+  onRefresh,
+  onNavigate
 }) => {
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const currentTeam = teams.find(t => t.id === currentPlayer?.team_id);
@@ -87,9 +89,9 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
                 isChickenTeam: isChickenTeam
               }));
               
-              window.location.href = isChickenTeam 
-                ? `/chicken/${gameId}` 
-                : `/player/${gameId}`;
+              if (onNavigate) {
+                onNavigate(isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`);
+              }
             }
           }
         }
@@ -130,9 +132,9 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
             isChickenTeam: isChickenTeam
           }));
           
-          window.location.href = isChickenTeam 
-            ? `/chicken/${gameId}` 
-            : `/player/${gameId}`;
+          if (onNavigate) {
+            onNavigate(isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`);
+          }
         }
       })
       .subscribe((status) => {
@@ -291,9 +293,9 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
                     isChickenTeam
                   });
                   
-                  window.location.href = isChickenTeam 
-                    ? `/chicken/${currentPlayer?.game_id}` 
-                    : `/player/${currentPlayer?.game_id}`;
+                  if (onNavigate && currentPlayer?.game_id) {
+                    onNavigate(isChickenTeam ? `/chicken/${currentPlayer.game_id}` : `/player/${currentPlayer.game_id}`);
+                  }
                 }}
               >
                 <IonIcon icon={flame} slot="start" />
