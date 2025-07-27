@@ -97,26 +97,7 @@
   --header-border: var(--ion-color-light-shade);
 }
 
-/* Dark mode support (if implemented) */
-@media (prefers-color-scheme: dark) {
-  .user-info-header {
-    --header-bg: rgba(32, 32, 32, 0.95);
-    --header-text: var(--ion-color-light);
-    --header-text-secondary: var(--ion-color-medium);
-    --header-border: var(--ion-color-dark-shade);
-  }
-
-  .user-info-header {
-    background: var(--header-bg);
-    border-bottom-color: var(--header-border);
-  }
-
-  .user-info-header .user-name {
-    color: var(--header-text);
-  }
-
-  .user-info-header .stat-text,
-  .user-info-header .additional-info {
-    color: var(--header-text-secondary);
-  }
+.user-info-header .user-info-text-container {
+  min-width: 0;
+  text-align: right;
 }

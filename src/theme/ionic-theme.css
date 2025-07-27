@@ -292,34 +292,6 @@ ion-ripple-effect {
   --ripple-color: var(--color-primary);
 }
 
-/* Dark Mode Adaptations */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Ionic Dark Mode */
-    --ion-background-color: var(--surface-background);
-    --ion-background-color-rgb: 15, 20, 25;
-    
-    --ion-text-color: var(--text-primary);
-    --ion-text-color-rgb: var(--color-lavender-web-rgb);
-    
-    --ion-border-color: var(--border-light);
-    
-    --ion-item-background: var(--surface-card);
-    --ion-toolbar-background: var(--surface-card);
-    --ion-tab-bar-background: var(--surface-card);
-    --ion-card-background: var(--surface-card);
-  }
-  
-  /* Adjust specific components for dark mode */
-  ion-card {
-    box-shadow: var(--shadow-md);
-  }
-  
-  ion-button {
-    --box-shadow: var(--shadow-sm);
-  }
-}
-
 /* Responsive Design */
 @media (min-width: 768px) {
   /* Tablet adaptations */

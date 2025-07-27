@@ -1,12 +1,37 @@
-/* Simple dark mode prevention */
+/* ================================
+   CHICKEN CHASE - DARK MODE PREVENTION
+   ================================ */
+
+/* 
+  This file centralizes all logic to forcefully disable dark mode across the application, 
+  ensuring a consistent light theme, especially on iOS where system preferences can
+  override app styles.
+*/
+
+/* 1. Force light color scheme at the highest level. */
 html {
-  color-scheme: light !important;
+  color-scheme: light;
 }
 
+/* 2. Override Ionic's dark mode variables if the OS is in dark mode. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: light !important;
+  /*
+    This block is critical for iOS. It resets core Ionic variables 
+    to their light-mode equivalents when the system is dark.
+  */
+  body, :root {
+    color-scheme: light;
+
+    /* Reset background and text colors */
     --ion-background-color: #ffffff;
+    --ion-background-color-rgb: 255, 255, 255;
     --ion-text-color: #000000;
+    --ion-text-color-rgb: 0, 0, 0;
+    
+    /* Reset component-specific colors */
+    --ion-item-background: #ffffff;
+    --ion-toolbar-background: #f8f8f8;
+    --ion-card-background: #ffffff;
+    --ion-border-color: #c8c7cc;
   }
 }

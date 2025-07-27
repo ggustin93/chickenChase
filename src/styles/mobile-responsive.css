@@ -307,16 +307,3 @@
     padding: 0.25rem 0.5rem;
   }
 }
-
-/* Mode sombre sur mobile */
-@media (prefers-color-scheme: dark) and (max-width: 768px) {
-  .user-info-bar {
-    background: #1a1f2e; /* Solid dark color */
-    border-bottom-color: rgba(255, 255, 255, 0.05);
-  }
-  
-  .refresh-button-mobile {
-    --background: rgba(35, 41, 55, 0.95);
-    --color: #d7dae5;
-  }
-}
