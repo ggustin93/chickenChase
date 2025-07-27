@@ -1,0 +1,551 @@
+/* Lobby UX Improvements */
+
+.lobby-content {
+  --background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  background: var(--background);
+  --color: rgb(31, 41, 55) !important;
+  color: rgb(31, 41, 55) !important;
+}
+
+.lobby-content * {
+  color: inherit;
+}
+
+.lobby-content h1, 
+.lobby-content h2, 
+.lobby-content h3, 
+.lobby-content h4, 
+.lobby-content p,
+.lobby-content div:not(.text-white):not(.bg-gradient-to-br) {
+  color: rgb(31, 41, 55) !important;
+}
+
+/* Assurer que les composants Ionic ont la bonne couleur */
+.lobby-content ion-text,
+.lobby-content ion-label,
+.lobby-content ion-card-content,
+.lobby-content .text-gray-800,
+.lobby-content .text-gray-600,
+.lobby-content .text-gray-500 {
+  color: rgb(31, 41, 55) !important;
+}
+
+.lobby-header {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c  100%);
+  box-shadow: 0 8px 32px rgba(249, 115, 22, 0.2);
+}
+
+/* Integration avec Tailwind et Ionic */
+.bg-gradient-to-br {
+  background: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+.from-orange-400 {
+  --tw-gradient-from: #fb923c;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(251 146 60 / 0));
+}
+
+.to-orange-600 {
+  --tw-gradient-to: #ea580c;
+}
+
+/* Animations et transitions */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Cards avec effet de profondeur */
+ion-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  animation: slideInUp 0.3s ease-out;
+  transition: all 0.2s ease;
+}
+
+ion-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Boutons améliorés */
+ion-button {
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+}
+
+ion-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Code de partie stylisé et copié collable */
+.game-code-display {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-code-container {
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-code-container:hover {
+  background-color: rgba(255, 255, 255, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.02);
+}
+
+.game-code-container:active {
+  transform: scale(0.98);
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.select-all {
+  -webkit-user-select: all !important;
+  -moz-user-select: all !important;
+  -ms-user-select: all !important;
+  user-select: all !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.tracking-widest {
+  letter-spacing: 0.1em;
+}
+
+/* Chips améliorés */
+ion-chip {
+  font-weight: 500;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+ion-chip:hover {
+  transform: scale(1.05);
+}
+
+/* États vides */
+.empty-state {
+  opacity: 0.7;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 0.7; }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .lobby-header {
+    padding: 1rem;
+  }
+  
+  .game-code-display {
+    font-size: 1.5rem;
+    letter-spacing: 0.3em;
+  }
+}
+
+/* États de focus et accessibilité */
+ion-button:focus,
+ion-card:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, transparent 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* Success states */
+.success-highlight {
+  animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(34, 197, 94, 0.1); }
+  100% { background-color: transparent; }
+}
+
+/* Amélioration de l'interface mobile */
+.space-y-3 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.75rem;
+}
+
+.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.leading-relaxed {
+  line-height: 1.625;
+}
+
+/* Styles pour améliorer l'intégration Ionic + Tailwind */
+.text-3xl {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.opacity-90 {
+  opacity: 0.9;
+}
+
+.opacity-80 {
+  opacity: 0.8;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.text-gray-800 {
+  color: rgb(31 41 55);
+}
+
+.text-gray-600 {
+  color: rgb(75 85 99);
+}
+
+.text-gray-500 {
+  color: rgb(107 114 128);
+}
+
+.text-white {
+  color: rgb(255 255 255);
+}
+
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.rounded-b-3xl {
+  border-bottom-left-radius: 1.5rem;
+  border-bottom-right-radius: 1.5rem;
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.bg-white\/20 {
+  background-color: rgb(255 255 255 / 0.2);
+}
+
+.bg-white\/15 {
+  background-color: rgb(255 255 255 / 0.15);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.p-3 {
+  padding: 0.75rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.pb-20 {
+  padding-bottom: 5rem;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+/* Centrage amélioré des éléments */
+.text-6xl {
+  font-size: 3.75rem;
+  line-height: 1;
+}
+
+.text-4xl {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+}
+
+.opacity-30 {
+  opacity: 0.3;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* Amélioration du centrage pour les cartes */
+ion-grid {
+  padding: 0;
+}
+
+ion-row {
+  margin: 0;
+}
+
+ion-col {
+  padding: 0.25rem;
+}
+
+/* Classes utilitaires supplémentaires */
+.flex-col {
+  flex-direction: column;
+}
+
+.block {
+  display: block;
+}
+
+.select-all::-moz-selection {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.select-all::selection {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.min-w-140 {
+  min-width: 140px;
+}
+
+/* Enhanced Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.stat-primary {
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.1);
+  backdrop-filter: blur(15px);
+}
+
+.stat-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0.5rem 0 0.25rem 0;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* Improved Empty State */
+.empty-state-enhanced {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 2px dashed rgba(156, 163, 175, 0.3);
+  margin: 1rem 0;
+}
+
+.empty-state-enhanced ion-icon {
+  color: rgba(156, 163, 175, 0.5);
+  margin-bottom: 1rem;
+}
+
+/* Enhanced form styling */
+.form-enhanced ion-input {
+  --border-color: rgba(229, 231, 235, 0.8);
+  --border-radius: 12px;
+  --background: rgba(255, 255, 255, 0.9);
+  --color: rgb(31, 41, 55);
+  margin-bottom: 0.5rem;
+}
+
+.form-enhanced ion-input:focus-within {
+  --border-color: rgb(59, 130, 246);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Better button hierarchy */
+.btn-primary {
+  --background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+  --background: rgba(255, 255, 255, 0.9);
+  --color: rgb(59, 130, 246);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  font-weight: 600;
+}
+
+.btn-success {
+  --background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3);
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .stats-grid {
+    gap: 0.75rem;
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .empty-state-enhanced {
+    padding: 2rem 1rem;
+  }
+}

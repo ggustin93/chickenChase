@@ -1,0 +1,302 @@
+/* ================================
+   MODERN LOBBY STYLES - FIXED
+   ================================ */
+
+/* Base container with elegant background */
+.lobby-content-modern {
+  --background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--background);
+  min-height: 100vh;
+}
+
+/* Modern header with solid color - plus sobre */
+.modern-lobby-header {
+  background: #264653; /* Charcoal solid */
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-lobby-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+/* Header content with proper spacing and alignment */
+.header-content {
+  position: relative;
+  z-index: 2;
+  padding: 2rem 1.5rem 2.5rem;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Title with better contrast and legibility */
+.header-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 2rem 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.025em;
+}
+
+/* Game code section - centered and elegant */
+.game-code-section {
+  margin-bottom: 2rem;
+}
+
+.code-label {
+  display: block;
+  font-size: 0.875rem;
+  opacity: 0.9;
+  margin-bottom: 0.75rem;
+  color: white;
+  font-weight: 500;
+}
+
+.game-code-display {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.game-code-display:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.code-text {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.copy-button {
+  --color: rgba(255, 255, 255, 0.8);
+  --background: transparent;
+  --border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  --color: white;
+  --background: rgba(255, 255, 255, 0.1);
+}
+
+/* Stats simplifiées - layout horizontal sobre */
+.simple-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 300px;
+  margin: 1.5rem auto 0;
+}
+
+.stat-simple {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.stat-simple ion-icon {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.stat-divider {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 300;
+  font-size: 0.875rem;
+}
+
+/* Modern content area */
+.modern-content-area {
+  padding: 1.5rem 1rem 5rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Improved team sections */
+.modern-content-area .team-card {
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.modern-content-area .team-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Enhanced text readability */
+.modern-content-area h2,
+.modern-content-area h3,
+.modern-content-area h4,
+.modern-content-area p,
+.modern-content-area ion-text {
+  color: #1f2937 !important;
+}
+
+.modern-content-area ion-chip {
+  background: rgba(42, 157, 143, 0.1);
+  color: #2a9d8f;
+  border: 1px solid rgba(42, 157, 143, 0.2);
+}
+
+/* Form improvements */
+.modern-content-area ion-card {
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.modern-content-area ion-input {
+  --background: white;
+  --color: #1f2937;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-radius: 12px;
+}
+
+.modern-content-area ion-button {
+  --border-radius: 12px;
+  font-weight: 600;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .header-content {
+    padding: 1.5rem 1rem 2rem;
+  }
+  
+  .header-title {
+    font-size: 1.75rem;
+  }
+  
+  .code-text {
+    font-size: 1.5rem;
+  }
+  
+  .simple-stats-row {
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    margin: 1rem auto 0;
+  }
+  
+  .stat-simple {
+    font-size: 0.8rem;
+    gap: 0.25rem;
+  }
+  
+  .stat-simple ion-icon {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 1.5rem;
+  }
+  
+  .code-text {
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+  }
+  
+  .game-code-display {
+    padding: 1.25rem;
+  }
+  
+  .simple-stats-row {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .stat-simple {
+    font-size: 0.75rem;
+  }
+}
+
+/* Accessibility improvements */
+.game-code-display:focus {
+  outline: 3px solid rgba(245, 138, 7, 0.6);
+  outline-offset: 2px;
+}
+
+.copy-button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* Enhanced visual hierarchy */
+.modern-content-area .team-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modern-content-area .team-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.modern-content-area .empty-state-enhanced {
+  background: rgba(148, 163, 184, 0.05);
+  border: 2px dashed rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: #64748b;
+}
+
+/* Floating action button improvements */
+ion-fab-button {
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --border-radius: 16px;
+}
+
+ion-fab-button:hover {
+  --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}

@@ -1,18 +1,19 @@
 import {
   IonContent, IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
-  IonList, IonItem, IonLabel, IonButton, IonIcon, IonCard, IonCardContent, useIonToast, 
-  IonSpinner, IonChip, IonListHeader
+  IonButton, IonIcon, useIonToast, IonSpinner, IonChip, IonLabel
 } from '@ionic/react';
 import { useIonViewWillEnter } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
 import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { logOut, personCircle } from 'ionicons/icons';
+import { logOut, personCircle, person, people } from 'ionicons/icons';
 import { useSession } from '../contexts/SessionContext';
 import { PostgrestError, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { Game, Player, Team } from '../types/types';
-import TeamSelectionView from '../components/TeamSelectionView';
 import WaitingRoomView from '../components/WaitingRoomView';
+import ImprovedLobbyView from '../components/ImprovedLobbyView';
+import '../styles/lobby-improvements.css';
+import '../styles/mobile-responsive.css';
 
 // Supprimer la définition redondante de GameStatus car elle est maintenant importée
 
@@ -160,6 +161,26 @@ const LobbyPage: React.FC = () => {
       return;
     }
 
+    // Tentative d'authentification silencieuse pour améliorer Realtime
+    const ensureAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          const { data: authData } = await supabase.auth.signInAnonymously();
+          if (authData.user) {
+            console.log("✅ Auth silencieuse réussie pour Realtime");
+          }
+        } else {
+          console.log("✅ Utilisateur déjà authentifié");
+        }
+      } catch (error) {
+        console.log("⚠️ Auth silencieuse échouée, Realtime peut être limité");
+      }
+    };
+    ensureAuth();
+
+    // Plus de polling automatique - remplacé par bouton refresh manuel
+
     const handlePlayerChanges = (payload: RealtimePostgresChangesPayload<Player>) => {
       console.log('Player change received:', payload);
       const { eventType, new: newPlayer, old: oldPlayer } = payload;
@@ -221,7 +242,14 @@ const LobbyPage: React.FC = () => {
         table: 'teams',
         filter: `game_id=eq.${gameId}` 
       }, handleTeamChanges)
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 General Realtime status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Realtime connected successfully!');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.log('❌ Realtime connection error - falling back to polling');
+        }
+      });
 
     // Canal spécifique pour les changements de statut du jeu
     const gameStatusChannel = supabase
@@ -246,7 +274,9 @@ const LobbyPage: React.FC = () => {
         
         // La redirection est gérée par le premier useEffect qui observe game.status
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Game Status Realtime status:', status);
+      });
 
     return () => {
       supabase.removeChannel(generalChannel);
@@ -559,6 +589,32 @@ const LobbyPage: React.FC = () => {
     history.push('/home');
   };
 
+  const handleCopyCode = async () => {
+    if (game?.join_code) {
+      try {
+        await navigator.clipboard.writeText(game.join_code);
+        present({ 
+          message: `Code ${game.join_code} copié !`, 
+          duration: 2000, 
+          color: 'success' 
+        });
+      } catch (err) {
+        // Fallback pour les navigateurs plus anciens
+        const textArea = document.createElement('textarea');
+        textArea.value = game.join_code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        present({ 
+          message: `Code ${game.join_code} copié !`, 
+          duration: 2000, 
+          color: 'success' 
+        });
+      }
+    }
+  };
+
   if (loading) return (
     <IonPage>
       <IonHeader>
@@ -586,21 +642,51 @@ const LobbyPage: React.FC = () => {
           </IonButtons>
           <IonTitle>Lobby</IonTitle>
           <IonButtons slot="end">
-            <IonChip color="light">
-              <IonIcon icon={personCircle} />
-              <IonLabel>{session.nickname}</IonLabel>
-            </IonChip>
+            <IonButton fill="clear" size="small">
+              <IonIcon icon={personCircle} slot="icon-only" />
+            </IonButton>
           </IonButtons>
         </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen className="ion-padding">
-        <div className="text-center mb-4">
-          <h2>Joueurs dans le Lobby</h2>
-          <p>Code de la partie: <strong>{game?.join_code}</strong></p>
-          <p><small>Status: {game?.status}</small></p>
+        {/* Nom d'utilisateur déplacé sous le header */}
+        <div className="user-info-bar">
+          <IonChip color="light">
+            <IonIcon icon={personCircle} />
+            <IonLabel>{session.nickname}</IonLabel>
+          </IonChip>
+          {/* Quick stats visible seulement dans waiting room */}
+          {currentPlayerTeam && (
+            <div className="quick-stats">
+              <div className="quick-stat">
+                <IonIcon icon={person} />
+                <span>{players.length}</span>
+              </div>
+              <div className="quick-stat">
+                <IonIcon icon={people} />
+                <span>{teams.length}</span>
+              </div>
+            </div>
+          )}
         </div>
-
-        {currentPlayerTeam ? (
+      </IonHeader>
+      {/* Interface améliorée pour la sélection d'équipe */}
+      {!currentPlayerTeam ? (
+        <ImprovedLobbyView
+          game={game}
+          teams={teams}
+          players={players}
+          currentPlayer={currentPlayer}
+          onJoinTeam={handleJoinTeam}
+          onBeChicken={handleBeChicken}
+          onCreateTeam={handleCreateTeam}
+          newTeamName={newTeamName}
+          setNewTeamName={setNewTeamName}
+          onCopyCode={handleCopyCode}
+          onRefresh={fetchGameData}
+          loading={false}
+        />
+      ) : (
+        /* Interface d'attente une fois dans une équipe */
+        <IonContent fullscreen className="ion-padding">
           <WaitingRoomView
             players={players}
             teams={teams}
@@ -609,40 +695,10 @@ const LobbyPage: React.FC = () => {
             currentPlayerId={currentPlayerId}
             isChickenTeam={isPlayerInChickenTeam}
             gameStatus={game?.status}
+            onRefresh={fetchGameData}
           />
-        ) : (
-          <TeamSelectionView
-            teams={teams}
-            players={players}
-            onJoinTeam={handleJoinTeam}
-            onBeChicken={handleBeChicken}
-            isChickenTeamCreated={teams.some(t => t.is_chicken_team)}
-            onHandleCreateTeam={handleCreateTeam}
-            newTeamName={newTeamName}
-            setNewTeamName={setNewTeamName}
-          />
-        )}
-
-        <IonListHeader>
-          <IonLabel>Joueurs sans équipe</IonLabel>
-        </IonListHeader>
-        {players.length > 0 ? (
-          <IonList inset={true}>
-            {players.filter(p => !p.team_id).map((player) => (
-              <IonItem key={player.id}>
-                <IonLabel>{player.nickname}</IonLabel>
-              </IonItem>
-            ))}
-          </IonList>
-        ) : (
-          <IonCard>
-            <IonCardContent>
-              <p className="ion-text-center">Personne n'est disponible pour le moment.</p>
-            </IonCardContent>
-          </IonCard>
-        )}
-
-      </IonContent>
+        </IonContent>
+      )}
     </IonPage>
   );
 };

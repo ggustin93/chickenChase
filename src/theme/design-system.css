@@ -1,0 +1,270 @@
+/* ================================
+   CHICKEN CHASE DESIGN SYSTEM
+   ================================ */
+
+/* Core Color Palette */
+:root {
+  /* Design System - Core Palette */
+  --color-charcoal: #264653;
+  --color-persian-green: #2a9d8f;
+  --color-tangerine: #f58a07;
+  --color-rose-quartz: #b0a1ba;
+  --color-lavender-web: #d7dae5;
+
+  /* RGB Values for transparency */
+  --color-charcoal-rgb: 38, 70, 83;
+  --color-persian-green-rgb: 42, 157, 143;
+  --color-tangerine-rgb: 245, 138, 7;
+  --color-rose-quartz-rgb: 176, 161, 186;
+  --color-lavender-web-rgb: 215, 218, 229;
+
+  /* Semantic Color System */
+  --color-primary: var(--color-tangerine);
+  --color-primary-dark: #e07900;
+  --color-primary-light: #ff9f1a;
+  --color-primary-rgb: var(--color-tangerine-rgb);
+
+  --color-secondary: var(--color-persian-green);
+  --color-secondary-dark: #258073;
+  --color-secondary-light: #3fb3a6;
+  --color-secondary-rgb: var(--color-persian-green-rgb);
+
+  --color-accent: var(--color-rose-quartz);
+  --color-accent-dark: #9a89a5;
+  --color-accent-light: #c6b9cf;
+  --color-accent-rgb: var(--color-rose-quartz-rgb);
+
+  --color-neutral-dark: var(--color-charcoal);
+  --color-neutral-light: var(--color-lavender-web);
+  --color-neutral-dark-rgb: var(--color-charcoal-rgb);
+  --color-neutral-light-rgb: var(--color-lavender-web-rgb);
+
+  /* Surface Colors */
+  --surface-background: #ffffff;
+  --surface-background-alt: var(--color-lavender-web);
+  --surface-card: #ffffff;
+  --surface-overlay: rgba(var(--color-charcoal-rgb), 0.1);
+  --surface-overlay-dark: rgba(var(--color-charcoal-rgb), 0.8);
+
+  /* Text Colors */
+  --text-primary: var(--color-charcoal);
+  --text-secondary: rgba(var(--color-charcoal-rgb), 0.7);
+  --text-muted: rgba(var(--color-charcoal-rgb), 0.5);
+  --text-inverse: #ffffff;
+
+  /* Border Colors */
+  --border-light: rgba(var(--color-charcoal-rgb), 0.1);
+  --border-medium: rgba(var(--color-charcoal-rgb), 0.2);
+  --border-dark: rgba(var(--color-charcoal-rgb), 0.3);
+
+  /* Shadow System */
+  --shadow-sm: 0 1px 2px 0 rgba(var(--color-charcoal-rgb), 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(var(--color-charcoal-rgb), 0.1), 
+              0 2px 4px -1px rgba(var(--color-charcoal-rgb), 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(var(--color-charcoal-rgb), 0.1), 
+              0 4px 6px -2px rgba(var(--color-charcoal-rgb), 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(var(--color-charcoal-rgb), 0.1), 
+              0 10px 10px -5px rgba(var(--color-charcoal-rgb), 0.04);
+
+  /* Gradient System */
+  --gradient-primary: linear-gradient(135deg, var(--color-tangerine), var(--color-primary-light));
+  --gradient-secondary: linear-gradient(135deg, var(--color-persian-green), var(--color-secondary-light));
+  --gradient-accent: linear-gradient(135deg, var(--color-rose-quartz), var(--color-accent-light));
+  --gradient-rainbow: linear-gradient(135deg, 
+    var(--color-charcoal) 0%, 
+    var(--color-persian-green) 25%, 
+    var(--color-tangerine) 50%, 
+    var(--color-rose-quartz) 75%, 
+    var(--color-lavender-web) 100%);
+  --gradient-hero: linear-gradient(135deg, 
+    rgba(var(--color-tangerine-rgb), 0.9), 
+    rgba(var(--color-persian-green-rgb), 0.8));
+
+  /* Spacing System (8px base) */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  --space-3xl: 4rem;     /* 64px */
+
+  /* Border Radius System */
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.5rem;   /* 8px */
+  --radius-lg: 0.75rem;  /* 12px */
+  --radius-xl: 1rem;     /* 16px */
+  --radius-2xl: 1.5rem;  /* 24px */
+  --radius-full: 9999px;
+
+  /* Typography Scale */
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-base: 1rem;    /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem;  /* 36px */
+
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  /* Transition System */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+
+  /* Z-Index System */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-tooltip: 1070;
+}
+
+/* Component-Specific Variants */
+:root {
+  /* Button System */
+  --btn-height-sm: 2rem;
+  --btn-height-md: 2.5rem;
+  --btn-height-lg: 3rem;
+  --btn-padding-x-sm: var(--space-md);
+  --btn-padding-x-md: var(--space-lg);
+  --btn-padding-x-lg: var(--space-xl);
+
+  /* Card System */
+  --card-padding: var(--space-lg);
+  --card-radius: var(--radius-xl);
+  --card-shadow: var(--shadow-md);
+  --card-border: 1px solid var(--border-light);
+
+  /* Input System */
+  --input-height: var(--btn-height-md);
+  --input-padding-x: var(--space-md);
+  --input-border: 1px solid var(--border-medium);
+  --input-border-focus: 2px solid var(--color-primary);
+  --input-radius: var(--radius-md);
+
+  /* Header System */
+  --header-height: 3.5rem;
+  --header-padding-x: var(--space-md);
+  --header-shadow: var(--shadow-sm);
+}
+
+/* Game-Specific Color Variants */
+:root {
+  /* Chicken Team Colors */
+  --color-chicken: var(--color-tangerine);
+  --color-chicken-light: rgba(var(--color-tangerine-rgb), 0.1);
+  --color-chicken-medium: rgba(var(--color-tangerine-rgb), 0.3);
+  --color-chicken-dark: var(--color-primary-dark);
+
+  /* Hunter Team Colors */
+  --color-hunter: var(--color-persian-green);
+  --color-hunter-light: rgba(var(--color-persian-green-rgb), 0.1);
+  --color-hunter-medium: rgba(var(--color-persian-green-rgb), 0.3);
+  --color-hunter-dark: var(--color-secondary-dark);
+
+  /* Game Status Colors */
+  --color-success: #10b981;
+  --color-warning: var(--color-tangerine);
+  --color-danger: #ef4444;
+  --color-info: var(--color-persian-green);
+
+  /* Interactive States */
+  --color-hover: rgba(var(--color-primary-rgb), 0.1);
+  --color-active: rgba(var(--color-primary-rgb), 0.2);
+  --color-focus: rgba(var(--color-primary-rgb), 0.3);
+  --color-disabled: rgba(var(--color-charcoal-rgb), 0.3);
+}
+
+/* Responsive Breakpoints */
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Surface Colors - Dark Mode */
+    --surface-background: #0f1419;
+    --surface-background-alt: #1a1f2e;
+    --surface-card: #232937;
+    --surface-overlay: rgba(0, 0, 0, 0.3);
+    --surface-overlay-dark: rgba(0, 0, 0, 0.8);
+
+    /* Text Colors - Dark Mode */
+    --text-primary: var(--color-lavender-web);
+    --text-secondary: rgba(var(--color-lavender-web-rgb), 0.8);
+    --text-muted: rgba(var(--color-lavender-web-rgb), 0.6);
+    --text-inverse: var(--color-charcoal);
+
+    /* Border Colors - Dark Mode */
+    --border-light: rgba(var(--color-lavender-web-rgb), 0.1);
+    --border-medium: rgba(var(--color-lavender-web-rgb), 0.2);
+    --border-dark: rgba(var(--color-lavender-web-rgb), 0.3);
+
+    /* Shadows - Dark Mode */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 
+                0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Utility Classes */
+.design-system {
+  /* Spacing Utilities */
+  .space-xs { margin: var(--space-xs); }
+  .space-sm { margin: var(--space-sm); }
+  .space-md { margin: var(--space-md); }
+  .space-lg { margin: var(--space-lg); }
+  .space-xl { margin: var(--space-xl); }
+
+  /* Color Utilities */
+  .text-primary { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-muted { color: var(--text-muted); }
+  .text-inverse { color: var(--text-inverse); }
+
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-accent { background-color: var(--color-accent); }
+  .bg-surface { background-color: var(--surface-background); }
+  .bg-card { background-color: var(--surface-card); }
+
+  /* Border Utilities */
+  .border-light { border: var(--border-light); }
+  .border-medium { border: var(--border-medium); }
+  .border-dark { border: var(--border-dark); }
+
+  /* Radius Utilities */
+  .radius-sm { border-radius: var(--radius-sm); }
+  .radius-md { border-radius: var(--radius-md); }
+  .radius-lg { border-radius: var(--radius-lg); }
+  .radius-xl { border-radius: var(--radius-xl); }
+
+  /* Shadow Utilities */
+  .shadow-sm { box-shadow: var(--shadow-sm); }
+  .shadow-md { box-shadow: var(--shadow-md); }
+  .shadow-lg { box-shadow: var(--shadow-lg); }
+  .shadow-xl { box-shadow: var(--shadow-xl); }
+}

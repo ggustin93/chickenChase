@@ -1,15 +1,21 @@
-/* For information on how to create your own theme, please see:
-http://ionicframework.com/docs/theming/ */
+/* ================================
+   CHICKEN CHASE - PROFESSIONAL THEME SYSTEM
+   ================================ */
 
-/* Chicken Chase Theme */
+/* Import our custom design system */
+@import './design-system.css';
+@import './ionic-theme.css';
+@import './component-themes.css';
+
+/* Legacy Support & Overrides */
 :root {
-  /* Primary - Orange dynamique */
-  --ion-color-primary: #FE8A00;
-  --ion-color-primary-rgb: 254, 138, 0;
+  /* Maintain backward compatibility */
+  --ion-color-primary: var(--color-tangerine);
+  --ion-color-primary-rgb: var(--color-tangerine-rgb);
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #e07900;
-  --ion-color-primary-tint: #fe961a;
+  --ion-color-primary-shade: var(--color-primary-dark);
+  --ion-color-primary-tint: var(--color-primary-light);
   /* Secondary - Bleu */
   --ion-color-secondary: #3b82f6;
   --ion-color-secondary-rgb: 59, 130, 246;

@@ -9,6 +9,9 @@ export interface Game {
   status: GameStatus;
   host_player_id: string;
   end_time?: string;
+  max_teams?: number;
+  game_duration?: number;
+  started_at?: string;
   // autres propriétés du jeu
 }
 

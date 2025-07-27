@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { IonCard, IonCardHeader, IonCardSubtitle, IonTitle, IonCardContent, IonButton, IonIcon, IonList, IonListHeader, IonLabel, IonItem, IonBadge } from '@ionic/react';
-import { exitOutline, star, people, playCircleOutline, flame } from 'ionicons/icons';
+import { IonCard, IonCardHeader, IonCardSubtitle, IonTitle, IonCardContent, IonButton, IonIcon, IonList, IonListHeader, IonLabel, IonItem, IonBadge, IonFab, IonFabButton } from '@ionic/react';
+import { exitOutline, star, people, playCircleOutline, flame, refresh } from 'ionicons/icons';
 import { Player, Team } from '../types/types';
 import { supabase } from '../lib/supabase';
 
@@ -12,6 +12,7 @@ interface WaitingRoomViewProps {
   currentPlayerId: string | null;
   isChickenTeam: boolean;
   gameStatus?: string;
+  onRefresh?: () => void;
 }
 
 const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
@@ -21,11 +22,13 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
   onStartGame,
   currentPlayerId,
   isChickenTeam,
-  gameStatus = 'lobby'
+  gameStatus = 'lobby',
+  onRefresh
 }) => {
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const currentTeam = teams.find(t => t.id === currentPlayer?.team_id);
   const [realGameStatus, setRealGameStatus] = useState(gameStatus);
+  const [refreshing, setRefreshing] = useState(false);
 
   const hasHunterTeams = teams.some(team => !team.is_chicken_team);
 
@@ -44,76 +47,153 @@ const WaitingRoomView: React.FC<WaitingRoomViewProps> = ({
     });
   }, [gameStatus, isChickenTeam, isGameInProgress, isGameStarting, isChickenHidden]);
 
-  // Vérifier le statut du jeu directement depuis Supabase
+  // Real-time subscription pour le statut du jeu et les changements d'équipes/joueurs
   useEffect(() => {
-    if (currentPlayer?.game_id) {
-      const checkGameStatus = async () => {
-        try {
-          // Ne pas utiliser .single() pour éviter l'erreur quand aucune ligne n'est retournée
-          const { data, error } = await supabase
-            .from('games')
-            .select('status')
-            .eq('id', currentPlayer.game_id);
+    if (!currentPlayer?.game_id) return;
+    
+    const gameId = currentPlayer.game_id;
+    
+    // Fonction pour vérifier le statut du jeu
+    const checkGameStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('games')
+          .select('status')
+          .eq('id', gameId);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const newStatus = data[0].status;
           
-          if (error) throw error;
-          
-          // Vérifier si des données ont été retournées
-          if (data && data.length > 0) {
-            const newStatus = data[0].status;
+          if (newStatus !== realGameStatus) {
+            console.log("🎮 Statut du jeu mis à jour:", newStatus);
+            setRealGameStatus(newStatus);
             
-            if (newStatus !== realGameStatus) {
-              console.log("Statut du jeu récupéré depuis Supabase:", newStatus);
-              setRealGameStatus(newStatus);
-              
-              // Mettre à jour la session locale avec le nouveau statut
-              const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+            // Mettre à jour la session locale
+            const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+            localStorage.setItem('player-session', JSON.stringify({
+              ...currentSession,
+              gameStatus: newStatus
+            }));
+            
+            // Redirection si le jeu commence
+            if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
+              console.log("🚀 Redirection vers la page de jeu...");
               localStorage.setItem('player-session', JSON.stringify({
                 ...currentSession,
-                gameStatus: newStatus
+                gameId: gameId,
+                gameStatus: newStatus,
+                isChickenTeam: isChickenTeam
               }));
               
-              // Si le jeu est en cours, rediriger vers la page appropriée
-              if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
-                console.log("Redirection vers la page de jeu...");
-                // Mettre à jour la session avec toutes les informations nécessaires
-                const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
-                localStorage.setItem('player-session', JSON.stringify({
-                  ...currentSession,
-                  gameId: currentPlayer.game_id,
-                  gameStatus: newStatus,
-                  isChickenTeam: isChickenTeam
-                }));
-                console.log("Session mise à jour avant redirection:", {
-                  gameId: currentPlayer.game_id,
-                  gameStatus: newStatus,
-                  isChickenTeam
-                });
-                
-                // Redirection immédiate sans délai
-                window.location.href = isChickenTeam 
-                  ? `/chicken/${currentPlayer.game_id}` 
-                  : `/player/${currentPlayer.game_id}`;
-              }
+              window.location.href = isChickenTeam 
+                ? `/chicken/${gameId}` 
+                : `/player/${gameId}`;
             }
-          } else {
-            console.warn("Aucune partie trouvée avec l'ID:", currentPlayer.game_id);
           }
-        } catch (err) {
-          console.error("Erreur lors de la vérification du statut du jeu:", err);
         }
-      };
-      
-      checkGameStatus();
-      
-      // Vérifier périodiquement le statut du jeu
-      const interval = setInterval(checkGameStatus, 5000);
-      
-      return () => clearInterval(interval);
-    }
+      } catch (err) {
+        console.error("❌ Erreur lors de la vérification du statut:", err);
+      }
+    };
+    
+    // Vérification initiale
+    checkGameStatus();
+    
+    // Real-time subscription pour les changements de statut de jeu
+    const gameStatusChannel = supabase
+      .channel(`waiting-game-status-${gameId}`)
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public',
+        table: 'games',
+        filter: `id=eq.${gameId}` 
+      }, (payload) => {
+        console.log("📡 Changement de statut de jeu détecté:", payload);
+        const newStatus = (payload.new as any).status;
+        setRealGameStatus(newStatus);
+        
+        // Mettre à jour session et rediriger si nécessaire
+        const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
+        localStorage.setItem('player-session', JSON.stringify({
+          ...currentSession,
+          gameStatus: newStatus
+        }));
+        
+        if (newStatus === 'in_progress' || newStatus === 'chicken_hidden') {
+          console.log("🚀 Redirection automatique via Realtime");
+          localStorage.setItem('player-session', JSON.stringify({
+            ...currentSession,
+            gameId: gameId,
+            gameStatus: newStatus,
+            isChickenTeam: isChickenTeam
+          }));
+          
+          window.location.href = isChickenTeam 
+            ? `/chicken/${gameId}` 
+            : `/player/${gameId}`;
+        }
+      })
+      .subscribe((status) => {
+        console.log('📡 WaitingRoom Realtime status:', status);
+      });
+    
+    // Polling de secours (moins fréquent)
+    const interval = setInterval(checkGameStatus, 30000);
+    
+    return () => {
+      supabase.removeChannel(gameStatusChannel);
+      clearInterval(interval);
+    };
   }, [currentPlayer?.game_id, isChickenTeam, realGameStatus]);
+
+  // Fonction de refresh manuelle
+  const handleRefresh = async () => {
+    if (!onRefresh || refreshing) return;
+    setRefreshing(true);
+    try {
+      await onRefresh();
+      // Aussi vérifier le statut du jeu
+      if (currentPlayer?.game_id) {
+        const { data, error } = await supabase
+          .from('games')
+          .select('status')
+          .eq('id', currentPlayer.game_id);
+        
+        if (!error && data && data.length > 0) {
+          const newStatus = data[0].status;
+          if (newStatus !== realGameStatus) {
+            console.log('🔄 Statut mis à jour via refresh:', newStatus);
+            setRealGameStatus(newStatus);
+          }
+        }
+      }
+    } finally {
+      setTimeout(() => setRefreshing(false), 500);
+    }
+  };
 
   return (
     <>
+      {/* Bouton refresh mobile-optimisé */}
+      {onRefresh && (
+        <IonFab vertical="top" horizontal="end" slot="fixed" className="mobile-refresh-fab">
+          <IonFabButton 
+            size="small" 
+            color="light" 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="refresh-button-mobile"
+          >
+            <IonIcon 
+              icon={refresh} 
+              className={refreshing ? 'refresh-spinning' : ''}
+            />
+          </IonFabButton>
+        </IonFab>
+      )}
+      
       <IonCard className="ion-margin-bottom ion-text-center">
         <IonCardHeader>
           <IonCardSubtitle>Vous êtes dans l'équipe</IonCardSubtitle>

@@ -28,7 +28,8 @@ const JoinGamePage: React.FC = () => {
     }
   }, [location.search]);
 
-  const handleJoinGame = async () => {
+  const handleJoinGame = async (e?: React.FormEvent) => {
+    e?.preventDefault(); // Empêcher la soumission normale du formulaire
     if (!joinCode.trim() || !nickname.trim()) {
       present({
         message: 'Le code de la partie et le pseudo sont requis.',
@@ -78,19 +79,20 @@ const JoinGamePage: React.FC = () => {
         throw new Error("Impossible de créer le joueur.");
       }
 
-      // Authentification anonyme pour obtenir un user_id
-      const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-      
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Authentication failed.");
-
-      // Lier l'utilisateur authentifié au joueur que nous venons de créer
-      const { error: updatePlayerError } = await supabase
-        .from('players')
-        .update({ user_id: authData.user.id })
-        .eq('id', playerData.id);
-
-      if (updatePlayerError) throw updatePlayerError;
+      // Tentative d'authentification anonyme (optionnelle)
+      try {
+        const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+        if (!authError && authData.user) {
+          // Lier l'utilisateur authentifié au joueur si l'auth réussit
+          await supabase
+            .from('players')
+            .update({ user_id: authData.user.id })
+            .eq('id', playerData.id);
+        }
+      } catch (authError) {
+        console.warn('Auth not available, continuing without:', authError);
+        // Continue sans authentification - le jeu fonctionnera quand même
+      }
 
       setSession({
         playerId: playerData.id,
@@ -141,7 +143,7 @@ const JoinGamePage: React.FC = () => {
               <IonCardTitle className="ion-text-center text-2xl">Entrez les informations</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
-              <form onSubmit={handleJoinGame} style={{ width: '100%' }}>
+              <form onSubmit={(e) => handleJoinGame(e)} style={{ width: '100%' }}>
                 <IonItem className="mb-4" style={{ width: '100%' }}>
                   <IonInput
                     label="Code de la partie"
@@ -168,7 +170,6 @@ const JoinGamePage: React.FC = () => {
                   ></IonInput>
                 </IonItem>
                 <IonButton
-                  onClick={handleJoinGame}
                   type="submit"
                   expand="block"
                   size="large"
