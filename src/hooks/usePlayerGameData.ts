@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { Team, Challenge, Bar } from '../data/types';
+
+// Constants for better maintainability
+const DEFAULT_ERROR_MESSAGE = 'An unknown error occurred';
+const CHANNEL_PREFIX = 'player-game-data-';
 
 // Define types for the game data
 // These should be moved to a central types file later
@@ -11,6 +15,8 @@ interface PlayerGameState {
 }
 
 export const usePlayerGameData = (gameId: string | undefined, teamId: string | undefined) => {
+  // Memoize dependencies to prevent unnecessary re-renders
+  const dependencies = useMemo(() => ({ gameId, teamId }), [gameId, teamId]);
   const [gameState, setGameState] = useState<PlayerGameState>({
     team: null,
     challenges: [],
@@ -25,7 +31,7 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
       return;
     }
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
       setLoading(true);
       setError(null);
       
@@ -77,14 +83,14 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
         
         if (barsError) throw new Error('Failed to fetch game bars: ' + barsError.message);
 
-        // Convert game_bars data to Bar format
+        // Convert game_bars data to Bar format with better error handling
         const bars: Bar[] = (barsData || []).map(bar => ({
           id: bar.id,
-          name: bar.name,
-          address: bar.address,
+          name: bar.name || 'Unknown Bar',
+          address: bar.address || 'Unknown Address',
           description: bar.description || '',
-          latitude: Number(bar.latitude),
-          longitude: Number(bar.longitude),
+          latitude: Number(bar.latitude) || 0,
+          longitude: Number(bar.longitude) || 0,
           photoUrl: bar.photo_url || undefined,
         }));
         
@@ -95,18 +101,19 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
         });
 
       } catch (e) {
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred';
+        const errorMessage = e instanceof Error ? e.message : DEFAULT_ERROR_MESSAGE;
+        console.error('Error fetching player game data:', e);
         setError(errorMessage);
       } finally {
         setLoading(false);
       }
-    };
+    }, [dependencies.gameId, dependencies.teamId]);
 
     fetchData();
 
-    // Set up a real-time subscription for future updates
+    // Set up a real-time subscription for future updates with optimized channel name
     const subscription = supabase
-      .channel(`player-game-data-${gameId}`)
+      .channel(`${CHANNEL_PREFIX}${gameId}`)
       .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
         console.log('Game data change received!', payload);
         fetchData(); // Refetch all data on any change
@@ -117,7 +124,7 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
       supabase.removeChannel(subscription);
     };
 
-  }, [gameId, teamId]);
+  }, [dependencies.gameId, dependencies.teamId]);
 
   return { gameState, loading, error };
 }; 

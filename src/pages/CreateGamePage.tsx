@@ -16,6 +16,9 @@ import { Bar } from '../data/types';
 import { GameBarService } from '../services/gameBarService';
 import { OpenStreetMapService } from '../services/openStreetMapService';
 import { initializeChallenges } from '../utils/databaseInit';
+import { useGeolocation } from '../hooks/useGeolocation';
+import AddressInput from '../components/shared/AddressInput';
+import RadiusSelector from '../components/shared/RadiusSelector';
 
 interface GameConfig {
   hostNickname: string;
@@ -38,13 +41,21 @@ const CreateGamePage: React.FC = () => {
   const [importingBars, setImportingBars] = useState(false);
   const [importedBarsCount, setImportedBarsCount] = useState(0);
   const [importedBars, setImportedBars] = useState<Bar[]>([]);
-  const [importMethod, setImportMethod] = useState<'link' | 'search' | 'manual'>('link');
+  const [importMethod, setImportMethod] = useState<'link' | 'search'>('link');
   const [searchLocation, setSearchLocation] = useState('Bruxelles');
   const [searchRadius, setSearchRadius] = useState(1000);
-  const [manualBar, setManualBar] = useState({ name: '', address: '' });
+  const [searchCoordinates, setSearchCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const history = useHistory();
   const { setSession } = useSession();
   const [present] = useIonToast();
+  
+  // Geolocation hook for current location functionality
+  const { 
+    getCurrentLocation, 
+    currentPosition, 
+    isGettingPosition, 
+    error: locationError 
+  } = useGeolocation();
 
   const handleRemoveBar = (barId: string) => {
     const updatedBars = importedBars.filter(bar => bar.id !== barId);
@@ -71,20 +82,58 @@ const CreateGamePage: React.FC = () => {
     });
   };
 
+  const handleUseCurrentLocation = async () => {
+    try {
+      await getCurrentLocation();
+      
+      if (currentPosition?.coords) {
+        const { latitude, longitude } = currentPosition.coords;
+        setSearchCoordinates({ lat: latitude, lng: longitude });
+        setSearchLocation('Position actuelle');
+        
+        present({
+          message: 'Position actuelle utilisée pour la recherche',
+          duration: 2000,
+          color: 'success'
+        });
+      }
+    } catch (error) {
+      console.error('Error getting current location:', error);
+      present({
+        message: 'Impossible d\'obtenir votre position actuelle',
+        duration: 3000,
+        color: 'warning'
+      });
+    }
+  };
+
+  const handleAddressChange = (address: string, coordinates?: { lat: number; lng: number }) => {
+    setSearchLocation(address);
+    if (coordinates) {
+      setSearchCoordinates(coordinates);
+    } else {
+      setSearchCoordinates(null);
+    }
+  };
+
   const handleSearchNearbyBars = async () => {
     setImportingBars(true);
 
     try {
-      // Géocoder l'adresse d'abord
-      const location = await OpenStreetMapService.geocodeAddress(searchLocation);
+      let location = searchCoordinates;
       
+      // Si pas de coordonnées, géocoder l'adresse
       if (!location) {
-        present({
-          message: 'Impossible de trouver cette localisation.',
-          duration: 3000,
-          color: 'warning'
-        });
-        return;
+        location = await OpenStreetMapService.geocodeAddress(searchLocation);
+        
+        if (!location) {
+          present({
+            message: 'Impossible de trouver cette localisation.',
+            duration: 3000,
+            color: 'warning'
+          });
+          return;
+        }
       }
 
       // Rechercher les bars autour de cette position
@@ -134,56 +183,6 @@ const CreateGamePage: React.FC = () => {
     }
   };
 
-  const handleAddManualBar = async () => {
-    if (!manualBar.name.trim() || !manualBar.address.trim()) {
-      present({
-        message: 'Veuillez remplir le nom et l\'adresse du bar.',
-        duration: 3000,
-        color: 'warning'
-      });
-      return;
-    }
-
-    try {
-      // Géocoder l'adresse
-      const location = await OpenStreetMapService.geocodeAddress(manualBar.address);
-      
-      if (!location) {
-        present({
-          message: 'Impossible de géolocaliser cette adresse.',
-          duration: 3000,
-          color: 'warning'
-        });
-        return;
-      }
-
-      const newBar: Bar = {
-        id: `manual-${Date.now()}`,
-        name: manualBar.name,
-        address: manualBar.address,
-        description: 'Bar ajouté manuellement',
-        latitude: location.lat,
-        longitude: location.lng
-      };
-
-      setImportedBars([...importedBars, newBar]);
-      setImportedBarsCount(importedBarsCount + 1);
-      setManualBar({ name: '', address: '' }); // Reset form
-
-      present({
-        message: 'Bar ajouté avec succès !',
-        duration: 2000,
-        color: 'success'
-      });
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout:', error);
-      present({
-        message: 'Erreur lors de l\'ajout du bar.',
-        duration: 3000,
-        color: 'danger'
-      });
-    }
-  };
 
   const handleImportFromGoogleMaps = async () => {
     if (!config.googleMapsUrl?.trim()) {
@@ -450,20 +449,16 @@ const CreateGamePage: React.FC = () => {
                     {/* Onglets pour les différentes méthodes */}
                     <IonSegment 
                       value={importMethod} 
-                      onIonChange={(e) => setImportMethod(e.detail.value as 'link' | 'search' | 'manual')}
+                      onIonChange={(e) => setImportMethod(e.detail.value as 'link' | 'search')}
                       className="mb-4"
                     >
                       <IonSegmentButton value="link">
                         <IonIcon icon={linkOutline} />
-                        <IonLabel>Lien</IonLabel>
+                        <IonLabel>Lien Google Maps</IonLabel>
                       </IonSegmentButton>
                       <IonSegmentButton value="search">
                         <IonIcon icon={searchOutline} />
-                        <IonLabel>Recherche</IonLabel>
-                      </IonSegmentButton>
-                      <IonSegmentButton value="manual">
-                        <IonIcon icon={addOutline} />
-                        <IonLabel>Manuel</IonLabel>
+                        <IonLabel>Recherche locale</IonLabel>
                       </IonSegmentButton>
                     </IonSegment>
 
@@ -514,30 +509,26 @@ const CreateGamePage: React.FC = () => {
 
                     {importMethod === 'search' && (
                       <div>
-                        <IonItem className="mb-3">
-                          <IonIcon icon={locationOutline} slot="start" />
-                          <IonInput
-                            label="Ville ou adresse"
-                            labelPlacement="floating"
-                            value={searchLocation}
-                            onIonInput={(e) => setSearchLocation(e.detail.value!)}
-                            clearInput
-                            placeholder="Bruxelles"
-                            style={{ width: '100%' }}
-                          />
-                        </IonItem>
+                        <AddressInput
+                          value={searchLocation}
+                          onAddressChange={handleAddressChange}
+                          onCurrentLocation={handleUseCurrentLocation}
+                          placeholder="Bruxelles, Place Eugène Flagey..."
+                          label="Ville ou adresse"
+                          className="mb-3"
+                          showCurrentLocationButton={true}
+                          disabled={importingBars || isGettingPosition}
+                        />
 
-                        <IonItem className="mb-3">
-                          <IonLabel>Rayon: {searchRadius}m</IonLabel>
-                          <IonInput
-                            type="number"
-                            value={searchRadius}
-                            onIonInput={(e) => setSearchRadius(parseInt(e.detail.value!) || 1000)}
-                            min="100"
-                            max="5000"
-                            step="100"
-                          />
-                        </IonItem>
+                        <RadiusSelector
+                          value={searchRadius}
+                          onChange={setSearchRadius}
+                          min={100}
+                          max={5000}
+                          step={100}
+                          disabled={importingBars}
+                          showPresets={true}
+                        />
                         
                         <IonButton
                           onClick={handleSearchNearbyBars}
@@ -561,58 +552,6 @@ const CreateGamePage: React.FC = () => {
                         
                         <IonNote className="text-center text-xs mt-2 block">
                           Recherche via OpenStreetMap (gratuit)
-                        </IonNote>
-                      </div>
-                    )}
-
-                    {importMethod === 'manual' && (
-                      <div className="space-y-4">
-                        <IonItem className="mb-3">
-                          <IonIcon icon={addOutline} slot="start" />
-                          <IonInput
-                            label="Nom du bar"
-                            labelPlacement="floating"
-                            value={manualBar.name}
-                            onIonInput={(e) => setManualBar(prev => ({ 
-                              ...prev, 
-                              name: e.detail.value! 
-                            }))}
-                            clearInput
-                            placeholder="Le Delirium Café"
-                            style={{ width: '100%' }}
-                          />
-                        </IonItem>
-
-                        <IonItem className="mb-3">
-                          <IonIcon icon={locationOutline} slot="start" />
-                          <IonInput
-                            label="Adresse complète"
-                            labelPlacement="floating"
-                            value={manualBar.address}
-                            onIonInput={(e) => setManualBar(prev => ({ 
-                              ...prev, 
-                              address: e.detail.value! 
-                            }))}
-                            clearInput
-                            placeholder="Rue de la Bourse 12, 1000 Bruxelles"
-                            style={{ width: '100%' }}
-                          />
-                        </IonItem>
-                        
-                        <IonButton
-                          onClick={handleAddManualBar}
-                          expand="block"
-                          fill="outline"
-                          disabled={!manualBar.name.trim() || !manualBar.address.trim()}
-                          size="default"
-                          className="mt-4"
-                        >
-                          <IonIcon slot="start" icon={addOutline} />
-                          Ajouter le bar
-                        </IonButton>
-                        
-                        <IonNote className="text-center text-xs mt-2 block">
-                          L'adresse sera géolocalisée automatiquement
                         </IonNote>
                       </div>
                     )}

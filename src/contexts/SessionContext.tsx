@@ -1,4 +1,9 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { safeLocalStorage } from '../utils/performanceUtils';
+import { logError } from '../utils/errorUtils';
+
+// Constants for session management
+const SESSION_STORAGE_KEY = 'player-session';
 
 // 1. Définir la structure de notre session
 interface Session {
@@ -21,24 +26,29 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 // 4. Créer le "Fournisseur" de Contexte
 // C'est un composant qui enveloppera notre application
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialiser la session depuis le localStorage s'il existe
+  // Initialiser la session depuis le localStorage avec error handling
   const [session, setSession] = useState<Session>(() => {
-    const savedSession = localStorage.getItem('player-session');
-    return savedSession ? JSON.parse(savedSession) : { playerId: null, gameId: null, nickname: null, teamId: null };
+    const defaultSession = { playerId: null, gameId: null, nickname: null, teamId: null };
+    const savedSession = safeLocalStorage.get<Session>(SESSION_STORAGE_KEY, defaultSession);
+    return savedSession || defaultSession;
   });
 
   useEffect(() => {
     if (session.playerId) {
-      localStorage.setItem('player-session', JSON.stringify(session));
+      const success = safeLocalStorage.set(SESSION_STORAGE_KEY, session);
+      if (!success) {
+        logError('Failed to save session to localStorage', { session });
+      }
     } else {
-      localStorage.removeItem('player-session');
+      safeLocalStorage.remove(SESSION_STORAGE_KEY);
     }
   }, [session]);
 
-  // Fonction pour effacer la session
-  const clearSession = () => {
-    setSession({ playerId: null, gameId: null, nickname: null, teamId: null });
-  };
+  // Fonction pour effacer la session avec useCallback
+  const clearSession = useCallback(() => {
+    const defaultSession = { playerId: null, gameId: null, nickname: null, teamId: null };
+    setSession(defaultSession);
+  }, []);
 
   return (
     <SessionContext.Provider value={{ session, setSession, clearSession }}>

@@ -3,7 +3,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact, AnimationBuilder, RouteAction
 import { IonReactRouter } from '@ionic/react-router';
 import { useIonRouter } from '@ionic/react';
 import { RouterDirection } from '@ionic/core';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Home from './pages/Home';
 import ChickenPage from './pages/ChickenPage';
 import PlayerPage from './pages/PlayerPage';
@@ -77,21 +77,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
   const [gameName] = useState('v1.0'); // Placeholder
 
   // Determine mode based on path from props
+  // Memoized path and mode calculation for performance
   const currentPath = location.pathname;
-  const mode = currentPath.startsWith('/chicken') ? 'chicken' : 
-               currentPath.startsWith('/player') ? 'player' :
-               currentPath.startsWith('/admin') ? 'admin' : undefined;
+  const mode = useMemo(() => {
+    if (currentPath.startsWith('/chicken')) return 'chicken';
+    if (currentPath.startsWith('/player')) return 'player';
+    if (currentPath.startsWith('/admin')) return 'admin';
+    return undefined;
+  }, [currentPath]);
 
-  // Define quit game handler using router from props
-  const handleQuitGame = () => {
+  // Optimized quit game handler with useCallback
+  const handleQuitGame = useCallback(() => {
     console.log("Quitting game from App...");
-    // Correct the arguments for router.push
     // Path: /home, Direction: root, Action: replace, Options: undefined
     router.push('/home', 'root', 'replace', undefined); 
-  };
+  }, [router]);
 
-  // Determine if the menu should be shown
-  const showMenu = mode !== undefined;
+  // Memoized menu visibility calculation
+  const showMenu = useMemo(() => mode !== undefined, [mode]);
 
   return (
     <>

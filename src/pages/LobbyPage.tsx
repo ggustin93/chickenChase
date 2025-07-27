@@ -4,7 +4,7 @@ import {
 } from '@ionic/react';
 import { useIonViewWillEnter } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { logOut, personCircle, person, people } from 'ionicons/icons';
 import { useSession } from '../contexts/SessionContext';
@@ -12,8 +12,16 @@ import { PostgrestError, RealtimePostgresChangesPayload } from '@supabase/supaba
 import { Game, Player, Team } from '../types/types';
 import WaitingRoomView from '../components/WaitingRoomView';
 import ImprovedLobbyView from '../components/ImprovedLobbyView';
+import { usePlayerPresence } from '../hooks/usePlayerPresence';
 import '../styles/lobby-improvements.css';
 import '../styles/mobile-responsive.css';
+
+// Constants for better maintainability
+const ERROR_MESSAGES = {
+  NO_GAME_FOUND: 'Aucune partie trouvée avec cet ID',
+  INVALID_SESSION: 'Session invalide ou manquante',
+  GENERIC_ERROR: 'Une erreur est survenue'
+} as const;
 
 // Supprimer la définition redondante de GameStatus car elle est maintenant importée
 
@@ -30,17 +38,44 @@ const LobbyPage: React.FC = () => {
   const [present] = useIonToast();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
+  // Initialize player presence tracking with toast notifications
+  const { activePlayers, isTrackingPresence } = usePlayerPresence({
+    gameId,
+    playerId: session.playerId,
+    playerNickname: session.nickname || undefined,
+    showToasts: true
+  });
+
   // Log pour déboguer le gameId
   useEffect(() => {
     console.log("Current gameId from URL params:", gameId);
     console.log("Current gameId from session:", session.gameId);
   }, [gameId, session.gameId]);
 
+  // Log presence tracking status
+  useEffect(() => {
+    console.log("🟢 Player presence tracking status:", isTrackingPresence);
+    console.log("👥 Currently active players:", activePlayers);
+  }, [isTrackingPresence, activePlayers]);
+
+  // Memoized computed values for performance
   const currentPlayerId = session.playerId;
-  const currentPlayer = players.find(p => p.id === currentPlayerId);
-  const currentPlayerTeam = teams.find(team => team.id === currentPlayer?.team_id);
-  const isPlayerInTeam = !!currentPlayer?.team_id;
-  const isPlayerInChickenTeam = currentPlayerTeam?.is_chicken_team || false;
+  const currentPlayer = useMemo(() => 
+    players.find(p => p.id === currentPlayerId), 
+    [players, currentPlayerId]
+  );
+  const currentPlayerTeam = useMemo(() => 
+    teams.find(team => team.id === currentPlayer?.team_id), 
+    [teams, currentPlayer?.team_id]
+  );
+  const isPlayerInTeam = useMemo(() => 
+    !!currentPlayer?.team_id, 
+    [currentPlayer?.team_id]
+  );
+  const isPlayerInChickenTeam = useMemo(() => 
+    currentPlayerTeam?.is_chicken_team || false, 
+    [currentPlayerTeam?.is_chicken_team]
+  );
 
   // Fonction pour rediriger vers la page appropriée
   const redirectToGamePage = useCallback(() => {
@@ -101,9 +136,9 @@ const LobbyPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Vérifier si la session est valide
-      if (!session || !session.playerId) {
-        console.log("Session invalide ou manquante. Redirection vers l'accueil.");
+      // Vérifier si la session est valide avec constante
+      if (!session?.playerId) {
+        console.log(ERROR_MESSAGES.INVALID_SESSION);
         clearSession();
         history.push('/home');
         return;
@@ -117,9 +152,9 @@ const LobbyPage: React.FC = () => {
       
       if (gameError) throw gameError;
       
-      // Vérifier si des données ont été retournées
-      if (!gameData || gameData.length === 0) {
-        throw new Error(`Aucune partie trouvée avec l'ID ${gameId}`);
+      // Vérifier si des données ont été retournées avec constante
+      if (!gameData?.length) {
+        throw new Error(`${ERROR_MESSAGES.NO_GAME_FOUND}: ${gameId}`);
       }
       
       const game = gameData[0];
@@ -164,9 +199,10 @@ const LobbyPage: React.FC = () => {
       
     } catch (error) {
       console.error('Error fetching game data:', error);
-      setError(error instanceof Error ? error.message : 'Une erreur est survenue');
+      const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.GENERIC_ERROR;
+      setError(errorMessage);
       present({ 
-        message: error instanceof Error ? error.message : 'Une erreur est survenue', 
+        message: errorMessage, 
         duration: 3000, 
         color: 'danger' 
       });

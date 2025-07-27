@@ -1,8 +1,13 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ChickenGameState, Challenge, Message } from '../data/types';
 import { mockChickenGameState } from '../data/mock/mockData';
 import { supabase } from '../lib/supabase';
 import { GameEventService } from '../services/GameEventService';
+
+// Constants for performance optimization
+const GAME_STATUS_CHECK_INTERVAL = 5000; // 5 seconds
+const LOCAL_UPDATE_GRACE_PERIOD = 2000; // 2 seconds
+const DEFAULT_GAME_DURATION_HOURS = 3;
 
 // Définir un type pour la fenêtre avec notre propriété personnalisée
 declare global {
@@ -22,24 +27,30 @@ export const useChickenGameState = (gameId?: string) => {
   // Référence pour suivre les mises à jour locales récentes
   const lastLocalUpdateRef = useRef<number>(0);
   
-  // Fonction pour marquer une mise à jour locale
+  // Fonction pour marquer une mise à jour locale - optimized
   const markLocalUpdate = useCallback(() => {
-    lastLocalUpdateRef.current = Date.now();
-    window._lastGameStatusUpdate = Date.now();
+    const now = Date.now();
+    lastLocalUpdateRef.current = now;
+    window._lastGameStatusUpdate = now;
   }, []);
   
-  // Fonction pour convertir une string "MM:SS" en secondes
-  const timeToSeconds = (timeString: string): number => {
-    const [minutes, seconds] = timeString.split(':').map(Number);
-    return minutes * 60 + seconds;
-  };
+  // Optimized time conversion functions with useMemo
+  const timeToSeconds = useMemo(() => {
+    return (timeString: string): number => {
+      if (!timeString || typeof timeString !== 'string') return 0;
+      const [minutes = 0, seconds = 0] = timeString.split(':').map(Number);
+      return (minutes * 60) + seconds;
+    };
+  }, []);
   
-  // Fonction pour convertir des secondes en string "MM:SS"
-  const secondsToTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  const secondsToTime = useMemo(() => {
+    return (totalSeconds: number): string => {
+      if (typeof totalSeconds !== 'number' || totalSeconds < 0) return '00:00';
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+  }, []);
   
   // Vérification périodique du statut du jeu dans Supabase
   useEffect(() => {
@@ -88,9 +99,8 @@ export const useChickenGameState = (gameId?: string) => {
             if (dbStatus === 'chicken_hidden' && !gameState.isChickenHidden) {
               console.log("Le poulet est maintenant caché selon Supabase");
               
-              // Reset le timer à 3 heures
-              const gameTimeInHours = 3;
-              const formattedGameTime = `${gameTimeInHours}:00:00`;
+              // Reset le timer avec constante
+              const formattedGameTime = `${DEFAULT_GAME_DURATION_HOURS}:00:00`;
               
               setGameState(prevState => ({
                 ...prevState,
@@ -115,8 +125,8 @@ export const useChickenGameState = (gameId?: string) => {
     // Vérifier immédiatement le statut au chargement
     checkGameStatus();
     
-    // Puis vérifier périodiquement (toutes les 10 secondes)
-    const interval = setInterval(checkGameStatus, 10000);
+    // Puis vérifier périodiquement avec constante optimisée
+    const interval = setInterval(checkGameStatus, GAME_STATUS_CHECK_INTERVAL);
     
     return () => {
       clearInterval(interval);
