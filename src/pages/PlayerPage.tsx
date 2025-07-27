@@ -31,6 +31,9 @@ import UnlockModal from '../components/player/UnlockModal';
 // Import Supabase
 import { supabase } from '../lib/supabase';
 
+// Import utilities (for development testing)
+import '../utils/updateBarAddresses';
+
 // --- Utility Function for Time Formatting ---
 const formatTime = (milliseconds: number): string => {
   if (milliseconds <= 0) {
@@ -99,9 +102,9 @@ const PlayerPage: React.FC = () => {
     return {
       game: mockChickenGameState.game,
       team: playerTeam,
-      bars: mockChickenGameState.barOptions,
+      bars: [], // Will be populated from liveGameState
       visitedBars: visitedBars,
-      challenges: mockChickenGameState.challenges.filter(c => c.active),
+      challenges: [], // Will be populated from liveGameState
       completedChallenges: completedChallenges,
       challengeCompletions: mockChickenGameState.challengeCompletions,
       messages: mockChickenGameState.messages,
@@ -111,6 +114,18 @@ const PlayerPage: React.FC = () => {
       lastClue: mockChickenGameState.messages.filter(m => m.isClue).pop()?.content || null,
     };
   });
+
+  // Update gameState when live data arrives
+  useEffect(() => {
+    if (liveGameState && !liveDataLoading) {
+      setGameState(prev => ({
+        ...prev,
+        bars: liveGameState.bars,
+        challenges: liveGameState.challenges,
+        team: liveGameState.team || prev.team
+      }));
+    }
+  }, [liveGameState, liveDataLoading]);
   
   // --- State for Timer Display ---
   const [displayTime, setDisplayTime] = useState<string>('--:--:--'); 
@@ -497,6 +512,9 @@ const PlayerPage: React.FC = () => {
             onCagnotteConsumption={handleCagnotteConsumption}
             isCagnotteLoading={false}
             error={locationError}
+            totalPlayers={gameState.leaderboard.reduce((total, team) => total + (team.members?.length || 0), 0)}
+            totalTeams={gameState.leaderboard.length}
+            teamName={gameState.team?.name}
           />
         )}
         {activeTab === 'challenges' && (

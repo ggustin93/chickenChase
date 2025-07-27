@@ -2,20 +2,27 @@ import {
   IonContent, IonPage, IonHeader, IonToolbar, IonButtons,
   IonBackButton, IonTitle, IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonItem, IonInput, IonButton, IonIcon,
-  useIonToast, IonLoading, IonLabel, IonNote, IonToggle
+  useIonToast, IonLoading, IonLabel, IonNote, IonToggle, IonText,
+  IonList, IonListHeader, IonChip, IonSegment, IonSegmentButton
 } from '@ionic/react';
-import { gameControllerOutline, cashOutline, peopleOutline, timeOutline } from 'ionicons/icons';
+import { gameControllerOutline, cashOutline, peopleOutline, timeOutline, mapOutline, linkOutline, closeCircleOutline, locationOutline, searchOutline, addOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useSession } from '../contexts/SessionContext';
 import { PostgrestError } from '@supabase/supabase-js';
+import { GoogleMapsImporter } from '../services/googleMapsImporter';
+import { Bar } from '../data/types';
+import { GameBarService } from '../services/gameBarService';
+import { OpenStreetMapService } from '../services/openStreetMapService';
+import { initializeChallenges } from '../utils/databaseInit';
 
 interface GameConfig {
   hostNickname: string;
   cagnotteInitial: number;
   maxTeams?: number;
   gameDuration?: number;
+  googleMapsUrl?: string;
 }
 
 const CreateGamePage: React.FC = () => {
@@ -23,13 +30,225 @@ const CreateGamePage: React.FC = () => {
     hostNickname: '',
     cagnotteInitial: 50, // En euros pour l'interface utilisateur
     maxTeams: undefined,
-    gameDuration: 120
+    gameDuration: 120,
+    googleMapsUrl: ''
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [importingBars, setImportingBars] = useState(false);
+  const [importedBarsCount, setImportedBarsCount] = useState(0);
+  const [importedBars, setImportedBars] = useState<Bar[]>([]);
+  const [importMethod, setImportMethod] = useState<'link' | 'search' | 'manual'>('link');
+  const [searchLocation, setSearchLocation] = useState('Bruxelles');
+  const [searchRadius, setSearchRadius] = useState(1000);
+  const [manualBar, setManualBar] = useState({ name: '', address: '' });
   const history = useHistory();
   const { setSession } = useSession();
   const [present] = useIonToast();
+
+  const handleRemoveBar = (barId: string) => {
+    const updatedBars = importedBars.filter(bar => bar.id !== barId);
+    setImportedBars(updatedBars);
+    setImportedBarsCount(updatedBars.length);
+    
+    if (updatedBars.length === 0) {
+      present({
+        message: 'Tous les bars ont été supprimés.',
+        duration: 2000,
+        color: 'warning'
+      });
+    }
+  };
+
+  const handleClearAllBars = () => {
+    setImportedBars([]);
+    setImportedBarsCount(0);
+    setConfig(prev => ({ ...prev, googleMapsUrl: '' }));
+    present({
+      message: 'Liste des bars effacée.',
+      duration: 2000,
+      color: 'warning'
+    });
+  };
+
+  const handleSearchNearbyBars = async () => {
+    setImportingBars(true);
+
+    try {
+      // Géocoder l'adresse d'abord
+      const location = await OpenStreetMapService.geocodeAddress(searchLocation);
+      
+      if (!location) {
+        present({
+          message: 'Impossible de trouver cette localisation.',
+          duration: 3000,
+          color: 'warning'
+        });
+        return;
+      }
+
+      // Rechercher les bars autour de cette position
+      const places = await OpenStreetMapService.searchBarsNearLocation(
+        location.lat,
+        location.lng,
+        searchRadius
+      );
+
+      if (places.length === 0) {
+        present({
+          message: 'Aucun bar trouvé dans cette zone.',
+          duration: 3000,
+          color: 'warning'
+        });
+        return;
+      }
+
+      // Convertir en bars et ajouter à la liste existante
+      const newBars = await GoogleMapsImporter.convertPlacesToBars(places);
+      const uniqueBars = [...importedBars];
+      
+      // Éviter les doublons
+      newBars.forEach(newBar => {
+        if (!uniqueBars.some(bar => bar.name === newBar.name && bar.address === newBar.address)) {
+          uniqueBars.push(newBar);
+        }
+      });
+
+      setImportedBars(uniqueBars);
+      setImportedBarsCount(uniqueBars.length);
+
+      present({
+        message: `${places.length} bar${places.length > 1 ? 's' : ''} trouvé${places.length > 1 ? 's' : ''} !`,
+        duration: 3000,
+        color: 'success'
+      });
+    } catch (error) {
+      console.error('Erreur lors de la recherche:', error);
+      present({
+        message: 'Erreur lors de la recherche de bars.',
+        duration: 3000,
+        color: 'danger'
+      });
+    } finally {
+      setImportingBars(false);
+    }
+  };
+
+  const handleAddManualBar = async () => {
+    if (!manualBar.name.trim() || !manualBar.address.trim()) {
+      present({
+        message: 'Veuillez remplir le nom et l\'adresse du bar.',
+        duration: 3000,
+        color: 'warning'
+      });
+      return;
+    }
+
+    try {
+      // Géocoder l'adresse
+      const location = await OpenStreetMapService.geocodeAddress(manualBar.address);
+      
+      if (!location) {
+        present({
+          message: 'Impossible de géolocaliser cette adresse.',
+          duration: 3000,
+          color: 'warning'
+        });
+        return;
+      }
+
+      const newBar: Bar = {
+        id: `manual-${Date.now()}`,
+        name: manualBar.name,
+        address: manualBar.address,
+        description: 'Bar ajouté manuellement',
+        latitude: location.lat,
+        longitude: location.lng
+      };
+
+      setImportedBars([...importedBars, newBar]);
+      setImportedBarsCount(importedBarsCount + 1);
+      setManualBar({ name: '', address: '' }); // Reset form
+
+      present({
+        message: 'Bar ajouté avec succès !',
+        duration: 2000,
+        color: 'success'
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout:', error);
+      present({
+        message: 'Erreur lors de l\'ajout du bar.',
+        duration: 3000,
+        color: 'danger'
+      });
+    }
+  };
+
+  const handleImportFromGoogleMaps = async () => {
+    if (!config.googleMapsUrl?.trim()) {
+      present({
+        message: 'Veuillez entrer un lien Google Maps valide.',
+        duration: 3000,
+        color: 'warning'
+      });
+      return;
+    }
+
+    if (!GoogleMapsImporter.isValidGoogleMapsUrl(config.googleMapsUrl)) {
+      present({
+        message: 'Format de lien Google Maps invalide.',
+        duration: 3000,
+        color: 'warning'
+      });
+      return;
+    }
+
+    setImportingBars(true);
+
+    try {
+      const result = await GoogleMapsImporter.importBarsFromGoogleMapsLink(
+        config.googleMapsUrl,
+        true, // Filter bars only
+        1000 // 1km radius
+      );
+
+      if (result.success && result.bars.length > 0) {
+        setImportedBarsCount(result.bars.length);
+        setImportedBars(result.bars);
+        
+        let message = `${result.bars.length} bar${result.bars.length > 1 ? 's' : ''} importé${result.bars.length > 1 ? 's' : ''} avec succès !`;
+        if (result.skipped > 0) {
+          message += ` (${result.skipped} établissement${result.skipped > 1 ? 's' : ''} non-bar ignoré${result.skipped > 1 ? 's' : ''})`;
+        }
+
+        present({
+          message,
+          duration: 4000,
+          color: 'success'
+        });
+      } else {
+        present({
+          message: result.errors.join(' ') || 'Aucun bar trouvé à importer.',
+          duration: 4000,
+          color: 'warning'
+        });
+        setImportedBarsCount(0);
+        setImportedBars([]);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'import:', error);
+      present({
+        message: 'Erreur lors de l\'importation depuis Google Maps.',
+        duration: 3000,
+        color: 'danger'
+      });
+      setImportedBarsCount(0);
+      setImportedBars([]);
+    } finally {
+      setImportingBars(false);
+    }
+  };
 
   const handleCreateGame = async () => {
     if (!config.hostNickname.trim()) {
@@ -100,12 +319,47 @@ const CreateGamePage: React.FC = () => {
         teamId: null
       });
 
-      // Afficher le code de partie créé
-      present({
-        message: `Partie créée ! Code: ${join_code}`,
-        duration: 4000,
-        color: 'success'
-      });
+      // Initialize challenges if not already done
+      const challengeInit = await initializeChallenges();
+      if (!challengeInit.success) {
+        console.warn('Failed to initialize challenges:', challengeInit.message);
+        // Continue anyway, challenges can be added manually later
+      } else {
+        console.log('Challenges initialized:', challengeInit.message);
+      }
+
+      // Si des bars ont été importés, les sauvegarder dans la base de données
+      if (importedBars.length > 0) {
+        present({
+          message: 'Sauvegarde des bars importés...',
+          duration: 2000,
+          color: 'secondary'
+        });
+
+        const importResult = await GameBarService.importBarsToGame(game_id, importedBars);
+        
+        if (importResult.success) {
+          present({
+            message: `Partie créée ! Code: ${join_code} - ${importResult.count} bars ajoutés`,
+            duration: 5000,
+            color: 'success'
+          });
+        } else {
+          // Avertir mais continuer quand même
+          present({
+            message: `Partie créée ! Code: ${join_code} (bars non sauvegardés)`,
+            duration: 5000,
+            color: 'warning'
+          });
+        }
+      } else {
+        // Afficher le code de partie créé
+        present({
+          message: `Partie créée ! Code: ${join_code}`,
+          duration: 4000,
+          color: 'success'
+        });
+      }
 
       // Naviguer vers le lobby
       history.push(`/lobby/${game_id}`);
@@ -141,7 +395,7 @@ const CreateGamePage: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <IonLoading isOpen={loading} message={'Création de la partie...'} />
         
-        <div className="flex flex-col items-center justify-center h-full">
+        <div className="flex flex-col items-center min-h-full py-4">
           <IonCard className="w-full max-w-md mx-auto">
             <IonCardHeader>
               <IonCardTitle className="ion-text-center text-2xl">
@@ -183,6 +437,246 @@ const CreateGamePage: React.FC = () => {
                   />
                   <IonNote slot="helper">Montant total pour les consommations du poulet</IonNote>
                 </IonItem>
+
+                {/* Import de bars - OPTIONNEL */}
+                <IonCard className="mb-4" style={{ margin: '16px 0' }}>
+                  <IonCardHeader>
+                    <IonCardTitle className="text-lg flex items-center">
+                      <IonIcon icon={mapOutline} className="mr-2" />
+                      Ajouter des bars
+                    </IonCardTitle>
+                  </IonCardHeader>
+                  <IonCardContent>
+                    {/* Onglets pour les différentes méthodes */}
+                    <IonSegment 
+                      value={importMethod} 
+                      onIonChange={(e) => setImportMethod(e.detail.value as 'link' | 'search' | 'manual')}
+                      className="mb-4"
+                    >
+                      <IonSegmentButton value="link">
+                        <IonIcon icon={linkOutline} />
+                        <IonLabel>Lien</IonLabel>
+                      </IonSegmentButton>
+                      <IonSegmentButton value="search">
+                        <IonIcon icon={searchOutline} />
+                        <IonLabel>Recherche</IonLabel>
+                      </IonSegmentButton>
+                      <IonSegmentButton value="manual">
+                        <IonIcon icon={addOutline} />
+                        <IonLabel>Manuel</IonLabel>
+                      </IonSegmentButton>
+                    </IonSegment>
+
+                    {/* Contenu selon l'onglet sélectionné */}
+                    {importMethod === 'link' && (
+                      <div>
+                        <IonItem className="mb-3">
+                          <IonIcon icon={linkOutline} slot="start" />
+                          <IonInput
+                            label="Lien liste partagée Google Maps"
+                            labelPlacement="floating"
+                            value={config.googleMapsUrl}
+                            onIonInput={(e) => setConfig(prev => ({ 
+                              ...prev, 
+                              googleMapsUrl: e.detail.value! 
+                            }))}
+                            clearInput
+                            placeholder="https://maps.app.goo.gl/..."
+                            style={{ width: '100%' }}
+                          />
+                        </IonItem>
+                        
+                        <IonButton
+                          onClick={handleImportFromGoogleMaps}
+                          expand="block"
+                          fill="outline"
+                          disabled={!config.googleMapsUrl?.trim() || importingBars}
+                          size="default"
+                        >
+                          {importingBars ? (
+                            <>
+                              <IonIcon slot="start" icon={mapOutline} />
+                              Importation en cours...
+                            </>
+                          ) : (
+                            <>
+                              <IonIcon slot="start" icon={linkOutline} />
+                              Importer depuis le lien
+                            </>
+                          )}
+                        </IonButton>
+                        
+                        <IonNote className="text-center text-xs mt-2 block">
+                          Copiez le lien d'une liste partagée Google Maps
+                        </IonNote>
+                      </div>
+                    )}
+
+                    {importMethod === 'search' && (
+                      <div>
+                        <IonItem className="mb-3">
+                          <IonIcon icon={locationOutline} slot="start" />
+                          <IonInput
+                            label="Ville ou adresse"
+                            labelPlacement="floating"
+                            value={searchLocation}
+                            onIonInput={(e) => setSearchLocation(e.detail.value!)}
+                            clearInput
+                            placeholder="Bruxelles"
+                            style={{ width: '100%' }}
+                          />
+                        </IonItem>
+
+                        <IonItem className="mb-3">
+                          <IonLabel>Rayon: {searchRadius}m</IonLabel>
+                          <IonInput
+                            type="number"
+                            value={searchRadius}
+                            onIonInput={(e) => setSearchRadius(parseInt(e.detail.value!) || 1000)}
+                            min="100"
+                            max="5000"
+                            step="100"
+                          />
+                        </IonItem>
+                        
+                        <IonButton
+                          onClick={handleSearchNearbyBars}
+                          expand="block"
+                          fill="outline"
+                          disabled={!searchLocation.trim() || importingBars}
+                          size="default"
+                        >
+                          {importingBars ? (
+                            <>
+                              <IonIcon slot="start" icon={searchOutline} />
+                              Recherche en cours...
+                            </>
+                          ) : (
+                            <>
+                              <IonIcon slot="start" icon={searchOutline} />
+                              Chercher des bars
+                            </>
+                          )}
+                        </IonButton>
+                        
+                        <IonNote className="text-center text-xs mt-2 block">
+                          Recherche via OpenStreetMap (gratuit)
+                        </IonNote>
+                      </div>
+                    )}
+
+                    {importMethod === 'manual' && (
+                      <div className="space-y-4">
+                        <IonItem className="mb-3">
+                          <IonIcon icon={addOutline} slot="start" />
+                          <IonInput
+                            label="Nom du bar"
+                            labelPlacement="floating"
+                            value={manualBar.name}
+                            onIonInput={(e) => setManualBar(prev => ({ 
+                              ...prev, 
+                              name: e.detail.value! 
+                            }))}
+                            clearInput
+                            placeholder="Le Delirium Café"
+                            style={{ width: '100%' }}
+                          />
+                        </IonItem>
+
+                        <IonItem className="mb-3">
+                          <IonIcon icon={locationOutline} slot="start" />
+                          <IonInput
+                            label="Adresse complète"
+                            labelPlacement="floating"
+                            value={manualBar.address}
+                            onIonInput={(e) => setManualBar(prev => ({ 
+                              ...prev, 
+                              address: e.detail.value! 
+                            }))}
+                            clearInput
+                            placeholder="Rue de la Bourse 12, 1000 Bruxelles"
+                            style={{ width: '100%' }}
+                          />
+                        </IonItem>
+                        
+                        <IonButton
+                          onClick={handleAddManualBar}
+                          expand="block"
+                          fill="outline"
+                          disabled={!manualBar.name.trim() || !manualBar.address.trim()}
+                          size="default"
+                          className="mt-4"
+                        >
+                          <IonIcon slot="start" icon={addOutline} />
+                          Ajouter ce bar
+                        </IonButton>
+                        
+                        <IonNote className="text-center text-xs mt-2 block">
+                          L'adresse sera géolocalisée automatiquement
+                        </IonNote>
+                      </div>
+                    )}
+
+                    {importedBarsCount > 0 && (
+                      <IonText color="success" className="text-center text-sm mt-3 block">
+                        ✅ {importedBarsCount} bar{importedBarsCount > 1 ? 's' : ''} ajouté{importedBarsCount > 1 ? 's' : ''}
+                      </IonText>
+                    )}
+
+                    {/* Liste des bars importés */}
+                    {importedBars.length > 0 && (
+                      <div className="mt-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <IonListHeader className="px-0">
+                            <IonLabel className="text-sm font-semibold">
+                              Bars importés ({importedBars.length}) :
+                            </IonLabel>
+                          </IonListHeader>
+                          <IonButton 
+                            fill="clear" 
+                            size="small" 
+                            color="danger"
+                            onClick={handleClearAllBars}
+                          >
+                            Tout effacer
+                          </IonButton>
+                        </div>
+                        <IonList className="rounded-lg overflow-hidden border border-gray-200">
+                          {importedBars.map((bar, index) => (
+                            <IonItem key={bar.id || index} lines={index === importedBars.length - 1 ? 'none' : 'inset'}>
+                              <IonIcon 
+                                icon={locationOutline} 
+                                slot="start" 
+                                color="primary" 
+                                className="text-lg"
+                              />
+                              <div className="flex-1 py-2">
+                                <div className="font-medium text-sm">{bar.name}</div>
+                                <div className="text-xs text-gray-500">{bar.address}</div>
+                                {bar.description && (
+                                  <div className="text-xs text-primary mt-1">
+                                    {bar.description}
+                                  </div>
+                                )}
+                              </div>
+                              <IonButton 
+                                fill="clear" 
+                                slot="end" 
+                                color="medium"
+                                onClick={() => handleRemoveBar(bar.id)}
+                              >
+                                <IonIcon icon={closeCircleOutline} />
+                              </IonButton>
+                            </IonItem>
+                          ))}
+                        </IonList>
+                        <IonNote className="text-xs mt-2 block text-center">
+                          Ces bars seront utilisés comme lieux à visiter dans le jeu
+                        </IonNote>
+                      </div>
+                    )}
+                  </IonCardContent>
+                </IonCard>
 
                 {/* Toggle pour paramètres avancés */}
                 <IonItem className="mb-4">

@@ -10,6 +10,28 @@ export default defineConfig({
     react(),
     legacy()
   ],
+  server: {
+    proxy: {
+      // Proxy OpenStreetMap Nominatim API to avoid CORS issues
+      '/api/nominatim': {
+        target: 'https://nominatim.openstreetmap.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/nominatim/, ''),
+        headers: {
+          'User-Agent': 'ChickenChaseApp/1.0'
+        }
+      },
+      // Proxy Overpass API for bar search
+      '/api/overpass': {
+        target: 'https://overpass-api.de/api/interpreter',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/overpass/, ''),
+        headers: {
+          'User-Agent': 'ChickenChaseApp/1.0'
+        }
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom',
