@@ -14,7 +14,11 @@
 *   **UI Framework:** Ionic React
 *   **Supabase Client:** `@supabase/supabase-js` for all backend interactions.
 *   **Native Bridge:** Capacitor (`@capacitor/camera`).
-*   **Styling:** Ionic UI components, Ionic CSS Utilities.
+*   **Styling:** 
+    *   Ionic UI components, Ionic CSS Utilities
+    *   **Professional theming system:** Modular CSS architecture with design tokens
+    *   **Responsive design:** Mobile-first approach with breakpoint system
+    *   **Color palette:** Charcoal, Persian Green, Tangerine, Rose Quartz, Lavender Web
 *   **Icons:** Ionicons.
 *   **State Management:**
     *   React Hooks (`useState`, `useEffect`).
@@ -23,12 +27,16 @@
 *   **Data Fetching:** Direct calls to the Supabase client library and RPC functions.
 
 ## 3. Backend Architecture (Supabase)
-*   **Authentication:** None. The application uses an anonymous session model. Player identity is established on game creation/join and stored in a React Context.
+*   **Authentication:** 
+    *   **Graceful authentication system:** Works with or without Supabase authentication
+    *   **Anonymous session model:** Player identity via localStorage and React Context
+    *   **Optional auth enhancement:** Anonymous sign-ins for improved Realtime performance
 *   **Database:** PostgreSQL. All schema changes are managed via a single consolidated SQL migration file.
 *   **Database Functions:** We use plpgsql functions for atomic, transactional operations:
     *   `create_game_and_host`: Creates a game and host player with a unique join code
     *   `update_game_status`: Centralized function for game status updates, history tracking, and notifications
     *   `update_chicken_hidden_status`: Compatibility function that calls update_game_status
+*   **Game Configuration:** Extended schema with Wooclap-style parameters (max_teams, game_duration, started_at)
 *   **Storage:** Supabase Storage is used for photo proofs.
 *   **Realtime:** Supabase Realtime is used extensively for live updates:
     *   Game status changes via the `game_events` table
@@ -38,12 +46,20 @@
 
 ## 4. Key Code Patterns
 *   **Centralized Supabase Client:** A single Supabase client instance in `src/lib/supabase.ts`.
-*   **Component Decomposition:** Complex pages are broken down into smaller, focused components (e.g., `LobbyPage` uses `TeamSelectionView` and `WaitingRoomView`).
+*   **Component Decomposition:** Complex pages are broken down into smaller, focused components:
+    *   `LobbyPage` uses `ImprovedLobbyView` and `WaitingRoomView`
+    *   **Modern component architecture:** Modular, reusable, accessible components
 *   **Centralized Types:** Global TypeScript types are defined in `src/types/types.ts`.
-*   **Context-based Session:** The `useSession` hook provides access to session data (`playerId`, `gameId`) throughout the component tree, removing the need for prop drilling or `localStorage`.
+*   **Context-based Session:** The `useSession` hook provides access to session data (`playerId`, `gameId`) throughout the component tree.
 *   **Centralized Status Management:** Game status changes are handled through the `update_game_status` SQL function.
 *   **Real-time Notifications:** The `game_events` table is used for broadcasting status changes to all clients.
-*   **Error Handling:** Robust error handling for Supabase queries, avoiding `.single()` and checking data existence.
+*   **Error Handling:** 
+    *   Robust error handling for Supabase queries, avoiding `.single()`
+    *   **Graceful authentication fallbacks:** Continue functionality when auth unavailable
+    *   **Network resilience:** Retry mechanisms and manual refresh options
+*   **Performance Optimization:**
+    *   **Manual refresh system:** User-controlled updates replacing aggressive polling
+    *   **Modular CSS architecture:** Token-based theming for consistent performance
 
 ## 5. Development Setup & Environment
 *   **Local Development:** Standard Node.js/npm environment.
