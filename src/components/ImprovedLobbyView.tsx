@@ -87,7 +87,7 @@ const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
           </div>
 
           {/* Statistiques simplifiées - Layout horizontal */}
-          <div className="simple-stats-row">
+          <div className="simple-stats-row" style={{ color: 'white' }}>
             <div className="stat-simple">
               <IonIcon icon={person} />
               <span>{players.length} joueur{players.length > 1 ? 's' : ''}</span>

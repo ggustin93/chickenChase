@@ -1,11 +1,10 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
+  darkMode: false,
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  // Explicitly disable dark mode
-  darkMode: 'media', // We override this with CSS to prevent it from working
   theme: {
     extend: {},
   },
