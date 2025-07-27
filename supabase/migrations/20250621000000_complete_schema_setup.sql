@@ -1,14 +1,20 @@
 -- =================================================================
---  Migration : Recréation complète des tables de l'application
+--  Migration : Complete Database Schema Setup for Chicken Chase
 -- =================================================================
---  Cette migration supprime et recrée toutes les tables de l'application
---  avec la structure correcte et les contraintes appropriées.
+--  This migration creates a complete, clean database schema for the
+--  Chicken Chase application with all tables, constraints, and functions.
 --
---  Auteur: Claude
---  Date: 21/06/2025
+--  Author: Claude Code Assistant
+--  Date: 27/07/2025
+--  Version: 2.0
 -- =================================================================
 
--- Supprimer d'abord toutes les tables (dans l'ordre inverse des dépendances)
+-- =================================================================
+--  CLEAN-UP: Remove all existing data and schema
+-- =================================================================
+
+-- Remove all existing tables (in reverse dependency order)
+DROP TABLE IF EXISTS public.game_bars CASCADE;
 DROP TABLE IF EXISTS public.game_status_history CASCADE;
 DROP TABLE IF EXISTS public.game_events CASCADE;
 DROP TABLE IF EXISTS public.challenge_submissions CASCADE;
@@ -18,26 +24,48 @@ DROP TABLE IF EXISTS public.teams CASCADE;
 DROP TABLE IF EXISTS public.challenges CASCADE;
 DROP TABLE IF EXISTS public.games CASCADE;
 
--- Supprimer les fonctions existantes
+-- Remove all existing functions
 DROP FUNCTION IF EXISTS public.update_game_status(uuid, text);
 DROP FUNCTION IF EXISTS public.update_chicken_hidden_status(uuid);
+DROP FUNCTION IF EXISTS public.create_game_and_host(text, integer, integer, integer);
 DROP FUNCTION IF EXISTS public.create_game_and_host(text);
+DROP FUNCTION IF EXISTS public.import_bars_to_game(uuid, jsonb);
+DROP FUNCTION IF EXISTS public.mark_bar_as_visited(uuid, uuid, uuid);
 DROP FUNCTION IF EXISTS public.log_game_status_change();
 
--- Recréer les tables dans l'ordre des dépendances
+-- Remove RLS policies
+DROP POLICY IF EXISTS "Allow public read access to games" ON public.games;
+DROP POLICY IF EXISTS "Allow public read access to challenges" ON public.challenges;
+DROP POLICY IF EXISTS "Allow public read access to game bars" ON public.game_bars;
+DROP POLICY IF EXISTS "Allow all users to create players" ON public.players;
+DROP POLICY IF EXISTS "Allow all users to create teams" ON public.teams;
+DROP POLICY IF EXISTS "Players can view players in the same game" ON public.players;
+DROP POLICY IF EXISTS "Players can view teams in the same game" ON public.teams;
+DROP POLICY IF EXISTS "Players can update their own player data" ON public.players;
+DROP POLICY IF EXISTS "Players can update their own team" ON public.teams;
+DROP POLICY IF EXISTS "Host can update their game" ON public.games;
+DROP POLICY IF EXISTS "Players can view messages in their game" ON public.messages;
+DROP POLICY IF EXISTS "Players can view game bars" ON public.game_bars;
 
--- Table games (table principale)
+-- =================================================================
+--  SCHEMA CREATION: Create all tables in dependency order
+-- =================================================================
+
+-- Table games (main table)
 CREATE TABLE public.games (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz DEFAULT now(),
-    join_code varchar NOT NULL,
+    join_code varchar NOT NULL UNIQUE,
     status text NOT NULL DEFAULT 'lobby' CHECK (status = ANY (ARRAY['lobby', 'in_progress', 'chicken_hidden', 'finished', 'cancelled'])),
     host_player_id uuid,
     chicken_team_id uuid,
-    cagnotte_initial integer NOT NULL,
-    cagnotte_current integer NOT NULL,
-    chicken_hidden_at timestamptz
+    cagnotte_initial integer NOT NULL DEFAULT 5000,
+    cagnotte_current integer NOT NULL DEFAULT 5000,
+    chicken_hidden_at timestamptz,
+    max_teams integer,
+    game_duration integer DEFAULT 120,
+    started_at timestamptz
 );
 
 COMMENT ON TABLE public.games IS 'Table principale des parties de jeu';
@@ -51,12 +79,42 @@ CREATE TABLE public.challenges (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     title text NOT NULL,
     description text,
-    points integer NOT NULL,
-    type text NOT NULL,
-    correct_answer text
+    points integer NOT NULL DEFAULT 10,
+    type text NOT NULL CHECK (type = ANY (ARRAY['photo', 'unlock', 'location', 'quiz'])),
+    correct_answer text,
+    created_at timestamptz NOT NULL DEFAULT now()
 );
 
 COMMENT ON TABLE public.challenges IS 'Défis disponibles dans le jeu';
+COMMENT ON COLUMN public.challenges.type IS 'Type de défi: photo, unlock, location, quiz';
+
+-- Table game_bars (bars in a specific game)
+CREATE TABLE public.game_bars (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id uuid NOT NULL REFERENCES public.games(id) ON DELETE CASCADE,
+    name text NOT NULL,
+    address text NOT NULL,
+    description text,
+    latitude numeric(10,7) NOT NULL,
+    longitude numeric(10,7) NOT NULL,
+    photo_url text,
+    google_place_id text,
+    rating numeric(2,1),
+    visited boolean DEFAULT false,
+    visited_by_team_id uuid,
+    visited_at timestamptz,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.game_bars IS 'Bars associés à une partie spécifique';
+COMMENT ON COLUMN public.game_bars.latitude IS 'Latitude (7 decimal places for ~1cm precision)';
+COMMENT ON COLUMN public.game_bars.longitude IS 'Longitude (7 decimal places for ~1cm precision)';
+COMMENT ON COLUMN public.game_bars.rating IS 'Rating from 0.0 to 5.0';
+
+-- Add indexes for performance
+CREATE INDEX idx_game_bars_game_id ON public.game_bars(game_id);
+CREATE INDEX idx_game_bars_location ON public.game_bars(latitude, longitude);
+CREATE INDEX idx_game_bars_visited ON public.game_bars(visited, game_id);
 
 -- Table teams
 CREATE TABLE public.teams (
@@ -86,12 +144,16 @@ CREATE TABLE public.players (
 
 COMMENT ON TABLE public.players IS 'Joueurs participant à une partie';
 
--- Mettre à jour les références croisées
+-- Update cross-references
 ALTER TABLE public.games ADD CONSTRAINT games_host_player_id_fkey 
     FOREIGN KEY (host_player_id) REFERENCES public.players(id) ON DELETE SET NULL;
     
 ALTER TABLE public.games ADD CONSTRAINT games_chicken_team_id_fkey 
     FOREIGN KEY (chicken_team_id) REFERENCES public.teams(id) ON DELETE SET NULL;
+
+-- Update game_bars foreign key for visited_by_team_id
+ALTER TABLE public.game_bars ADD CONSTRAINT game_bars_visited_by_team_id_fkey 
+    FOREIGN KEY (visited_by_team_id) REFERENCES public.teams(id) ON DELETE SET NULL;
 
 -- Table messages
 CREATE TABLE public.messages (
@@ -142,9 +204,10 @@ CREATE TABLE public.game_status_history (
 
 COMMENT ON TABLE public.game_status_history IS 'Historique des changements de statut des parties';
 
--- Activer RLS sur toutes les tables
+-- Enable RLS on all tables
 ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.challenges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.game_bars ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.players ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
@@ -152,20 +215,15 @@ ALTER TABLE public.challenge_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.game_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.game_status_history ENABLE ROW LEVEL SECURITY;
 
--- Supprimer les politiques RLS permissives existantes
-DROP POLICY IF EXISTS games_policy ON public.games;
-DROP POLICY IF EXISTS challenges_policy ON public.challenges;
-DROP POLICY IF EXISTS teams_policy ON public.teams;
-DROP POLICY IF EXISTS players_policy ON public.players;
-DROP POLICY IF EXISTS messages_policy ON public.messages;
-DROP POLICY IF EXISTS challenge_submissions_policy ON public.challenge_submissions;
-DROP POLICY IF EXISTS game_events_policy ON public.game_events;
-DROP POLICY IF EXISTS game_status_history_policy ON public.game_status_history;
+-- =================================================================
+--  ROW LEVEL SECURITY POLICIES
+-- =================================================================
 
--- Créer des politiques RLS plus sécurisées
--- Tout le monde peut voir toutes les parties (pour rejoindre) et les défis
+-- Create comprehensive RLS policies
+-- Public read access for games and challenges (for joining and gameplay)
 CREATE POLICY "Allow public read access to games" ON public.games FOR SELECT USING (true);
 CREATE POLICY "Allow public read access to challenges" ON public.challenges FOR SELECT USING (true);
+CREATE POLICY "Allow public read access to game bars" ON public.game_bars FOR SELECT USING (true);
 
 -- Les utilisateurs peuvent insérer des joueurs et des équipes
 CREATE POLICY "Allow all users to create players" ON public.players FOR INSERT WITH CHECK (true);
@@ -199,9 +257,14 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.players;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.teams;
 
 -- =================================================================
---  Fonction : create_game_and_host
+--  FUNCTION: create_game_and_host
 -- =================================================================
-CREATE OR REPLACE FUNCTION public.create_game_and_host(host_nickname text default 'Hôte')
+CREATE OR REPLACE FUNCTION public.create_game_and_host(
+    host_nickname text DEFAULT 'Hôte',
+    cagnotte_initial integer DEFAULT 5000,
+    max_teams integer DEFAULT NULL,
+    game_duration integer DEFAULT 120
+)
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -212,7 +275,7 @@ DECLARE
   new_game_id uuid;
   attempts integer := 0;
 BEGIN
-  -- 1. Génère un code de partie unique et facile à lire (sans O, I, 0, 1)
+  -- 1. Generate unique, readable join code (without O, I, 0, 1)
   LOOP
     new_join_code := (
       SELECT string_agg(ch, '')
@@ -225,27 +288,40 @@ BEGIN
     
     attempts := attempts + 1;
     IF attempts > 10 THEN
-      RAISE EXCEPTION 'Impossible de générer un code de partie unique.';
+      RAISE EXCEPTION 'Unable to generate unique join code.';
     END IF;
   END LOOP;
 
-  -- 2. Crée la partie
-  INSERT INTO public.games (join_code, cagnotte_initial, cagnotte_current)
-  VALUES (new_join_code, 5000, 5000)
+  -- 2. Create the game
+  INSERT INTO public.games (
+    join_code, 
+    cagnotte_initial, 
+    cagnotte_current,
+    max_teams,
+    game_duration
+  )
+  VALUES (
+    new_join_code, 
+    cagnotte_initial, 
+    cagnotte_initial,
+    max_teams,
+    game_duration
+  )
   RETURNING id INTO new_game_id;
 
-  -- 3. Crée le joueur Hôte
+  -- 3. Create the host player
   INSERT INTO public.players (game_id, nickname)
   VALUES (new_game_id, host_nickname)
   RETURNING id INTO new_player_id;
 
-  -- 4. Lie l'hôte à la partie
+  -- 4. Link the host to the game
   UPDATE public.games
   SET host_player_id = new_player_id
   WHERE id = new_game_id;
 
-  -- 5. Retourne toutes les informations dans un seul objet JSON propre
+  -- 5. Return all information in a clean JSON object
   RETURN json_build_object(
+    'success', true,
     'game_id', new_game_id,
     'player_id', new_player_id,
     'join_code', new_join_code
@@ -253,7 +329,9 @@ BEGIN
 END;
 $$;
 
--- Accorder les permissions d'exécution
+-- Grant execution permissions for create_game_and_host
+GRANT EXECUTE ON FUNCTION public.create_game_and_host(text, integer, integer, integer) TO anon;
+GRANT EXECUTE ON FUNCTION public.create_game_and_host(text, integer, integer, integer) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_game_and_host(text) TO anon;
 GRANT EXECUTE ON FUNCTION public.create_game_and_host(text) TO authenticated;
 
@@ -366,5 +444,157 @@ $$;
 GRANT EXECUTE ON FUNCTION public.update_chicken_hidden_status(uuid) TO anon;
 GRANT EXECUTE ON FUNCTION public.update_chicken_hidden_status(uuid) TO authenticated; 
 
--- Supprimer la fonction d'aide JWT qui est incorrecte
+-- =================================================================
+--  FUNCTION: import_bars_to_game
+-- =================================================================
+CREATE OR REPLACE FUNCTION public.import_bars_to_game(
+    p_game_id uuid,
+    p_bars jsonb
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    bar_record jsonb;
+    inserted_count integer := 0;
+BEGIN
+    -- Iterate through each bar in the jsonb array
+    FOR bar_record IN SELECT * FROM jsonb_array_elements(p_bars)
+    LOOP
+        INSERT INTO public.game_bars (
+            game_id,
+            name,
+            address,
+            description,
+            latitude,
+            longitude,
+            photo_url,
+            google_place_id,
+            rating,
+            visited,
+            created_at
+        ) VALUES (
+            p_game_id,
+            bar_record->>'name',
+            bar_record->>'address',
+            COALESCE(bar_record->>'description', ''),
+            (bar_record->>'latitude')::numeric,
+            (bar_record->>'longitude')::numeric,
+            bar_record->>'photo_url',
+            bar_record->>'google_place_id',
+            CASE WHEN bar_record->>'rating' IS NOT NULL 
+                 THEN (bar_record->>'rating')::numeric 
+                 ELSE NULL END,
+            COALESCE((bar_record->>'visited')::boolean, false),
+            COALESCE((bar_record->>'created_at')::timestamptz, now())
+        );
+        
+        inserted_count := inserted_count + 1;
+    END LOOP;
+    
+    RETURN json_build_object(
+        'success', true,
+        'inserted_count', inserted_count
+    );
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN json_build_object(
+            'success', false,
+            'error', SQLERRM
+        );
+END;
+$$;
+
+-- Grant execution permissions for import_bars_to_game
+GRANT EXECUTE ON FUNCTION public.import_bars_to_game(uuid, jsonb) TO anon;
+GRANT EXECUTE ON FUNCTION public.import_bars_to_game(uuid, jsonb) TO authenticated;
+
+-- =================================================================
+--  FUNCTION: mark_bar_as_visited
+-- =================================================================
+CREATE OR REPLACE FUNCTION public.mark_bar_as_visited(
+    p_game_id uuid,
+    p_bar_id uuid,
+    p_team_id uuid
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    bar_exists boolean;
+    already_visited boolean;
+BEGIN
+    -- Check if bar exists in this game
+    SELECT EXISTS(
+        SELECT 1 FROM public.game_bars 
+        WHERE id = p_bar_id AND game_id = p_game_id
+    ) INTO bar_exists;
+    
+    IF NOT bar_exists THEN
+        RETURN json_build_object(
+            'success', false,
+            'error', 'Bar not found in this game'
+        );
+    END IF;
+    
+    -- Check if already visited
+    SELECT visited INTO already_visited
+    FROM public.game_bars 
+    WHERE id = p_bar_id AND game_id = p_game_id;
+    
+    IF already_visited THEN
+        RETURN json_build_object(
+            'success', false,
+            'error', 'Bar already visited'
+        );
+    END IF;
+    
+    -- Mark as visited
+    UPDATE public.game_bars
+    SET 
+        visited = true,
+        visited_by_team_id = p_team_id,
+        visited_at = now()
+    WHERE id = p_bar_id AND game_id = p_game_id;
+    
+    RETURN json_build_object(
+        'success', true,
+        'message', 'Bar marked as visited'
+    );
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN json_build_object(
+            'success', false,
+            'error', SQLERRM
+        );
+END;
+$$;
+
+-- Grant execution permissions for mark_bar_as_visited
+GRANT EXECUTE ON FUNCTION public.mark_bar_as_visited(uuid, uuid, uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.mark_bar_as_visited(uuid, uuid, uuid) TO authenticated;
+
+-- =================================================================
+--  REALTIME SUBSCRIPTIONS
+-- =================================================================
+-- Enable realtime for game_bars table
+ALTER PUBLICATION supabase_realtime ADD TABLE public.game_bars;
+
+-- =================================================================
+--  INDEXES FOR PERFORMANCE
+-- =================================================================
+CREATE INDEX IF NOT EXISTS idx_games_join_code ON public.games(join_code);
+CREATE INDEX IF NOT EXISTS idx_games_status ON public.games(status);
+CREATE INDEX IF NOT EXISTS idx_players_game_id ON public.players(game_id);
+CREATE INDEX IF NOT EXISTS idx_players_team_id ON public.players(team_id);
+CREATE INDEX IF NOT EXISTS idx_teams_game_id ON public.teams(game_id);
+CREATE INDEX IF NOT EXISTS idx_challenge_submissions_game_id ON public.challenge_submissions(game_id);
+CREATE INDEX IF NOT EXISTS idx_challenge_submissions_team_id ON public.challenge_submissions(team_id);
+CREATE INDEX IF NOT EXISTS idx_game_events_game_id ON public.game_events(game_id);
+CREATE INDEX IF NOT EXISTS idx_game_events_created_at ON public.game_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_messages_game_id ON public.messages(game_id);
+
+-- Remove obsolete functions
 DROP FUNCTION IF EXISTS public.requesting_user_claim(text); 
