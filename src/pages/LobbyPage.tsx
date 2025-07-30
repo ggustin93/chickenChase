@@ -13,6 +13,7 @@ import { Game, Player, Team } from '../types/types';
 import WaitingRoomView from '../components/WaitingRoomView';
 import ImprovedLobbyView from '../components/ImprovedLobbyView';
 import { usePlayerPresence } from '../hooks/usePlayerPresence';
+import { navigatePWASafe, updateSessionPWASafe } from '../utils/pwaNavigationUtils';
 import '../styles/lobby-improvements.css';
 import '../styles/mobile-responsive.css';
 
@@ -77,8 +78,8 @@ const LobbyPage: React.FC = () => {
     [currentPlayerTeam?.is_chicken_team]
   );
 
-  // Fonction pour rediriger vers la page appropriée avec PWA best practices
-  const redirectToGamePage = useCallback(() => {
+  // Fonction pour rediriger vers la page appropriée avec Context7 PWA best practices
+  const redirectToGamePage = useCallback(async () => {
     if (!gameId || isRedirecting) return;
     
     try {
@@ -88,27 +89,27 @@ const LobbyPage: React.FC = () => {
       const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
       const isChickenTeam = currentPlayerTeam?.is_chicken_team || false;
       
-      // Mettre à jour la session locale avec le nouveau statut
-      const updatedSession = {
-        ...currentSession,
-        gameId: gameId,
-        gameStatus: game?.status || 'in_progress',
-        isChickenTeam: isChickenTeam
-      };
-      localStorage.setItem('player-session', JSON.stringify(updatedSession));
+      // Context7-optimized session update
+      updateSessionPWASafe(gameId, game?.status || 'in_progress', isChickenTeam);
       
       // Déterminer la page de destination
       const targetPath = isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`;
-      console.log(`PWA Navigation: Redirecting to ${isChickenTeam ? 'chicken' : 'player'} page: ${targetPath}`);
+      console.log(`Context7 PWA Navigation: Redirecting to ${isChickenTeam ? 'chicken' : 'player'} page: ${targetPath}`);
       
-      // PWA-optimized navigation with error handling
-      try {
-        // Use replace instead of push to avoid back button issues in PWA
-        history.replace(targetPath);
-      } catch (navError) {
-        console.error("Navigation error, trying fallback:", navError);
-        // Fallback: force page reload as last resort
-        window.location.href = targetPath;
+      // Use Context7-enhanced PWA navigation to prevent white screen
+      const navigationSuccess = await navigatePWASafe(targetPath, history, true);
+      if (!navigationSuccess) {
+        console.error("Context7 PWA navigation failed");
+        // Show user-friendly error
+        present({ 
+          message: 'Erreur de navigation. Actualisation de la page...', 
+          duration: 2000, 
+          color: 'warning' 
+        });
+        // Force page reload as absolute last resort
+        setTimeout(() => {
+          window.location.href = targetPath;
+        }, 2000);
       }
     } catch (error) {
       console.error("Erreur lors de la redirection:", error);
@@ -131,9 +132,12 @@ const LobbyPage: React.FC = () => {
     if ((game?.status === 'in_progress' || game?.status === 'chicken_hidden') && !isRedirecting) {
       console.log("Game is in progress, initiating PWA-safe redirection...");
       
-      // Add a small delay to ensure state is fully updated (PWA best practice)
+      // Add a small delay to ensure state is fully updated (Context7 PWA best practice)
       const redirectTimer = setTimeout(() => {
-        redirectToGamePage();
+        redirectToGamePage().catch(error => {
+          console.error("Error in redirectToGamePage:", error);
+          setIsRedirecting(false);
+        });
       }, 100);
       
       return () => clearTimeout(redirectTimer);

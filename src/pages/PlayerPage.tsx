@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonTabBar, IonTabButton,
-  IonIcon, IonLabel, IonButtons, IonMenuButton, IonToast
+  IonIcon, IonLabel, IonButtons, IonMenuButton, IonToast, useIonViewWillEnter
 } from '@ionic/react';
 import {
   mapOutline, checkmarkCircleOutline, chatbubbleOutline, trophyOutline, cashOutline,
@@ -73,6 +73,19 @@ interface PlayerGameState {
 
 const PlayerPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard' | 'cagnotte'>('map');
+
+  // Context7 PWA lifecycle hook for proper navigation handling
+  useIonViewWillEnter(() => {
+    console.log('PlayerPage: PWA view will enter');
+    // Force a repaint to prevent white screen on PWA
+    const ionPage = document.querySelector('.player-page ion-page, ion-page');
+    if (ionPage) {
+      (ionPage as HTMLElement).style.opacity = '0';
+      requestAnimationFrame(() => {
+        (ionPage as HTMLElement).style.opacity = '1';
+      });
+    }
+  });
 
   // Get session info from localStorage - available to the whole component
   const session = useMemo(() => {

@@ -13,7 +13,8 @@ import {
   IonMenuButton,
   IonButtons,
   IonToast,
-  IonLoading
+  IonLoading,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { 
   locationOutline, chatbubbleOutline,
@@ -36,6 +37,19 @@ import CagnotteManager from '../components/cagnotte/CagnotteManager';
 
 const ChickenPage: React.FC = () => {
   const { gameId } = useParams<{ gameId: string }>();
+
+  // Context7 PWA lifecycle hook for proper navigation handling
+  useIonViewWillEnter(() => {
+    console.log('ChickenPage: PWA view will enter');
+    // Force a repaint to prevent white screen on PWA
+    const ionPage = document.querySelector('.chicken-page ion-page, ion-page');
+    if (ionPage) {
+      (ionPage as HTMLElement).style.opacity = '0';
+      requestAnimationFrame(() => {
+        (ionPage as HTMLElement).style.opacity = '1';
+      });
+    }
+  });
 
   // Use the custom hook for game state
   const {
