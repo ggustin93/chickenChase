@@ -111,11 +111,26 @@ ion-menu {
       backface-visibility: hidden;
     }
     
-    /* Forcer l'accélération matérielle pour des transitions plus fluides */
-    ion-router-outlet {
+    /* Context7-recommended router outlet optimizations for PWA */
+    ion-router-outlet,
+    .ion-router-outlet-pwa {
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
-      contain: layout;
+      contain: layout style paint;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Fix for Context7 identified DOM removal issues */
+    .ion-router-outlet-pwa .ion-page-hidden {
+      display: none !important;
+    }
+    
+    /* Hardware back button support from Context7 */
+    .ion-router-outlet-pwa.can-go-back {
+      -webkit-user-select: none;
+      user-select: none;
     }
     
     /* Empêcher le flash de contenu non stylé */

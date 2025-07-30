@@ -22,8 +22,8 @@ export const isIOS = (): boolean => {
 };
 
 /**
- * Ionic React PWA-safe navigation with proper error handling
- * Based on Ionic Framework navigation best practices
+ * Context7-enhanced PWA navigation with router outlet management
+ * Based on latest Ionic Framework PWA best practices from Context7 research
  */
 export const navigatePWASafe = (
   targetPath: string,
@@ -32,31 +32,54 @@ export const navigatePWASafe = (
 ): Promise<boolean> => {
   return new Promise((resolve) => {
     try {
-      console.log(`Ionic PWA Navigation: Navigating to ${targetPath}`);
+      console.log(`Context7 PWA Navigation: Navigating to ${targetPath}`);
       
-      // Use replace for PWA on iOS to prevent navigation stack issues
-      // This follows Ionic's recommendation for PWA navigation
-      if (isPWA() && isIOS() && useReplace) {
+      // Pre-navigation DOM optimization from Context7 research
+      const routerOutlet = document.querySelector('ion-router-outlet');
+      if (routerOutlet && isPWA()) {
+        // Force hardware acceleration before navigation
+        (routerOutlet as HTMLElement).style.transform = 'translateZ(0)';
+        (routerOutlet as HTMLElement).style.willChange = 'transform';
+      }
+      
+      // Context7 recommendation: Always use replace for PWA to prevent stack issues
+      // This prevents the white screen issue identified in research
+      if (isPWA() && useReplace) {
         history.replace(targetPath);
       } else {
         history.push(targetPath);
       }
       
-      // Allow time for Ionic router to process navigation
-      setTimeout(() => {
-        resolve(true);
-      }, 150);
+      // Context7-optimized timing for DOM updates
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          // Reset will-change to optimize performance
+          if (routerOutlet) {
+            (routerOutlet as HTMLElement).style.willChange = 'auto';
+          }
+          resolve(true);
+        }, 100);
+      });
       
     } catch (error) {
-      console.error('Ionic PWA navigation error:', error);
+      console.error('Context7 PWA navigation error:', error);
       
-      // Fallback strategy for PWA navigation failures
+      // Enhanced fallback strategy based on Context7 findings
       try {
-        // Force location change as last resort
-        window.location.href = targetPath;
+        // Clean router outlet state before fallback
+        const routerOutlet = document.querySelector('ion-router-outlet');
+        if (routerOutlet) {
+          (routerOutlet as HTMLElement).style.visibility = 'hidden';
+          requestAnimationFrame(() => {
+            (routerOutlet as HTMLElement).style.visibility = 'visible';
+            window.location.href = targetPath;
+          });
+        } else {
+          window.location.href = targetPath;
+        }
         resolve(true);
       } catch (fallbackError) {
-        console.error('PWA navigation fallback failed:', fallbackError);
+        console.error('Context7 PWA navigation fallback failed:', fallbackError);
         resolve(false);
       }
     }
@@ -87,39 +110,82 @@ export const updateSessionPWASafe = (gameId: string, gameStatus: string, isChick
 };
 
 /**
- * Handles PWA visibility changes to prevent white screens on iOS
- * Implements Ionic PWA best practices for iOS stability
+ * Context7-enhanced PWA visibility and hardware back button handling
+ * Implements latest Ionic PWA best practices for mobile stability
  */
 export const handlePWAVisibilityChange = (): void => {
-  if (isPWA() && isIOS()) {
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        // Force hardware acceleration refresh on iOS PWA
-        const ionApp = document.querySelector('ion-app');
-        if (ionApp) {
-          const element = ionApp as HTMLElement;
-          element.style.transform = 'translateZ(0)';
-          element.style.webkitTransform = 'translateZ(0)';
-          
-          // Reset after brief moment
-          requestAnimationFrame(() => {
-            element.style.transform = '';
-            element.style.webkitTransform = '';
-          });
+  if (isPWA()) {
+    // Context7: Hardware back button support is crucial for PWA navigation
+    document.addEventListener('ionBackButton', (ev: any) => {
+      ev.detail.register(10, () => {
+        const routerOutlet = document.querySelector('ion-router-outlet');
+        if (routerOutlet && (routerOutlet as any).canGoBack()) {
+          (routerOutlet as any).pop();
+        } else {
+          // Fallback to browser back
+          window.history.back();
         }
-      }
+      });
     });
     
-    // Additional iOS PWA stability measures
-    document.addEventListener('resume', () => {
-      // Force repaint when app resumes
-      const ionRouterOutlet = document.querySelector('ion-router-outlet');
-      if (ionRouterOutlet) {
-        (ionRouterOutlet as HTMLElement).style.visibility = 'hidden';
-        requestAnimationFrame(() => {
-          (ionRouterOutlet as HTMLElement).style.visibility = 'visible';
-        });
-      }
-    });
+    // iOS PWA visibility handling with Context7 optimizations
+    if (isIOS()) {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          // Context7: Force hardware acceleration refresh
+          const ionApp = document.querySelector('ion-app');
+          const routerOutlet = document.querySelector('ion-router-outlet');
+          
+          if (ionApp) {
+            const element = ionApp as HTMLElement;
+            element.style.transform = 'translateZ(0)';
+            element.style.webkitTransform = 'translateZ(0)';
+            
+            // Reset after DOM update
+            requestAnimationFrame(() => {
+              element.style.transform = '';
+              element.style.webkitTransform = '';
+            });
+          }
+          
+          // Context7: Refresh router outlet to prevent white screen
+          if (routerOutlet) {
+            (routerOutlet as HTMLElement).style.contain = 'layout style paint';
+          }
+        }
+      });
+      
+      // Context7: Enhanced resume handling for iOS PWA
+      document.addEventListener('resume', () => {
+        const ionRouterOutlet = document.querySelector('ion-router-outlet');
+        if (ionRouterOutlet) {
+          // Force repaint with hardware acceleration
+          const element = ionRouterOutlet as HTMLElement;
+          element.style.visibility = 'hidden';
+          element.style.transform = 'translateZ(0)';
+          
+          requestAnimationFrame(() => {
+            element.style.visibility = 'visible';
+            // Reset transform to optimize performance
+            setTimeout(() => {
+              element.style.transform = '';
+            }, 100);
+          });
+        }
+      });
+    }
+    
+    // Android PWA optimizations
+    if (!isIOS()) {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          // Android PWA stability
+          const routerOutlet = document.querySelector('ion-router-outlet');
+          if (routerOutlet) {
+            (routerOutlet as HTMLElement).style.contain = 'layout style paint';
+          }
+        }
+      });
+    }
   }
 };

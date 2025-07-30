@@ -51,12 +51,14 @@ import './theme/pwa-optimizations.css'; // Optimisations PWA pour iOS basées su
 /* Tailwind CSS - doit être importé après les styles Ionic */
 import './index.css';
 
-// Configurer Ionic React avec des options optimisées pour iOS
+// Configure Ionic React with PWA-optimized settings based on Context7 recommendations
 setupIonicReact({
-  mode: 'ios', // Utiliser le mode iOS pour une meilleure cohérence
+  mode: 'ios', // iOS mode for better PWA consistency
   animated: true,
-  hardwareBackButton: true,
-  rippleEffect: false, // Désactiver l'effet ripple pour de meilleures performances
+  hardwareBackButton: true, // Essential for PWA mobile navigation
+  rippleEffect: false, // Disable for better PWA performance
+  swipeBackEnabled: true, // Enable swipe-to-go-back for iOS PWA
+  innerHTMLTemplatesEnabled: true, // Required for proper DOM management
 });
 
 // Use the correct signature for router.push based on linter feedback
@@ -107,38 +109,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({ location, router }) => {
           onQuitGame={handleQuitGame} 
         />
       )}
-      {/* Use the IonRouterOutlet with the correct ID */}
-      <IonRouterOutlet id="main-content">
-        <Route exact path="/home">
-          <Home />
-        </Route>
-        <Route exact path="/chicken/:gameId">
-          <ChickenPage />
-        </Route>
-        <Route exact path="/player/:gameId">
-          <PlayerPage />
-        </Route>
-        <Route exact path="/join-game">
-          <JoinGamePage />
-        </Route>
-        <Route exact path="/create-game">
-          <CreateGamePage />
-        </Route>
-        <Route exact path="/lobby/:gameId">
-          <LobbyPage />
-        </Route>
-        <Route exact path="/rules">
-          <Rules />
-        </Route>
-        <Route exact path="/about">
-          <About />
-        </Route>
-        <Route exact path="/partner">
-          <Partner />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
+      {/* PWA-optimized IonRouterOutlet based on Context7 best practices */}
+      <IonRouterOutlet 
+        id="main-content"
+        className="ion-router-outlet-pwa"
+      >
+        <Route exact path="/home" render={() => <Home />} />
+        <Route exact path="/chicken/:gameId" render={() => <ChickenPage />} />
+        <Route exact path="/player/:gameId" render={() => <PlayerPage />} />
+        <Route exact path="/join-game" render={() => <JoinGamePage />} />
+        <Route exact path="/create-game" render={() => <CreateGamePage />} />
+        <Route exact path="/lobby/:gameId" render={() => <LobbyPage />} />
+        <Route exact path="/rules" render={() => <Rules />} />
+        <Route exact path="/about" render={() => <About />} />
+        <Route exact path="/partner" render={() => <Partner />} />
+        <Route exact path="/" render={() => <Redirect to="/home" />} />
       </IonRouterOutlet>
     </>
   );
