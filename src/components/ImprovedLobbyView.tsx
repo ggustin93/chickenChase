@@ -24,7 +24,6 @@ interface ImprovedLobbyViewProps {
   onCopyCode: () => void;
   onRefresh?: () => void;
   loading: boolean;
-  onNavigate?: (path: string) => void;
 }
 
 const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
@@ -39,8 +38,7 @@ const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
   setNewTeamName,
   onCopyCode,
   onRefresh,
-  loading,
-  onNavigate
+  loading
 }) => {
   const [refreshing, setRefreshing] = React.useState(false);
   const chickenTeam = teams.find(team => team.is_chicken_team);
@@ -53,20 +51,10 @@ const ImprovedLobbyView: React.FC<ImprovedLobbyViewProps> = ({
     try {
       await onRefresh();
       
-      // Vérifier si le jeu a commencé après le rafraîchissement
-      // Si oui, rediriger vers la page appropriée
-      const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
-      const gameStatus = currentSession.gameStatus;
-      const gameId = currentSession.gameId;
-      const isChickenTeam = currentSession.isChickenTeam;
-      
-      if (gameStatus === 'in_progress' || gameStatus === 'chicken_hidden') {
-        console.log("Game is in progress after refresh, redirecting...");
-        if (onNavigate) {
-          onNavigate(isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`);
-        }
-        return;
-      }
+      // Note: Redirection logic moved to parent component (LobbyPage)
+      // to avoid conflicts and ensure proper PWA navigation
+    } catch (error) {
+      console.error('Error during refresh:', error);
     } finally {
       setTimeout(() => setRefreshing(false), 500); // Petit délai pour le feedback visuel
     }

@@ -3,7 +3,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact, AnimationBuilder, RouteAction
 import { IonReactRouter } from '@ionic/react-router';
 import { useIonRouter } from '@ionic/react';
 import { RouterDirection } from '@ionic/core';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Home from './pages/Home';
 import ChickenPage from './pages/ChickenPage';
 import PlayerPage from './pages/PlayerPage';
@@ -16,6 +16,7 @@ import LobbyPage from './pages/LobbyPage';
 import SideMenu from './components/SideMenu';
 import { SessionProvider } from './contexts/SessionContext';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
+import { handlePWAVisibilityChange } from './utils/pwaNavigationUtils';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -45,7 +46,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import './theme/dark-mode-prevention.css'; // Optimisations pour iOS et désactivation du mode sombre
+import './theme/pwa-optimizations.css'; // Optimisations PWA pour iOS basées sur Ionic/Capacitor
 
 /* Tailwind CSS - doit être importé après les styles Ionic */
 import './index.css';
@@ -152,6 +153,11 @@ const RouterContextWrapper: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  // Initialize PWA optimizations on app load
+  React.useEffect(() => {
+    handlePWAVisibilityChange();
+  }, []);
+
   return (
     <IonApp>
       <IonReactRouter>

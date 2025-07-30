@@ -1,0 +1,151 @@
+/* 
+ * pwa-optimizations.css
+ * Ce fichier contient des optimisations pour les PWA Ionic React sur iOS
+ * Basé sur les meilleures pratiques d'Ionic Framework et Capacitor
+ */
+
+/* Optimisations pour les appareils iOS PWA */
+@supports (-webkit-touch-callout: none) {
+  /* Détection iOS */
+  body {
+    /* Optimiser les transitions pour iOS */
+    --ion-transition-duration: 200ms;
+  }
+  
+  /* Optimisations spécifiques pour les PWA sur iOS */
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    /* Optimiser les composants modaux pour les PWA */
+    ion-modal,
+    ion-popover,
+    ion-action-sheet,
+    ion-toast,
+    ion-alert,
+    ion-loading,
+    ion-menu {
+      --backdrop-opacity: 0.5;
+      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --transition-duration: 200ms;
+    }
+    
+    /* Optimiser le menu latéral */
+    ion-menu::part(backdrop) {
+      opacity: var(--backdrop-opacity);
+      transition: opacity var(--transition-duration) ease-out;
+    }
+    
+    ion-menu::part(container) {
+      box-shadow: var(--box-shadow);
+      transition: transform var(--transition-duration) ease-out;
+    }
+    
+    /* Optimiser les transitions de page */
+    .ion-page-invisible {
+      opacity: 0;
+      transition: opacity 150ms ease-out;
+    }
+    
+    /* Optimiser les listes pour de meilleures performances */
+    ion-list {
+      contain: content;
+    }
+    
+    /* Améliorer les performances des items */
+    ion-item {
+      contain: layout;
+    }
+    
+    /* Optimiser les animations de chargement */
+    ion-spinner {
+      animation-duration: 1000ms;
+    }
+  }
+}
+
+/* Optimisations pour les appareils à faible puissance */
+@media (prefers-reduced-motion) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimisations spécifiques pour les menus Ionic */
+ion-menu {
+  /* Accélération matérielle */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  /* Réduire les calculs de style */
+  contain: strict;
+  
+  /* Améliorer le rendu des textes */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Optimisations pour les transitions de page PWA sur iOS */
+@supports (-webkit-touch-callout: none) {
+  .ion-page-invisible {
+    opacity: 0;
+    z-index: -1;
+  }
+  
+  ion-router-outlet > .ion-page {
+    transform: translateZ(0);
+  }
+  
+  ion-nav > .ion-page {
+    transform: translateZ(0);
+  }
+  
+  /* Corrections pour les écrans blancs PWA sur iOS */
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    /* Assurer la visibilité des pages pendant la navigation */
+    .ion-page {
+      min-height: 100vh;
+      background-color: var(--ion-background-color, #ffffff);
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+    
+    /* Forcer l'accélération matérielle pour des transitions plus fluides */
+    ion-router-outlet {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      contain: layout;
+    }
+    
+    /* Empêcher le flash de contenu non stylé */
+    body {
+      background-color: var(--ion-background-color, #ffffff);
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Corrections du viewport iOS PWA */
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    /* Empêcher le défilement élastique sur iOS PWA */
+    body {
+      position: fixed;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+    
+    ion-app {
+      position: relative;
+      overflow: auto;
+      width: 100%;
+      height: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}

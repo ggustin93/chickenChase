@@ -39,10 +39,11 @@
 
 /* Benefits card */
 .install-benefits-card {
-  background: linear-gradient(135deg, var(--ion-color-primary-tint) 0%, var(--ion-color-primary) 100%);
+  background: rgba(0, 0, 0, 0.6);
   color: white;
   margin-bottom: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .install-benefits-card ion-card-title {
@@ -59,23 +60,18 @@
 
 .install-benefits-card ion-item {
   --background: transparent;
-  --color: white;
+  --color: black;
   font-size: 0.95rem;
 }
 
 .install-benefits-card ion-label {
   margin: 8px 0;
-  color: white !important;
 }
 
 /* Instructions card */
 .install-instructions-card {
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.install-instructions-card ion-label {
-  color: var(--ion-color-dark) !important;
 }
 
 /* iOS specific styling */
@@ -187,10 +183,6 @@
   
   .install-instructions-card {
     background: var(--ion-color-dark-tint);
-  }
-  
-  .install-instructions-card ion-label {
-    color: var(--ion-color-light) !important;
   }
   
   .ios-visual-hint {

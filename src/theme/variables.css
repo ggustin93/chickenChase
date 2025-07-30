@@ -6,7 +6,6 @@
 @import './design-system.css';
 @import './ionic-theme.css';
 @import './component-themes.css';
-@import './dark-mode-prevention.css';
 
 /* Legacy Support & Overrides */
 :root {

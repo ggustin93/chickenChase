@@ -77,7 +77,7 @@ const LobbyPage: React.FC = () => {
     [currentPlayerTeam?.is_chicken_team]
   );
 
-  // Fonction pour rediriger vers la page appropriée
+  // Fonction pour rediriger vers la page appropriée avec PWA best practices
   const redirectToGamePage = useCallback(() => {
     if (!gameId || isRedirecting) return;
     
@@ -88,44 +88,55 @@ const LobbyPage: React.FC = () => {
       const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
       const isChickenTeam = currentPlayerTeam?.is_chicken_team || false;
       
-      // Mettre à jour la session locale pour indiquer que le jeu est en cours
-      localStorage.setItem('player-session', JSON.stringify({
+      // Mettre à jour la session locale avec le nouveau statut
+      const updatedSession = {
         ...currentSession,
         gameId: gameId,
-        gameStatus: 'in_progress',
+        gameStatus: game?.status || 'in_progress',
         isChickenTeam: isChickenTeam
-      }));
+      };
+      localStorage.setItem('player-session', JSON.stringify(updatedSession));
       
       // Déterminer la page de destination
       const targetPath = isChickenTeam ? `/chicken/${gameId}` : `/player/${gameId}`;
-      console.log(`Redirecting to ${isChickenTeam ? 'chicken' : 'player'} page: ${targetPath}`);
+      console.log(`PWA Navigation: Redirecting to ${isChickenTeam ? 'chicken' : 'player'} page: ${targetPath}`);
       
-      // Utiliser history.push pour une navigation SPA appropriée
-      history.push(targetPath);
+      // PWA-optimized navigation with error handling
+      try {
+        // Use replace instead of push to avoid back button issues in PWA
+        history.replace(targetPath);
+      } catch (navError) {
+        console.error("Navigation error, trying fallback:", navError);
+        // Fallback: force page reload as last resort
+        window.location.href = targetPath;
+      }
     } catch (error) {
       console.error("Erreur lors de la redirection:", error);
       setIsRedirecting(false);
+      // Show user-friendly error message
+      present({ 
+        message: 'Erreur de navigation. Veuillez actualiser la page.', 
+        duration: 3000, 
+        color: 'danger' 
+      });
     }
-  }, [gameId, currentPlayerTeam, isRedirecting]);
+  }, [gameId, currentPlayerTeam, isRedirecting, game?.status, history, present]);
 
   useEffect(() => {
     console.log("Game status changed:", game?.status);
     console.log("Is player in chicken team:", isPlayerInChickenTeam);
+    console.log("Is redirecting:", isRedirecting);
     
+    // Only redirect if game is in progress and we're not already redirecting
     if ((game?.status === 'in_progress' || game?.status === 'chicken_hidden') && !isRedirecting) {
-      console.log("Game is in progress, redirecting...");
+      console.log("Game is in progress, initiating PWA-safe redirection...");
       
-      // Mettre à jour la session locale avec le nouveau statut
-      const currentSession = JSON.parse(localStorage.getItem('player-session') || '{}');
-      localStorage.setItem('player-session', JSON.stringify({
-        ...currentSession,
-        gameId: gameId, // S'assurer que gameId est bien dans la session
-        gameStatus: game.status,
-        isChickenTeam: isPlayerInChickenTeam
-      }));
+      // Add a small delay to ensure state is fully updated (PWA best practice)
+      const redirectTimer = setTimeout(() => {
+        redirectToGamePage();
+      }, 100);
       
-      // Redirection immédiate pour éviter les problèmes de synchronisation
-      redirectToGamePage();
+      return () => clearTimeout(redirectTimer);
     }
   }, [game?.status, isPlayerInChickenTeam, redirectToGamePage, gameId, isRedirecting]);
 
@@ -585,9 +596,17 @@ const LobbyPage: React.FC = () => {
         color: 'success' 
       });
       
-      // Redirection directe vers la page Chicken sans délai
-      console.log("Redirecting to chicken page:", `/chicken/${gameId}`);
-      history.push(`/chicken/${gameId}`);
+      // PWA-optimized redirection to chicken page
+      console.log("PWA Navigation: Redirecting to chicken page:", `/chicken/${gameId}`);
+      
+      // Use replace instead of push for better PWA behavior
+      try {
+        history.replace(`/chicken/${gameId}`);
+      } catch (navError) {
+        console.error("Navigation error in start game, trying fallback:", navError);
+        // Fallback for PWA issues
+        window.location.href = `/chicken/${gameId}`;
+      }
 
     } catch (error) {
       console.error('Error starting game:', error);
@@ -742,7 +761,6 @@ const LobbyPage: React.FC = () => {
           onCopyCode={handleCopyCode}
           onRefresh={fetchGameData}
           loading={false}
-          onNavigate={(path) => history.push(path)}
         />
       ) : (
         /* Interface d'attente une fois dans une équipe */

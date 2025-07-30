@@ -197,7 +197,7 @@ export const PWAInstallPrompt: React.FC = () => {
                   {instructions.steps.map((step, index) => (
                     <IonItem key={index}>
                       <div className="step-number" slot="start">{index + 1}</div>
-                      <IonLabel>{step}</IonLabel>
+                      <IonLabel className="text-gray-900">{step}</IonLabel>
                     </IonItem>
                   ))}
                 </IonList>
