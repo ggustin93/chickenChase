@@ -175,18 +175,3 @@
   }
 }
 
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-  .pwa-install-modal ion-content {
-    --background: var(--ion-color-dark);
-  }
-  
-  .install-instructions-card {
-    background: var(--ion-color-dark-tint);
-  }
-  
-  .ios-visual-hint {
-    background: var(--ion-color-dark-shade);
-    border-color: var(--ion-color-primary-shade);
-  }
-}

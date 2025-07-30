@@ -88,20 +88,6 @@ ion-tab-button ion-label {
   font-size: 0.75rem; /* Taille de texte plus petite pour les onglets */
 }
 
-/* Styles pour le mode sombre */
-/* @media (prefers-color-scheme: dark) {
-  ion-content {
-    --background: var(--ion-background-color);
-  }
-  ion-tab-bar {
-    --background: var(--ion-background-color);
-    --border-color: #333;
-  }
-  ion-tab-button {
-    --color: var(--ion-color-step-600, #a0a0a0);
-    --color-selected: var(--ion-color-primary);
-  }
-} */
 
 /* Fix pour les problèmes d'affichage sur iOS */
 ion-content {
