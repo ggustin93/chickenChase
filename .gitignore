@@ -81,3 +81,5 @@ vulnerability-*.md
 # Script files that might contain keys
 setup-mcp-env.sh
 *-secrets.sh
+
+.mcp.json

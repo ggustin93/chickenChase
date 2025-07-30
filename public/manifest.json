@@ -4,39 +4,40 @@
   "description": "Un jeu de poursuite amusant entre poulets et chasseurs dans les bars de la ville",
   "icons": [
     {
-      "src": "assets/icon/favicon.png",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "assets/icon/icon.png",
+      "src": "assets/favicon.png",
+      "sizes": "64x64",
       "type": "image/png",
-      "sizes": "512x512",
       "purpose": "any"
     },
     {
-      "src": "assets/icon/icon.png",
+      "src": "assets/icon/icon-192.png",
       "type": "image/png",
-      "sizes": "512x512",
+      "sizes": "48x48 72x72 96x96 144x144 192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
       "purpose": "maskable"
     },
     {
-      "src": "assets/icon/icon-192.png",
+      "src": "assets/icon/icon-512.png",
       "type": "image/png",
-      "sizes": "192x192",
+      "sizes": "256x256 384x384 512x512",
       "purpose": "any"
     },
     {
-      "src": "assets/icon/icon-192.png",
+      "src": "assets/icon/icon-512.png",
       "type": "image/png",
-      "sizes": "192x192",
+      "sizes": "512x512",
       "purpose": "maskable"
     }
   ],
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#FE8A00",
+  "theme_color": "#fc8a03",
   "background_color": "#ffffff",
   "prefer_related_applications": false,
   "display_override": ["standalone", "minimal-ui"],

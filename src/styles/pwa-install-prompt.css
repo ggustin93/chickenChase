@@ -65,12 +65,17 @@
 
 .install-benefits-card ion-label {
   margin: 8px 0;
+  color: white !important;
 }
 
 /* Instructions card */
 .install-instructions-card {
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.install-instructions-card ion-label {
+  color: var(--ion-color-dark) !important;
 }
 
 /* iOS specific styling */
@@ -182,6 +187,10 @@
   
   .install-instructions-card {
     background: var(--ion-color-dark-tint);
+  }
+  
+  .install-instructions-card ion-label {
+    color: var(--ion-color-light) !important;
   }
   
   .ios-visual-hint {
