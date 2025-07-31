@@ -72,6 +72,16 @@
 - ✅ Résolu : Polling agressif causant des performances dégradées
 - ✅ Résolu : Interface non-responsive sur mobile
 - ✅ Résolu : Restriction de l'équipe poulet au premier joueur seulement
+- ✅ **CRITIQUE RÉSOLU** : **Invalid React Hook Call Error (2025-01-31)**
+  - **Problème** : "Invalid hook call. Hooks can only be called inside of the body of a function component"
+  - **Impact** : Empêchait les équipes chasseurs de naviguer du lobby à la page de jeu (white screen crash)
+  - **Root Cause** : `useCallback` appelé à l'intérieur d'un `useEffect` dans `usePlayerGameData.ts` (violation Rules of Hooks)
+  - **Solution** : Restructuration du hook - `fetchData` déplacé au top-level avec `useCallback` approprié
+  - **Vérification** : Build TypeScript ✅, React dependencies ✅, Dev server ✅
+- ✅ **PWA Stability Issues (2025-01-31)**
+  - **RLS Policy Violations** : Fonction RPC sécurisée `update_my_presence` avec `SECURITY DEFINER`
+  - **White Screen Prevention** : Defensive rendering avec loading states et error boundaries
+  - **Service Layer** : Amélioration error handling et caching intelligent
 - [ ] Problèmes potentiels de performance avec un grand nombre de joueurs
 
 ## Évolution des décisions du projet
@@ -101,7 +111,14 @@
 - Amélioration du système de redirection automatique lors du lancement de la partie
 - Mise à jour automatique du champ `chicken_team_id` dans la table `games`
 
-## Récapitulatif des améliorations récentes (2025-01-27)
+## Récapitulatif des améliorations récentes
+
+### Fixes Critiques (2025-01-31)
+- ✅ **CRITIQUE: Hunter Navigation Fix** : Résolution violation React Rules of Hooks empêchant l'accès à la page de jeu
+- ✅ **PWA Stability Complete** : RLS policy fixes, defensive rendering, service layer optimization
+- ✅ **React 19 Compatibility** : Vérification et maintien de la compatibilité React 19 avec Ionic
+
+### Améliorations Majeures (2025-01-27)
 - ✅ **Wooclap-style game creation** : Configuration complète sans auth obligatoire
 - ✅ **Professional theming system** : Palette Charcoal/Persian Green/Tangerine/Rose Quartz/Lavender
 - ✅ **Modern lobby redesign** : Interface professionnelle mobile-first

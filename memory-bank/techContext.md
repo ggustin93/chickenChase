@@ -22,9 +22,10 @@
     *   **Color palette:** Charcoal, Persian Green, Tangerine, Rose Quartz, Lavender Web
 *   **Icons:** Ionicons.
 *   **State Management:**
-    *   React Hooks (`useState`, `useEffect`).
+    *   React Hooks (`useState`, `useEffect`, `useCallback`) with strict Rules of Hooks compliance.
     *   **React Context (`SessionContext`)** for session state management.
-    *   Custom hooks for encapsulating data logic (e.g., `useChickenGameState`).
+    *   Custom hooks for encapsulating data logic (e.g., `useChickenGameState`, `usePlayerGameData`).
+    *   **Critical Fix (2025-01-31):** `usePlayerGameData` restructured to prevent invalid hook calls.
 *   **Data Fetching:** Direct calls to the Supabase client library and RPC functions.
 
 ## 3. Backend Architecture (Supabase)
@@ -37,6 +38,7 @@
     *   `create_game_and_host`: Creates a game and host player with a unique join code
     *   `update_game_status`: Centralized function for game status updates, history tracking, and notifications
     *   `update_chicken_hidden_status`: Compatibility function that calls update_game_status
+    *   **`update_my_presence` (2025-01-31):** Secure RPC function with `SECURITY DEFINER` to resolve RLS policy violations
 *   **Game Configuration:** Extended schema with Wooclap-style parameters (max_teams, game_duration, started_at)
 *   **Storage:** Supabase Storage is used for photo proofs.
 *   **Realtime:** Supabase Realtime is used extensively for live updates:
@@ -69,7 +71,10 @@
 
 ## 6. Technical Constraints & Considerations
 *   **PWA Focus:** All development and testing prioritize the PWA experience.
+*   **React 19 Compatibility:** Full compatibility maintained with Ionic React framework (verified 2025-01-31).
 *   **Security:** RLS is the main line of defense. SQL functions that need broader access use `SECURITY DEFINER`.
+*   **Code Quality:** Strict adherence to React Rules of Hooks to prevent invalid hook call errors.
+*   **PWA Stability:** Defensive rendering patterns with loading states and error boundaries.
 *   **Reproducibility:** The use of a consolidated SQL migration ensures that any developer can reliably set up the database schema.
 *   **Data Consistency:** Centralized SQL functions ensure consistent data updates and proper event generation.
 

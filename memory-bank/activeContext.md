@@ -2,9 +2,24 @@
 
 ## Current Focus
 
-**Project Status**: PWA Enhancement & Production Ready (2025-01-27)
+**Project Status**: PWA Stability Achieved & Hunter Navigation Fixed (2025-01-31)
 
-Le projet a achevé un cycle complet d'améliorations PWA avec installation native, service worker pour l'offline, et optimisations de performance avancées. L'application est maintenant prête pour la production avec une architecture PWA complète et une expérience utilisateur de niveau professionnel.
+Le projet a résolu avec succès les problèmes critiques de navigation et de stabilité PWA. Le problème principal était une violation des Rules of Hooks React qui empêchait les équipes de chasseurs d'accéder à la page de jeu. Ce problème a été identifié et résolu chirurgicalement, garantissant maintenant une expérience utilisateur stable pour tous les joueurs.
+
+### Améliorations Critiques Complétées (2025-01-31)
+
+#### 18. **CRITIQUE: Hunter Navigation React Hook Fix** ✅
+   - **Problème Identifié** : `Invalid hook call. Hooks can only be called inside of the body of a function component`
+   - **Root Cause** : `useCallback` appelé à l'intérieur d'un `useEffect` dans `usePlayerGameData.ts` (violation Rules of Hooks)
+   - **Solution Appliquée** : Restructuration du hook - `fetchData` déplacé au niveau supérieur avec `useCallback`
+   - **Impact** : Équipes chasseurs peuvent maintenant naviguer lobby → page de jeu sans crash
+   - **Vérification** : Build TypeScript ✅, Dépendances React ✅, Dev server fonctionnel ✅
+
+#### 17. **PWA Stability & Service Optimization Complete** ✅
+   - **RLS Policy Fix** : Fonction RPC sécurisée `update_my_presence` avec `SECURITY DEFINER`
+   - **Defensive Rendering** : Loading states et error boundaries pour prévenir white screens
+   - **Client Caching** : Cache 5min pour recherches de bars avec TTL intelligent
+   - **Service Layer** : Error logging amélioré et fallback strategies
 
 ### Améliorations Récentes Complétées (2025-01-27)
 
