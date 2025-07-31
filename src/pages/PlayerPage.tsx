@@ -17,6 +17,10 @@ import { mockChickenGameState } from '../data/mock/mockData';
 import { useCamera, UseCameraPhoto } from '../hooks/useCamera';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { usePlayerGameData } from '../hooks/usePlayerGameData';
+import { useCagnotteManagement } from '../hooks/useCagnotteManagement';
+
+// Import services
+import { PhotoUploadResult } from '../services/photoUploadService';
 
 // Import components
 import SideMenu from '../components/SideMenu';
@@ -76,11 +80,39 @@ const PlayerPage: React.FC = () => {
   // PWA navigation hack removed - replaced with defensive rendering patterns
 
   // Get session info from localStorage - available to the whole component
+  // Add a state to trigger re-renders when session changes
+  const [sessionVersion, setSessionVersion] = useState(0);
+  const [sessionMigrated, setSessionMigrated] = useState(false);
+  
   const session = useMemo(() => {
     const sessionData = localStorage.getItem('player-session');
     if (!sessionData) return null;
     return JSON.parse(sessionData); // { playerId, gameId, teamId }
-  }, []);
+  }, [sessionVersion]); // Re-compute when sessionVersion changes
+
+  // Session validation and migration on component mount
+  useEffect(() => {
+    const migrateSessionIfNeeded = async () => {
+      if (sessionMigrated) return; // Already checked
+      
+      const { validateAndMigrateSession } = await import('../utils/sessionMigration');
+      const validatedSession = await validateAndMigrateSession();
+      
+      if (validatedSession) {
+        // Session was validated/migrated successfully
+        setSessionVersion(prev => prev + 1); // Trigger re-render
+        setSessionMigrated(true);
+      } else {
+        // Session is invalid or migration failed
+        console.error('🔧 Session validation/migration failed');
+        setToastMessage('Session invalide. Veuillez vous reconnecter au jeu.');
+        setToastColor('danger');
+        setShowToast(true);
+      }
+    };
+
+    migrateSessionIfNeeded();
+  }, [sessionMigrated]);
 
   // Fetch live data using the new hook
   const { gameState: liveGameState, loading: liveDataLoading, error: liveDataError } = usePlayerGameData(session?.gameId, session?.teamId);
@@ -93,8 +125,14 @@ const PlayerPage: React.FC = () => {
   }, [liveDataError]);
 
   // --- Initialize State using Mock Data (will be replaced gradually) ---
-  const currentPlayerTeamId = 'team-004'; // Équipe Cocorico
-  const initialPlayerTeam = mockChickenGameState.teams.find(t => t.id === currentPlayerTeamId) || mockChickenGameState.teams[0];
+  const currentPlayerTeamId = 'c012d6cc-a0c9-4e42-b2f4-e0e226f81a5d'; // Real UUID - Team "Poulet"
+  
+  // Create a temporary team with real UUID if not found in mock data  
+  const foundMockTeam = mockChickenGameState.teams.find(t => t.id === currentPlayerTeamId);
+  const initialPlayerTeam = foundMockTeam || {
+    ...mockChickenGameState.teams[0],
+    id: currentPlayerTeamId // Use real UUID instead of mock ID
+  };
 
   const [gameState, setGameState] = useState<PlayerGameState>(() => {
     const playerTeam = initialPlayerTeam;
@@ -140,11 +178,23 @@ const PlayerPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState<'success' | 'danger' | 'warning' | 'medium'>('success');
   
-  // Ajout d'un état pour gérer la cagnotte
-  const [cagnotte, setCagnotte] = useState({
-    current: mockChickenGameState.currentCagnotte,
-    initial: mockChickenGameState.initialCagnotte
+  // Use real cagnotte data from Supabase
+  const { 
+    currentAmount: cagnotteCurrentCents,
+    stats: cagnotteStats,
+    loading: cagnotteLoading,
+    error: cagnotteError,
+    centsToEuros
+  } = useCagnotteManagement({
+    gameId: session?.gameId || '',
+    enableRealtime: true
   });
+  
+  // Convert cents to euros for display
+  const cagnotte = {
+    current: cagnotteCurrentCents ? centsToEuros(cagnotteCurrentCents) : 0,
+    initial: cagnotteStats?.initial_amount ? centsToEuros(cagnotteStats.initial_amount) : 0
+  };
 
   // State for the new Challenge Detail Modal
   const [showChallengeDetailModal, setShowChallengeDetailModal] = useState(false);
@@ -155,7 +205,13 @@ const PlayerPage: React.FC = () => {
   const [challengeToUnlock, setChallengeToUnlock] = useState<Challenge | null>(null);
 
   // --- Instantiate Hooks ---
-  const { photo, takePhoto } = useCamera();
+  const { 
+    photo, 
+    uploadState, 
+    takePhoto, 
+    uploadPhoto, 
+    clearPhoto 
+  } = useCamera();
   const { 
     currentPosition, 
     getCurrentLocation, 
@@ -273,7 +329,7 @@ const PlayerPage: React.FC = () => {
   };
 
   // Renamed from handleChallengeAttempt - MODIFIED LOGIC
-  const onViewChallengeDetail = (challengeId: string) => {
+  const onViewChallengeDetail = async (challengeId: string) => {
     const challenge = gameState.challenges.find(c => c.id === challengeId);
     const status = challengeStatuses[challengeId]; // Get status from derived state
 
@@ -286,6 +342,69 @@ const PlayerPage: React.FC = () => {
       setToastColor('danger');
       setShowToast(true);
       return;
+    }
+
+    // Check session before proceeding with photo challenges
+    if (status === undefined && challenge.type === 'photo') {
+      if (!session || !session.gameId || !session.playerId) {
+        console.error('🔧 DEBUG: Session invalid for camera modal - missing basic session data');
+        console.error('🔧 DEBUG: session:', session);
+        setToastMessage('Session invalide. Veuillez vous reconnecter.');
+        setToastColor('danger');
+        setShowToast(true);
+        return;
+      }
+      
+      if (!session.teamId) {
+        console.error('🔧 DEBUG: No team assigned - teamId is null');
+        console.error('🔧 DEBUG: session:', session);
+        
+        // Try to find the player's team from the database
+        try {
+          const { data: playerData, error: playerError } = await supabase
+            .from('players')
+            .select('team_id')
+            .eq('id', session.playerId)
+            .single();
+
+          if (playerError) {
+            console.error('🔧 DEBUG: Error fetching player team:', playerError);
+            setToastMessage('Erreur: impossible de récupérer votre équipe.');
+            setToastColor('danger');
+            setShowToast(true);
+            return;
+          }
+
+          if (playerData?.team_id) {
+            console.log('🔧 DEBUG: Found player team ID:', playerData.team_id);
+            
+            // Update session with the correct team ID
+            const updatedSession = { ...session, teamId: playerData.team_id };
+            localStorage.setItem('player-session', JSON.stringify(updatedSession));
+            
+            // Trigger re-render with updated session
+            setSessionVersion(prev => prev + 1);
+            
+            // Continue with the camera modal
+            console.log(`Opening camera for challenge ${challengeId} with team ${playerData.team_id}`);
+            setChallengeToComplete(challengeId);
+            setShowCameraModal(true);
+            return;
+          } else {
+            console.error('🔧 DEBUG: Player has no team assigned in database');
+            setToastMessage('Erreur: vous n\'êtes assigné à aucune équipe.');
+            setToastColor('danger');
+            setShowToast(true);
+            return;
+          }
+        } catch (error) {
+          console.error('🔧 DEBUG: Exception while fetching player team:', error);
+          setToastMessage('Erreur lors de la récupération de votre équipe.');
+          setToastColor('danger');
+          setShowToast(true);
+          return;
+        }
+      }
     }
 
     // Decide which action/modal to open based on status and type
@@ -324,72 +443,66 @@ const PlayerPage: React.FC = () => {
     setShowCameraModal(true);
   }
 
-  const handlePhotoProofSubmit = async (capturedPhoto: UseCameraPhoto | null) => {
-    if (!capturedPhoto || !challengeToComplete) {
-      console.error('No photo or challenge ID available for submission.');
+  const handlePhotoProofSubmit = async (uploadResult: PhotoUploadResult) => {
+    console.log('🔧 DEBUG: handlePhotoProofSubmit called');
+    console.log('🔧 DEBUG: uploadResult:', uploadResult);
+    console.log('🔧 DEBUG: challengeToComplete:', challengeToComplete);
+    console.log('🔧 DEBUG: session:', session);
+    
+    if (!uploadResult.success || !uploadResult.url || !challengeToComplete) {
+      console.error('🔧 DEBUG: Invalid upload result or no challenge ID available for submission.');
+      setToastMessage('Erreur lors de la soumission du défi');
+      setToastColor('danger');
+      setShowToast(true);
       setShowCameraModal(false);
       return;
     }
-
+    
     if (!session || !session.playerId || !session.teamId) {
-      console.error('Player session not found. Cannot submit.');
-      return;
-    }
-
-    // 1. Upload photo to Supabase Storage
-    const photoBlob = await fetch(capturedPhoto.webviewPath!).then(r => r.blob());
-    const photoPath = `${session.gameId}/${session.teamId}/${challengeToComplete}-${Date.now()}.jpg`;
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('challenge-submissions')
-      .upload(photoPath, photoBlob, {
-        cacheControl: '3600',
-        upsert: false,
-        contentType: 'image/jpeg'
-      });
-
-    if (uploadError) {
-      console.error('Error uploading photo:', uploadError);
-      setToastMessage('Erreur lors de l\'envoi de la photo.');
-      setToastColor('danger');
-      setShowToast(true);
-      setShowCameraModal(false);
-      return;
-    }
-
-    // 2. Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('challenge-submissions')
-      .getPublicUrl(photoPath);
-
-    if (!publicUrl) {
-      console.error('Could not get public URL for uploaded photo.');
-      // TODO: Handle this case, maybe by deleting the uploaded file
+      console.error('🔧 DEBUG: Player session not found. Cannot submit.');
       return;
     }
     
-    // 3. Create a record in `challenge_submissions` table
-    const submission = {
-      challenge_id: challengeToComplete,
-      team_id: session.teamId,
-      player_id: session.playerId,
-      type: 'photo',
-      content: publicUrl,
-      status: 'pending' // Host will validate this later
-    };
+    try {
+      // Create a record in `challenge_submissions` table with the uploaded photo
+      const submission = {
+        challenge_id: challengeToComplete,
+        team_id: session.teamId,
+        game_id: session.gameId,
+        photo_url: uploadResult.url, // Backward compatibility
+        photo_urls: [uploadResult.url], // New array format
+        photo_metadata: {
+          originalSize: uploadResult.metadata?.originalSize,
+          compressedSize: uploadResult.metadata?.compressedSize,
+          dimensions: uploadResult.metadata?.dimensions,
+          format: uploadResult.metadata?.format,
+          uploadTime: uploadResult.metadata?.uploadTime,
+          filePath: uploadResult.path
+        },
+        status: 'pending' as const // Host will validate this later
+      };
 
-    const { error: submissionError } = await supabase
-      .from('challenge_submissions')
-      .insert(submission);
+      const { error: submissionError } = await supabase
+        .from('challenge_submissions')
+        .insert(submission);
 
-    if (submissionError) {
-      console.error('Error creating submission record:', submissionError);
-      setToastMessage('Erreur lors de la soumission du défi.');
+      if (submissionError) {
+        console.error('Error creating submission record:', submissionError);
+        setToastMessage('Erreur lors de la soumission du défi.');
+        setToastColor('danger');
+        setShowToast(true);
+      } else {
+        setToastMessage('Défi soumis pour validation !');
+        setToastColor('success');
+        setShowToast(true);
+        
+        // Clear the photo after successful submission
+        clearPhoto();
+      }
+    } catch (error) {
+      console.error('Error submitting challenge:', error);
+      setToastMessage('Erreur lors de la soumission du défi');
       setToastColor('danger');
-      setShowToast(true);
-    } else {
-      setToastMessage('Défi soumis pour validation !');
-      setToastColor('success');
       setShowToast(true);
     }
     
@@ -414,20 +527,14 @@ const PlayerPage: React.FC = () => {
     }
   }
 
-  // Fonction pour gérer la consommation de la cagnotte
+  // Fonction pour gérer la consommation de la cagnotte (read-only for hunters)
   const handleCagnotteConsumption = (amount: number, reason: string) => {
-    // Mettre à jour la valeur de la cagnotte
-    setCagnotte(prev => ({
-      ...prev,
-      current: Math.max(0, prev.current - amount)
-    }));
-    
-    // Afficher un toast de confirmation
-    setToastMessage(`${amount}€ utilisés de la cagnotte ! (${reason})`);
-    setToastColor('success');
+    // Hunters can't consume cagnotte, only view it
+    setToastMessage(`Seule l'équipe Poulet peut utiliser la cagnotte`);
+    setToastColor('warning');
     setShowToast(true);
     
-    console.log(`Cagnotte réduite de ${amount}€ pour: ${reason}. Nouveau montant: ${cagnotte.current - amount}€`);
+    console.log(`Tentative de consommation par chasseur ignorée: ${amount}€ pour: ${reason}`);
   };
 
   // --- New Handler for Unlock Submission ---
@@ -583,7 +690,7 @@ const PlayerPage: React.FC = () => {
             cagnotteInitialAmount={cagnotte.initial}
             onCagnotteConsumption={handleCagnotteConsumption}
             onCagnotteClick={() => {}} // Disabled for hunters
-            isCagnotteLoading={false}
+            isCagnotteLoading={cagnotteLoading}
             error={locationError}
             totalPlayers={gameState.leaderboard.reduce((total, team) => total + (team.members?.length || 0), 0)}
             totalTeams={gameState.leaderboard.length}
@@ -637,13 +744,20 @@ const PlayerPage: React.FC = () => {
           setShowCameraModal(false);
           setChallengeToComplete(null);
           setBarToVisit(null);
+          clearPhoto();
         }}
         photo={photo}
+        uploadState={uploadState}
         takePhoto={takePhoto}
+        uploadPhoto={uploadPhoto}
+        clearPhoto={clearPhoto}
         onPhotoProofSubmit={handlePhotoProofSubmit}
         challengeToComplete={challengeToComplete}
         challenges={gameState.challenges}
         barToVisit={barToVisit ? gameState.bars.find(b => b.id === barToVisit)?.name : null}
+        gameId={session?.gameId}
+        teamId={session?.teamId}
+        playerId={session?.playerId}
       />
 
       {/* NEW: Challenge Detail Modal */}
