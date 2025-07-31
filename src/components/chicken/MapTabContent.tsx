@@ -170,7 +170,7 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
   const teamName = chickenTeam ? chickenTeam.name : undefined;
 
   return (
-    <div className="map-tab-container no-scroll">
+    <div className="map-tab-container">
       {/* User Info Header */}
       <UserInfoHeader 
         totalPlayers={gameState.teams.reduce((total, team) => total + (team.members?.length || 0), 0)}
@@ -178,24 +178,24 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
         teamName={teamName}
       />
       
-      {/* Notification des bars retirés */}
-      {removedBarsCount > 0 && (
-        <div className="removed-bars-notification">
-          <IonChip color="tertiary" outline>
-            <IonIcon icon={trashOutline} />
-            <span>{removedBarsCount} bar{removedBarsCount > 1 ? 's' : ''} retiré{removedBarsCount > 1 ? 's' : ''}</span>
-          </IonChip>
-          {removedBarsCount === 1 && (
-            <div className="removed-bar-name">
-              <IonIcon icon={informationCircleOutline} />
-              <span>{removedBars[0].name}</span>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {/* Full screen map container */}
+      {/* Main map container - takes all available space */}
       <div className="map-container fullscreen-map">
+        {/* Notification des bars retirés */}
+        {removedBarsCount > 0 && (
+          <div className="removed-bars-notification">
+            <IonChip color="tertiary" outline>
+              <IonIcon icon={trashOutline} />
+              <span>{removedBarsCount} bar{removedBarsCount > 1 ? 's' : ''} retiré{removedBarsCount > 1 ? 's' : ''}</span>
+            </IonChip>
+            {removedBarsCount === 1 && (
+              <div className="removed-bar-name">
+                <IonIcon icon={informationCircleOutline} />
+                <span>{removedBars[0].name}</span>
+              </div>
+            )}
+          </div>
+        )}
+        
         <GameMap 
           currentLocation={
             gameState.currentBar 
@@ -289,7 +289,6 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
           }
         ]}
       />
-
     </div>
   );
 };

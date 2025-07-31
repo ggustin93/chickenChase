@@ -1,7 +1,13 @@
+/* Additional styles to ensure proper integration with Ionic layout */
+:host {
+  display: block;
+  height: 100%;
+}
+
 .map-tab-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   overflow: hidden;
   position: relative;
@@ -9,12 +15,9 @@
 
 .map-tab-container.no-scroll {
   overflow: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   height: 100%;
+  width: 100%;
 }
 
 .map-container {
@@ -35,11 +38,44 @@
 }
 
 .map-container.fullscreen-map {
-  height: calc(100vh - 112px); /* Full height minus header (56px) and tab bar (56px) */
+  /* Calculate height to fill the available space between header and tabs */
+  height: calc(100% - 56px); /* UserInfoHeader height */
   flex: 1;
   min-height: 400px;
   width: 100%;
   position: relative;
+}
+
+/* Ensure the map container takes all available space */
+.map-container.fullscreen-map {
+  flex: 1;
+  height: 100%; /* Take full height of parent */
+  min-height: 300px;
+  width: 100%;
+  position: relative;
+  display: flex;
+}
+
+/* Force the map to fill its container */
+.map-container.fullscreen-map .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1;
+}
+
+/* Adjust the UserInfoHeader to be more compact */
+.map-tab-container .user-info-header {
+  padding: 8px 12px;
+  margin-bottom: 0;
+}
+
+/* Ensure the floating button stays above the tab bar */
+.floating-hide-button {
+  position: absolute;
+  bottom: 70px; /* Keep above tab bar */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
 }
 
 .status-card-container {
@@ -413,7 +449,7 @@ ion-modal.cagnotte-modal {
 /* Floating hide button for chicken */
 .floating-hide-button {
   position: absolute;
-  bottom: 20px;
+  bottom: 70px; /* Ensure it's above the tab bar */
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
