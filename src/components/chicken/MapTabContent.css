@@ -9,11 +9,12 @@
 
 .map-tab-container.no-scroll {
   overflow: hidden;
-  position: fixed;
-  top: 56px; /* Adjust based on header height */
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: 56px; /* Adjust based on tab bar height */
+  bottom: 0;
+  height: 100%;
 }
 
 .map-container {
@@ -31,6 +32,14 @@
 
 .map-container.fixed-map {
   height: 70vh; /* Fixed height for the map */
+}
+
+.map-container.fullscreen-map {
+  height: calc(100vh - 112px); /* Full height minus header (56px) and tab bar (56px) */
+  flex: 1;
+  min-height: 400px;
+  width: 100%;
+  position: relative;
 }
 
 .status-card-container {
@@ -54,6 +63,27 @@
   z-index: 10;
   position: relative;
   height: 30vh; /* Fixed height for the status card */
+}
+
+.status-card-container.floating {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-height: none;
+  height: auto;
+  padding: 0;
+}
+
+.status-card-container.floating .game-status-card {
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
 }
 
 .teams-visibility-fab {
@@ -378,4 +408,80 @@ ion-modal.cagnotte-modal {
 .beer-icon-container.beer-icon-hidden {
   opacity: 0.5;
   filter: grayscale(1);
+}
+
+/* Floating hide button for chicken */
+.floating-hide-button {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hide-chicken-fab {
+  --size: 60px;
+  --box-shadow: 0 4px 16px rgba(255, 193, 7, 0.4);
+}
+
+.hide-button-label {
+  background: rgba(255, 193, 7, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* No bar selected overlay */
+.no-bar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.no-bar-content {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 300px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.no-bar-content .location-icon {
+  font-size: 48px;
+  color: var(--ion-color-primary);
+  margin-bottom: 16px;
+}
+
+.no-bar-content h3 {
+  margin: 0 0 12px 0;
+  color: var(--ion-color-dark);
+  font-size: 1.4rem;
+}
+
+.no-bar-content p {
+  margin: 0 0 24px 0;
+  color: var(--ion-color-medium);
+  font-size: 1rem;
+}
+
+.select-bar-button {
+  --border-radius: 12px;
+  font-weight: 600;
 } 

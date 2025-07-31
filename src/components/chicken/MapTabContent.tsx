@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { IonToast, IonActionSheet, IonFab, IonFabButton, IonIcon, IonChip } from '@ionic/react';
+import { IonToast, IonActionSheet, IonFab, IonFabButton, IonIcon, IonChip, IonButton } from '@ionic/react';
 import { ChickenGameState, Bar } from '../../data/types';
 import GameMap from '../GameMap';
-import GameStatusCard from './GameStatusCard';
 import UserInfoHeader from '../shared/UserInfoHeader';
-import { trashOutline, informationCircleOutline, timeOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
+import { trashOutline, informationCircleOutline, timeOutline, eyeOutline, eyeOffOutline, locationOutline } from 'ionicons/icons';
 import { useBarManagement } from '../../hooks/useBarManagement';
 import useGameTimerDisplay from '../../hooks/useGameTimerDisplay';
-import useCagnotteConsumption from '../../hooks/useCagnotteConsumption';
-import CagnotteModal from './CagnotteModal';
 import './MapTabContent.css';
 
 interface MapTabContentProps {
@@ -85,26 +82,6 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
     }
   });
 
-  // Use the cagnotte consumption hook directly
-  const cagnotteManager = useCagnotteConsumption({
-    currentCagnotte: gameState.currentCagnotte || 0,
-    onCagnotteConsumption: (amount, reason) => {
-      if (onCagnotteConsumption) {
-        onCagnotteConsumption(amount, reason);
-        
-        // Send notification about cagnotte consumption
-        if (onSendNotification) {
-          onSendNotification(
-            `Le poulet a dépensé ${amount}€ de la cagnotte${reason ? ` pour "${reason}"` : ''}.`,
-            'cagnotteEvent'
-          );
-        }
-        
-        setToastMessage(`${amount}€ utilisés de la cagnotte!`);
-        setShowToast(true);
-      }
-    }
-  });
 
   // Gestion du bouton "Je suis caché"
   const handleHideChicken = () => {
@@ -187,12 +164,6 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
     customMarkerHtml: `<div class="team-marker ${team.foundChicken ? 'found' : ''}" title="${team.name}">${getTeamEmoji()}</div>`
   }));
 
-  // Handle opening the cagnotte modal
-  const handleOpenCagnotteModal = () => {
-    if (cagnotteManager && typeof cagnotteManager.openModal === 'function') {
-      cagnotteManager.openModal();
-    }
-  };
 
   // Find current player's team name
   const chickenTeam = gameState.teams.find(team => team.is_chicken_team);
@@ -223,8 +194,8 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
         </div>
       )}
       
-      {/* Fixed size map container */}
-      <div className="map-container fixed-map">
+      {/* Full screen map container */}
+      <div className="map-container fullscreen-map">
         <GameMap 
           currentLocation={
             gameState.currentBar 
@@ -255,21 +226,42 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
         </IonFab>
       </div>
       
-      {/* Status card with cagnotte visible only after hiding */}
-      <div className={`status-card-container ultra-compact ${isTransitioning ? 'fade-transition' : ''}`}>
-        <GameStatusCard
-          gameState={gameState}
-          onOpenSelectBarModal={onOpenSelectBarModal || (() => {})}
-          isHidden={gameState.isChickenHidden}
-          onHideChicken={handleHideChicken}
-          hidingTimeLeft={gameState.hidingTimeLeft}
-          hideTimer={true} /* Hide timer in card since it's now on map */
-          hideTeamsFound={true} /* Hide teams found section since it's not relevant on map */
-          hideCagnotte={!gameState.isChickenHidden} /* Show cagnotte only when chicken is hidden */
-          cagnotte={gameState.currentCagnotte || 0}
-          showCagnotteModal={handleOpenCagnotteModal}
-        />
-      </div>
+      {/* Floating action button for hiding when ready */}
+      {!gameState.isChickenHidden && gameState.currentBar && (
+        <div className="floating-hide-button">
+          <IonFab vertical="bottom" horizontal="center" slot="fixed">
+            <IonFabButton 
+              color="warning" 
+              onClick={handleHideChicken}
+              className="hide-chicken-fab"
+            >
+              <IonIcon icon={eyeOffOutline} />
+            </IonFabButton>
+          </IonFab>
+          <div className="hide-button-label">
+            Je suis caché ici !
+          </div>
+        </div>
+      )}
+      
+      {/* Bar selection overlay when no bar is selected */}
+      {!gameState.currentBar && onOpenSelectBarModal && (
+        <div className="no-bar-overlay">
+          <div className="no-bar-content">
+            <IonIcon icon={locationOutline} className="location-icon" />
+            <h3>Sélectionnez votre cachette</h3>
+            <p>Choisissez un bar pour commencer le jeu</p>
+            <IonButton 
+              expand="block" 
+              color="primary" 
+              onClick={onOpenSelectBarModal}
+              className="select-bar-button"
+            >
+              Choisir un bar
+            </IonButton>
+          </div>
+        </div>
+      )}
 
       <IonToast
         isOpen={showToast}
@@ -298,16 +290,6 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
         ]}
       />
 
-      {/* Separate CagnotteModal managed at the Map level */}
-      <CagnotteModal 
-        isOpen={cagnotteManager.showModal}
-        onClose={cagnotteManager.closeModal}
-        currentAmount={cagnotteManager.localCagnotte}
-        amount={cagnotteManager.amount}
-        onAmountChange={cagnotteManager.setAmount}
-        error={cagnotteManager.error}
-        onSubmit={cagnotteManager.handleSubmit}
-      />
     </div>
   );
 };
