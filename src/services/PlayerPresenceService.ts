@@ -82,32 +82,31 @@ export class PlayerPresenceService {
   }
 
   /**
-   * Update player presence in the database
+   * Update player presence in the database using secure RPC function
    */
   private async updatePresence(isActive: boolean): Promise<void> {
     if (!this.playerId || !this.gameId) return;
 
     try {
-      const now = new Date().toISOString();
-      
-      // Use upsert to handle both insert and update
-      const { error } = await supabase
-        .from('player_presence')
-        .upsert({
-          player_id: this.playerId,
-          game_id: this.gameId,
-          last_seen: now,
-          is_active: isActive,
-          session_id: this.sessionId
-        }, {
-          onConflict: 'player_id,game_id'
-        });
+      // Use the new secure RPC function instead of direct upsert
+      const { error } = await supabase.rpc('update_my_presence', {
+        p_game_id: this.gameId,
+        p_is_active: isActive
+      });
 
       if (error) {
-        console.error('Error updating player presence:', error);
+        console.error('Error updating player presence via RPC:', error);
+        // Log additional context for debugging
+        console.error('RPC error details:', {
+          error_code: error.code,
+          error_message: error.message,
+          player_id: this.playerId,
+          game_id: this.gameId,
+          is_active: isActive
+        });
       }
     } catch (error) {
-      console.error('Error in updatePresence:', error);
+      console.error('Exception in updatePresence:', error);
     }
   }
 

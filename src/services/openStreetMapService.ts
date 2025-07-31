@@ -75,12 +75,13 @@ export class OpenStreetMapService {
         }
         
         if (attempt < retries) {
-          console.warn(`OpenStreetMap API request failed, retrying... (${attempt + 1}/${retries}):`, lastError.message);
+          console.warn(`OpenStreetMap API request failed on attempt ${attempt + 1}/${retries + 1}:`, lastError.message);
           await this.delay(this.RETRY_DELAY * Math.pow(2, attempt));
         }
       }
     }
     
+    console.error('Max retries exceeded for OpenStreetMap API request.', { url, lastError });
     throw lastError || new Error('Max retries exceeded');
   }
   
