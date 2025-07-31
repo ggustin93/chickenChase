@@ -18,7 +18,6 @@ import {
   checkmarkCircleOutline
 } from 'ionicons/icons';
 import { ChickenGameState } from '../../data/types';
-import { CagnotteSection } from '../shared/CagnotteSection';
 import './GameStatusCard.css';
 
 interface GameStatusCardProps {
@@ -29,11 +28,8 @@ interface GameStatusCardProps {
   hidingTimeLeft?: string;
   hideTimer?: boolean;
   hideTeamsFound?: boolean;
-  hideCagnotte?: boolean;
   showingHelpModal?: boolean;
   hideChicken?: boolean;
-  cagnotte: number;
-  showCagnotteModal: () => void;
 }
 
 const GameStatusCard: React.FC<GameStatusCardProps> = ({
@@ -44,11 +40,8 @@ const GameStatusCard: React.FC<GameStatusCardProps> = ({
   hidingTimeLeft,
   hideTimer = false,
   hideTeamsFound = false,
-  hideCagnotte = false,
   showingHelpModal,
-  hideChicken = false,
-  cagnotte,
-  showCagnotteModal
+  hideChicken = false
 }) => {
   const teamsFound = gameState.teams.filter(team => team.foundChicken).length;
   const totalTeams = gameState.teams.length;
@@ -60,9 +53,6 @@ const GameStatusCard: React.FC<GameStatusCardProps> = ({
   const displayTimer = isHidingPhase ? hidingTimeLeft : gameState.timeLeft;
   const timerLabel = isHidingPhase ? 'Pour se cacher' : 'Restant';
 
-  // Valeur initiale de la cagnotte (dans un vrai projet, cette valeur devrait venir des paramètres du jeu)
-  // Cette valeur est utilisée uniquement pour la visualisation de la jauge
-  const initialCagnotte = 350;
 
   return (
     <IonCard className="game-status-card ion-activatable">
@@ -134,17 +124,6 @@ const GameStatusCard: React.FC<GameStatusCardProps> = ({
               <IonIcon icon={eyeOffOutline} slot="start" />
               Je suis caché ici !
             </IonButton>
-          </div>
-        )}
-        
-        {!showingHelpModal && !hideChicken && !hideCagnotte && (
-          <div className="cagnotte-section-wrapper ion-margin-top" onClick={showCagnotteModal}>
-            <CagnotteSection
-              currentAmount={cagnotte}
-              initialAmount={initialCagnotte}
-              className="clickable-cagnotte"
-              title="Cagnotte"
-            />
           </div>
         )}
       </IonCardContent>

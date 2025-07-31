@@ -18,7 +18,6 @@ import {
   IonToast
 } from '@ionic/react';
 import { walletOutline, removeCircleOutline, checkmarkOutline } from 'ionicons/icons';
-import { CagnotteSection } from '../shared/CagnotteSection';
 import './CagnotteModal.css';
 
 interface CagnotteModalProps {
@@ -115,13 +114,15 @@ const CagnotteModal: React.FC<CagnotteModalProps> = ({
             </h2>
           </div>
 
-          {/* Cagnotte gauge visualization */}
+          {/* Cagnotte amount display */}
           <div className="ion-margin-vertical">
-            <CagnotteSection 
-              currentAmount={currentAmount} 
-              initialAmount={initialCagnotte}
-              title="État de la cagnotte"
-            />
+            <IonItem>
+              <IonIcon icon={walletOutline} slot="start" color="primary" />
+              <IonLabel>
+                <h2>État de la cagnotte</h2>
+                <p>{currentAmount.toFixed(2)}€ disponibles</p>
+              </IonLabel>
+            </IonItem>
           </div>
           
           <IonItem lines="full" className="ion-margin-vertical cagnotte-amount-input">

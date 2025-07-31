@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonTabBar, IonTabButton,
-  IonIcon, IonLabel, IonButtons, IonMenuButton, IonToast, useIonViewWillEnter
+  IonIcon, IonLabel, IonButtons, IonMenuButton, IonToast, IonButton, IonSpinner
 } from '@ionic/react';
 import {
-  mapOutline, checkmarkCircleOutline, chatbubbleOutline, trophyOutline, cashOutline,
+  mapOutline, checkmarkCircleOutline, chatbubbleOutline, trophyOutline, warningOutline,
 } from 'ionicons/icons';
 
 // Import types
@@ -27,7 +27,6 @@ import LeaderboardTab from '../components/player/LeaderboardTab';
 import CameraModal from '../components/player/CameraModal';
 import ChallengeDetailModal from '../components/player/ChallengeDetailModal';
 import UnlockModal from '../components/player/UnlockModal';
-import CagnotteManager from '../components/cagnotte/CagnotteManager';
 
 // Import Supabase
 import { supabase } from '../lib/supabase';
@@ -72,20 +71,9 @@ interface PlayerGameState {
 // const mapZoom = 15;
 
 const PlayerPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard' | 'cagnotte'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'challenges' | 'chat' | 'leaderboard'>('map');
 
-  // Context7 PWA lifecycle hook for proper navigation handling
-  useIonViewWillEnter(() => {
-    console.log('PlayerPage: PWA view will enter');
-    // Force a repaint to prevent white screen on PWA
-    const ionPage = document.querySelector('.player-page ion-page, ion-page');
-    if (ionPage) {
-      (ionPage as HTMLElement).style.opacity = '0';
-      requestAnimationFrame(() => {
-        (ionPage as HTMLElement).style.opacity = '1';
-      });
-    }
-  });
+  // PWA navigation hack removed - replaced with defensive rendering patterns
 
   // Get session info from localStorage - available to the whole component
   const session = useMemo(() => {
@@ -264,7 +252,7 @@ const PlayerPage: React.FC = () => {
   }, [gameState.challengeCompletions, gameState.challenges, gameState.team.id]);
 
   // --- Event Handlers ---
-  const handleTabChange = (tab: 'map' | 'challenges' | 'chat' | 'leaderboard' | 'cagnotte') => {
+  const handleTabChange = (tab: 'map' | 'challenges' | 'chat' | 'leaderboard') => {
     setActiveTab(tab);
   };
   
@@ -279,8 +267,6 @@ const PlayerPage: React.FC = () => {
         return 'Newsfeed'; // Garder le nom de l'équipe pour le chat
       case 'leaderboard':
         return 'Classement';
-      case 'cagnotte':
-        return 'Cagnotte';
       default:
         return gameState.team.name;
     }
@@ -487,6 +473,76 @@ const PlayerPage: React.FC = () => {
     setShowUnlockModal(false);
   };
 
+  // --- Defensive Rendering for PWA Stability ---
+  // Loading state - prevent white screen during data fetch
+  if (liveDataLoading) {
+    return (
+      <IonPage id="main-content">
+        <IonHeader>
+          <IonToolbar color="primary">
+            <IonTitle className="ion-text-center">Chargement...</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding ion-text-center">
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            height: '100%',
+            gap: '20px'
+          }}>
+            <IonSpinner name="crescent" color="primary" />
+            <p style={{ color: 'var(--ion-color-medium)', fontSize: '1.1rem' }}>
+              Chargement de la partie...
+            </p>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  // Error boundary - handle data fetch errors gracefully
+  if (liveDataError) {
+    return (
+      <IonPage id="main-content">
+        <IonHeader>
+          <IonToolbar color="danger">
+            <IonTitle className="ion-text-center">Erreur</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding ion-text-center">
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            height: '100%',
+            gap: '20px'
+          }}>
+            <IonIcon 
+              icon={warningOutline} 
+              style={{ fontSize: '4rem', color: 'var(--ion-color-danger)' }} 
+            />
+            <h2 style={{ color: 'var(--ion-color-danger)' }}>
+              Erreur de chargement
+            </h2>
+            <p style={{ color: 'var(--ion-color-medium)', textAlign: 'center', maxWidth: '300px' }}>
+              {liveDataError}
+            </p>
+            <IonButton 
+              color="primary" 
+              onClick={() => window.location.reload()}
+              style={{ marginTop: '10px' }}
+            >
+              Réessayer
+            </IonButton>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   // --- Main Render ---
   return (
     <IonPage id="main-content">
@@ -526,7 +582,7 @@ const PlayerPage: React.FC = () => {
             cagnotteCurrentAmount={cagnotte.current}
             cagnotteInitialAmount={cagnotte.initial}
             onCagnotteConsumption={handleCagnotteConsumption}
-            onCagnotteClick={() => handleTabChange('cagnotte')}
+            onCagnotteClick={() => {}} // Disabled for hunters
             isCagnotteLoading={false}
             error={locationError}
             totalPlayers={gameState.leaderboard.reduce((total, team) => total + (team.members?.length || 0), 0)}
@@ -552,17 +608,6 @@ const PlayerPage: React.FC = () => {
             currentPlayerTeamId={gameState.team.id}
           />
         )}
-        {activeTab === 'cagnotte' && (
-          <div className="cagnotte-tab-content">
-            <CagnotteManager 
-              gameId={session?.gameId || ''}
-              playerId={session?.playerId || 'player'}
-              showHistory={true}
-              allowCustomOperations={false}
-              compact={false}
-            />
-          </div>
-        )}
       </IonContent>
       
       {/* Bottom Navigation */}
@@ -578,10 +623,6 @@ const PlayerPage: React.FC = () => {
         <IonTabButton tab="chat" selected={activeTab === 'chat'} onClick={() => handleTabChange('chat')}>
           <IonIcon icon={chatbubbleOutline} />
           <IonLabel>Chat</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="cagnotte" selected={activeTab === 'cagnotte'} onClick={() => handleTabChange('cagnotte')}>
-          <IonIcon icon={cashOutline} />
-          <IonLabel>Cagnotte</IonLabel>
         </IonTabButton>
         <IonTabButton tab="leaderboard" selected={activeTab === 'leaderboard'} onClick={() => handleTabChange('leaderboard')}>
           <IonIcon icon={trophyOutline} />
