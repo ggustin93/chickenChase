@@ -17,7 +17,7 @@ import { mockChickenGameState } from '../data/mock/mockData';
 import { useCamera, UseCameraPhoto } from '../hooks/useCamera';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { usePlayerGameData } from '../hooks/usePlayerGameData';
-import { useCagnotteManagement } from '../hooks/useCagnotteManagement';
+// Removed useCagnotteManagement - using real-time cagnotte in PlayerGameStatusCard instead
 
 // Import services
 import { PhotoUploadResult } from '../services/photoUploadService';
@@ -178,23 +178,7 @@ const PlayerPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState<'success' | 'danger' | 'warning' | 'medium'>('success');
   
-  // Use real cagnotte data from Supabase
-  const { 
-    currentAmount: cagnotteCurrentCents,
-    stats: cagnotteStats,
-    loading: cagnotteLoading,
-    error: cagnotteError,
-    centsToEuros
-  } = useCagnotteManagement({
-    gameId: session?.gameId || '',
-    enableRealtime: true
-  });
-  
-  // Convert cents to euros for display
-  const cagnotte = {
-    current: cagnotteCurrentCents ? centsToEuros(cagnotteCurrentCents) : 0,
-    initial: cagnotteStats?.initial_amount ? centsToEuros(cagnotteStats.initial_amount) : 0
-  };
+  // Cagnotte management now handled directly in PlayerGameStatusCard using useRealtimeCagnotte
 
   // State for the new Challenge Detail Modal
   const [showChallengeDetailModal, setShowChallengeDetailModal] = useState(false);
@@ -674,6 +658,7 @@ const PlayerPage: React.FC = () => {
         {/* Conditional Rendering based on activeTab */}
         {activeTab === 'map' && (
           <MapTab 
+            gameId={session?.gameId || ''}
             bars={gameState.bars}
             visitedBars={gameState.visitedBars}
             currentPosition={currentPosition}
@@ -686,11 +671,7 @@ const PlayerPage: React.FC = () => {
             gameTime={displayTime}
             challengesCompleted={gameState.completedChallenges.length}
             totalChallenges={gameState.challenges.length}
-            cagnotteCurrentAmount={cagnotte.current}
-            cagnotteInitialAmount={cagnotte.initial}
-            onCagnotteConsumption={handleCagnotteConsumption}
             onCagnotteClick={() => {}} // Disabled for hunters
-            isCagnotteLoading={cagnotteLoading}
             error={locationError}
             totalPlayers={gameState.leaderboard.reduce((total, team) => total + (team.members?.length || 0), 0)}
             totalTeams={gameState.leaderboard.length}

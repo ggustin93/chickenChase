@@ -16,6 +16,7 @@ import { calculateDistance, formatDistance } from '../../utils/distanceUtils';
 import './MapTab.css';
 
 interface MapTabProps {
+  gameId: string; // Add gameId for real-time cagnotte
   bars: Bar[];
   visitedBars: Bar[];
   currentPosition: Position | null;
@@ -28,10 +29,6 @@ interface MapTabProps {
   gameTime: string;
   challengesCompleted: number;
   totalChallenges: number;
-  cagnotteCurrentAmount?: number;
-  cagnotteInitialAmount?: number;
-  isCagnotteLoading?: boolean;
-  onCagnotteConsumption?: (amount: number, reason: string) => void;
   onCagnotteClick?: () => void;
   error?: GeolocationPositionError | Error | null;
   totalPlayers?: number;
@@ -40,6 +37,7 @@ interface MapTabProps {
 }
 
 const MapTab: React.FC<MapTabProps> = ({ 
+  gameId,
   bars, 
   visitedBars, 
   currentPosition, 
@@ -52,10 +50,6 @@ const MapTab: React.FC<MapTabProps> = ({
   gameTime,
   challengesCompleted,
   totalChallenges,
-  cagnotteCurrentAmount,
-  cagnotteInitialAmount,
-  isCagnotteLoading,
-  onCagnotteConsumption,
   onCagnotteClick,
   error,
   totalPlayers = 0,
@@ -301,16 +295,13 @@ const MapTab: React.FC<MapTabProps> = ({
       {/* Game Status Card (Always visible at the bottom in both map and list view) */}
       <div className="game-status-container">
         <PlayerGameStatusCard
+          gameId={gameId}
           score={score}
           gameTime={gameTime}
           barsVisited={visitedBars.length}
           totalBars={bars.length}
           challengesCompleted={challengesCompleted}
           totalChallenges={totalChallenges}
-          cagnotteCurrentAmount={cagnotteCurrentAmount}
-          cagnotteInitialAmount={cagnotteInitialAmount}
-          isCagnotteLoading={isCagnotteLoading}
-          onCagnotteConsumption={onCagnotteConsumption}
           onCagnotteClick={onCagnotteClick}
         />
       </div>

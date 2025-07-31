@@ -23,25 +23,34 @@ import {
   removeOutline,
   restaurantOutline
 } from 'ionicons/icons';
-import { useCagnotteManagement } from '../../hooks/useCagnotteManagement';
-import { PresetOperation } from '../../services/cagnotteService';
+// Real-time cagnotte data now comes from parent component via props
 import './SimpleCagnotteActions.css';
 
 interface SimpleCagnotteActionsProps {
   gameId: string;
   playerId?: string;
+  // Real-time cagnotte data passed from parent
+  currentAmount: number; // in cents
+  loading: boolean;
+  error: string | null;
+  quickOperation: (operation: string) => Promise<any>;
 }
 
 const SimpleCagnotteActions: React.FC<SimpleCagnotteActionsProps> = ({
   gameId,
-  playerId = 'chicken'
+  playerId = 'chicken',
+  currentAmount,
+  loading,
+  error,
+  quickOperation
 }) => {
-  const { currentAmount, loading, executeQuickOperation, centsToEuros } = useCagnotteManagement({ gameId, playerId });
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [operationLoading, setOperationLoading] = useState<string | null>(null);
 
-  const getPresetOperation = (amount: number): PresetOperation => {
+  const centsToEuros = (cents: number) => cents / 100;
+
+  const getQuickOperationName = (amount: number): string => {
     switch (amount) {
       case 5: return 'spend_5';
       case 10: return 'spend_10';
@@ -56,9 +65,9 @@ const SimpleCagnotteActions: React.FC<SimpleCagnotteActionsProps> = ({
   const handleQuickAction = async (amount: number) => {
     setOperationLoading(amount.toString());
     try {
-      const presetOperation = getPresetOperation(amount);
-      await executeQuickOperation(presetOperation);
-      setToastMessage(`${amount}€ dépensés`);
+      const operationName = getQuickOperationName(amount);
+      await quickOperation(operationName);
+      setToastMessage(`${amount}€ dépensés de la cagnotte`);
       setShowToast(true);
     } catch (error) {
       console.error('Error executing cagnotte operation:', error);
@@ -82,6 +91,17 @@ const SimpleCagnotteActions: React.FC<SimpleCagnotteActionsProps> = ({
 
   return (
     <div className="simple-cagnotte-container">
+      {/* Error Display */}
+      {error && (
+        <IonCard color="danger">
+          <IonCardContent>
+            <IonText color="light">
+              <p>⚠️ {error}</p>
+            </IonText>
+          </IonCardContent>
+        </IonCard>
+      )}
+
       {/* Current Amount Display */}
       <IonCard className="cagnotte-display-card">
         <IonCardHeader>

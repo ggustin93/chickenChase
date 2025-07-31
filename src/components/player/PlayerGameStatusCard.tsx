@@ -1,45 +1,35 @@
 import React from 'react';
-import { IonCard, IonCardContent, IonIcon, IonRippleEffect } from '@ionic/react';
-import { trophyOutline, timeOutline, beerOutline, flagOutline, cashOutline } from 'ionicons/icons';
-// Remove unused Team import
-// import { Team } from '../../data/types';
+import { IonCard, IonCardContent, IonIcon, IonRippleEffect, IonSpinner, IonBadge } from '@ionic/react';
+import { trophyOutline, timeOutline, beerOutline, flagOutline, cashOutline, wifiOutline } from 'ionicons/icons';
+import { useRealtimeCagnotte } from '../../hooks/useRealtimeCagnotte';
 import './PlayerGameStatusCard.css';
 
 interface PlayerGameStatusCardProps {
-  // Remove unused team prop
-  // team: Team;
+  gameId: string; // Add gameId to use real-time cagnotte
   score: number;
   gameTime: string;
   barsVisited: number;
   totalBars: number;
   challengesCompleted: number;
   totalChallenges: number;
-  cagnotteCurrentAmount?: number;
-  cagnotteInitialAmount?: number;
-  isCagnotteLoading?: boolean;
-  onCagnotteConsumption?: (amount: number, reason: string) => void;
   onCagnotteClick?: () => void;
 }
 
 const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
-  // Remove unused team prop from destructuring
-  // team,
+  gameId,
   score,
   gameTime,
   barsVisited,
   totalBars,
   challengesCompleted,
   totalChallenges,
-  cagnotteCurrentAmount,
-  cagnotteInitialAmount,
-  isCagnotteLoading,
-  onCagnotteConsumption,
   onCagnotteClick
 }) => {
+  // Use real-time cagnotte hook
+  const { current: cagnotteCurrentAmount, initial: cagnotteInitialAmount, loading: isCagnotteLoading, error: cagnotteError, lastUpdate } = useRealtimeCagnotte(gameId);
+  
   const isTimeCritical = gameTime.includes('0:') || gameTime.includes('00:');
-  // Remove unused percentage calculations
-  // const barsProgressPercent = totalBars > 0 ? (barsVisited / totalBars) * 100 : 0;
-  // const challengesProgressPercent = totalChallenges > 0 ? (challengesCompleted / totalChallenges) * 100 : 0;
+  const formatAmount = (cents: number) => `${(cents / 100).toFixed(2)}€`;
   
   return (
     <IonCard className="player-status-card ion-activatable compact-status-card">
@@ -55,24 +45,29 @@ const PlayerGameStatusCard: React.FC<PlayerGameStatusCardProps> = ({
             </div>
           </div>
           
-          {/* Cagnotte replacing timer */}
-          {cagnotteCurrentAmount !== undefined && cagnotteInitialAmount !== undefined ? (
-            <div className="stat-item cagnotte-item clickable" onClick={onCagnotteClick}>
-              <IonIcon icon={cashOutline} />
-              <div className="stat-details">
-                <div className="stat-value">{cagnotteCurrentAmount}€</div>
-                <div className="stat-label">Cagnotte</div>
+          {/* Real-time Cagnotte */}
+          <div className="stat-item cagnotte-item clickable" onClick={onCagnotteClick}>
+            <IonIcon icon={cashOutline} />
+            <div className="stat-details">
+              <div className="stat-value">
+                {isCagnotteLoading && cagnotteCurrentAmount === 0 ? (
+                  <IonSpinner />
+                ) : cagnotteError ? (
+                  <span className="error-text">Erreur</span>
+                ) : (
+                  formatAmount(cagnotteCurrentAmount)
+                )}
+              </div>
+              <div className="stat-label flex items-center gap-1">
+                Cagnotte
+                {lastUpdate && (
+                  <IonBadge color="success" className="real-time-indicator">
+                    <IonIcon icon={wifiOutline} />
+                  </IonBadge>
+                )}
               </div>
             </div>
-          ) : (
-            <div className={`stat-item time-item ${isTimeCritical ? 'critical' : ''}`}>
-              <IonIcon icon={timeOutline} />
-              <div className="stat-details">
-                <div className="stat-value">{gameTime}</div>
-                <div className="stat-label">Restant</div>
-              </div>
-            </div>
-          )}
+          </div>
           
           {/* Bottom Row: Bars & Challenges */}
           <div className="stat-item bars-item">

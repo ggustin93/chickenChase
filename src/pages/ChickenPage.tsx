@@ -25,8 +25,9 @@ import {
 
 import './ChickenPage.css';
 
-// Import custom hook
+// Import custom hooks
 import useChickenGameState from '../hooks/useChickenGameState';
+import { useRealtimeCagnotte } from '../hooks/useRealtimeCagnotte';
 
 // Import extracted components
 import SelectHidingSpotModal from '../components/chicken/SelectHidingSpotModal';
@@ -56,6 +57,18 @@ const ChickenPage: React.FC = () => {
     hideChicken,
     finishGame
   } = useChickenGameState(gameId);
+
+  // Real-time cagnotte management - stays active across all tabs
+  const {
+    current: cagnotteCurrentCents,
+    initial: cagnotteInitialCents,
+    loading: cagnotteLoading,
+    error: cagnotteError,
+    updateCagnotte,
+    resetCagnotte,
+    quickOperation,
+    transactions
+  } = useRealtimeCagnotte(gameId);
 
   // UI state
   const [activeTab, setActiveTab] = useState('map');
@@ -330,6 +343,10 @@ const ChickenPage: React.FC = () => {
             <SimpleCagnotteActions 
               gameId={gameId!}
               playerId={session.playerId || 'unknown'}
+              currentAmount={cagnotteCurrentCents}
+              loading={cagnotteLoading}
+              error={cagnotteError}
+              quickOperation={quickOperation}
             />
           </div>
         )}
