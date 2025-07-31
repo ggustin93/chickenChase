@@ -1,0 +1,127 @@
+/* Simple Cagnotte Actions Styles */
+
+.simple-cagnotte-container {
+  padding: 16px;
+  max-width: 100%;
+}
+
+.simple-cagnotte-loading {
+  margin: 16px;
+}
+
+.cagnotte-display-card {
+  background: linear-gradient(135deg, #2A9D8F 0%, #264653 100%);
+  color: white;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+}
+
+.cagnotte-display-card ion-card-header {
+  padding: 24px 16px;
+}
+
+.cagnotte-display-card ion-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.cagnotte-icon {
+  font-size: 2rem;
+  color: #F77F3C;
+}
+
+.cagnotte-amount {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: white;
+}
+
+.quick-actions-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.actions-title {
+  font-size: 1.2rem;
+  color: var(--ion-color-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actions-title ion-icon {
+  color: #F77F3C;
+  font-size: 1.4rem;
+}
+
+.quick-action-btn {
+  height: 65px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  --border-width: 0px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.quick-action-btn:not([disabled]):hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.quick-action-btn:not([disabled]):active {
+  transform: scale(0.95);
+}
+
+.quick-action-btn[disabled] {
+  opacity: 0.4;
+}
+
+/* Remove action labels since amounts are now displayed on buttons */
+.action-label {
+  display: none;
+}
+
+/* Add spacing between rows */
+.quick-actions-card ion-grid ion-row {
+  margin-bottom: 8px;
+}
+
+.quick-actions-card ion-grid ion-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .simple-cagnotte-container {
+    padding: 12px;
+  }
+  
+  .cagnotte-display-card ion-card-title {
+    font-size: 1.6rem;
+  }
+  
+  .cagnotte-amount {
+    font-size: 2rem;
+  }
+  
+  .quick-action-btn {
+    height: 55px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .quick-actions-card {
+    background: white;
+    border: 1px solid var(--ion-color-light-shade);
+  }
+}
