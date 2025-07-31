@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
+// Import PWA Elements for web camera support
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
+
 // Development utilities - expose database initialization functions
 if (process.env.NODE_ENV === 'development') {
   import('./utils/databaseInit').then(({ initializeChallenges, initializeDatabase, checkDatabaseStatus }) => {
@@ -23,6 +26,9 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Initialize PWA Elements for web camera support
+defineCustomElements(window);
 
 // Register service worker for PWA support
 serviceWorkerRegistration.register();
