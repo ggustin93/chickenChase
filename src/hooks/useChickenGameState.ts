@@ -3,6 +3,7 @@ import { ChickenGameState, Challenge, Message } from '../data/types';
 import { mockChickenGameState } from '../data/mock/mockData';
 import { supabase } from '../lib/supabase';
 import { GameEventService } from '../services/GameEventService';
+import { useGameBars } from './useGameBars';
 
 // Constants for performance optimization
 const GAME_STATUS_CHECK_INTERVAL = 5000; // 5 seconds
@@ -19,6 +20,9 @@ declare global {
 export const useChickenGameState = (gameId?: string) => {
   const [gameState, setGameState] = useState<ChickenGameState>(mockChickenGameState);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Use the game bars hook to get bars from database
+  const { bars: databaseBars, loading: barsLoading, error: barsError } = useGameBars(gameId);
   
   // Référence pour stocker les intervalles de timer
   const hidingTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -133,6 +137,16 @@ export const useChickenGameState = (gameId?: string) => {
     };
   }, [gameId, gameState.game.status, gameState.isChickenHidden]);
   
+  // Update game state when database bars are loaded
+  useEffect(() => {
+    if (databaseBars.length > 0) {
+      setGameState(prevState => ({
+        ...prevState,
+        barOptions: databaseBars
+      }));
+    }
+  }, [databaseBars]);
+
   // Chargement des données du jeu
   useEffect(() => {
     const fetchGameData = async () => {
@@ -142,20 +156,22 @@ export const useChickenGameState = (gameId?: string) => {
       
       try {
         // Récupérer les données du jeu depuis Supabase
-        // Pour l'instant, nous utilisons les données mockées
-        // À l'avenir, remplacer par des requêtes Supabase
+        // Pour l'instant, nous utilisons les données mockées pour autres données
+        // Les bars sont maintenant chargés depuis la base de données
         
         // Simuler un délai de chargement
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Utiliser les données mockées pour l'instant
+        // Utiliser les données mockées pour l'instant, sauf pour les bars
         // À remplacer par les données réelles de Supabase
         setGameState({
           ...mockChickenGameState,
           game: {
             ...mockChickenGameState.game,
             id: gameId
-          }
+          },
+          // barOptions will be updated by the useEffect above when databaseBars loads
+          barOptions: databaseBars.length > 0 ? databaseBars : mockChickenGameState.barOptions
         });
         
       } catch (error) {
@@ -166,7 +182,10 @@ export const useChickenGameState = (gameId?: string) => {
     };
     
     fetchGameData();
-  }, [gameId]);
+  }, [gameId, databaseBars]);
+
+  // Update loading state to include bars loading
+  const totalLoading = isLoading || barsLoading;
   
   // Gestion du timer de cachette
   useEffect(() => {
@@ -285,7 +304,9 @@ export const useChickenGameState = (gameId?: string) => {
     // Si le poulet est déjà caché, il ne peut plus changer de bar
     if (gameState.isChickenHidden) return null;
     
-    const bar = gameState.barOptions.find(b => b.id === barId);
+    // Use database bars if available, otherwise fall back to mock data
+    const barsToSearch = databaseBars.length > 0 ? databaseBars : gameState.barOptions;
+    const bar = barsToSearch.find(b => b.id === barId);
     if (bar) {
       setGameState(prevState => ({ ...prevState, currentBar: bar }));
       return bar;
@@ -461,7 +482,8 @@ export const useChickenGameState = (gameId?: string) => {
 
   return {
     gameState,
-    isLoading,
+    isLoading: totalLoading,
+    barsError,
     sendClue,
     handleChallengeValidation,
     markTeamFound,

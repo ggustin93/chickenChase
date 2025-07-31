@@ -47,6 +47,7 @@ const ChickenPage: React.FC = () => {
   const {
     gameState,
     isLoading,
+    barsError,
     sendClue,
     handleChallengeValidation,
     markTeamFound,
@@ -189,7 +190,15 @@ const ChickenPage: React.FC = () => {
     setShowToast(true);
   };
 
-  // --- Defensive Rendering for PWA Stability ---
+  // Effect to notify when bars are loaded from database
+  React.useEffect(() => {
+    if (gameState.barOptions.length > 0 && !barsError) {
+      const databaseBarsCount = gameState.barOptions.length;
+      console.log(`✅ ${databaseBarsCount} bars loaded from Supabase database`);
+    }
+  }, [gameState.barOptions, barsError]);
+
+  // --- Defensive Rendering for PWA Stability ---  
   // Loading state - prevent white screen during game data fetch
   if (isLoading) {
     return (
@@ -219,7 +228,7 @@ const ChickenPage: React.FC = () => {
   }
 
   // Error boundary - handle any critical errors
-  if (!gameState || !gameId) {
+  if (!gameState || !gameId || barsError) {
     return (
       <IonPage className="chicken-page">
         <IonHeader>
@@ -244,7 +253,9 @@ const ChickenPage: React.FC = () => {
               Impossible de charger la partie
             </h2>
             <p style={{ color: 'var(--ion-color-medium)', textAlign: 'center', maxWidth: '300px' }}>
-              {!gameId ? 'ID de partie manquant' : 'Erreur lors du chargement des données de la partie'}
+              {!gameId ? 'ID de partie manquant' : 
+               barsError ? `Erreur lors du chargement des bars: ${barsError}` :
+               'Erreur lors du chargement des données de la partie'}
             </p>
             <IonButton 
               color="primary" 
