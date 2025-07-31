@@ -44,6 +44,7 @@ export interface CagnotteOperationResult {
 
 // Preset operation types
 export type PresetOperation = 
+  | 'spend_5' | 'spend_10' | 'spend_15' | 'spend_20' | 'spend_30' | 'spend_40' | 'spend_50'
   | 'add_5' | 'add_10' | 'add_20' 
   | 'subtract_5' | 'subtract_10' | 'subtract_20' 
   | 'reset';

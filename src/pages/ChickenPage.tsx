@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useSession } from '../contexts/SessionContext';
 import {
   IonContent,
   IonPage,
@@ -14,11 +15,12 @@ import {
   IonButtons,
   IonToast,
   IonLoading,
-  useIonViewWillEnter
+  IonButton,
+  IonSpinner
 } from '@ionic/react';
 import { 
   locationOutline, chatbubbleOutline,
-  peopleOutline, ribbonOutline, cashOutline
+  peopleOutline, ribbonOutline, cashOutline, warningOutline
 } from 'ionicons/icons';
 
 import './ChickenPage.css';
@@ -33,23 +35,13 @@ import ChallengesTabContent from '../components/chicken/ChallengesTabContent';
 import ChatTabContent from '../components/chicken/ChatTabContent';
 import TeamsTabContent from '../components/chicken/TeamsTabContent';
 import FinishGameButton from '../components/chicken/FinishGameButton';
-import CagnotteManager from '../components/cagnotte/CagnotteManager';
+import SimpleCagnotteActions from '../components/cagnotte/SimpleCagnotteActions';
 
 const ChickenPage: React.FC = () => {
   const { gameId } = useParams<{ gameId: string }>();
+  const { session } = useSession();
 
-  // Context7 PWA lifecycle hook for proper navigation handling
-  useIonViewWillEnter(() => {
-    console.log('ChickenPage: PWA view will enter');
-    // Force a repaint to prevent white screen on PWA
-    const ionPage = document.querySelector('.chicken-page ion-page, ion-page');
-    if (ionPage) {
-      (ionPage as HTMLElement).style.opacity = '0';
-      requestAnimationFrame(() => {
-        (ionPage as HTMLElement).style.opacity = '1';
-      });
-    }
-  });
+  // PWA navigation hack removed - replaced with defensive rendering patterns
 
   // Use the custom hook for game state
   const {
@@ -197,6 +189,76 @@ const ChickenPage: React.FC = () => {
     setShowToast(true);
   };
 
+  // --- Defensive Rendering for PWA Stability ---
+  // Loading state - prevent white screen during game data fetch
+  if (isLoading) {
+    return (
+      <IonPage className="chicken-page">
+        <IonHeader>
+          <IonToolbar color="warning">
+            <IonTitle className="ion-text-center">Chargement...</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding ion-text-center">
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            height: '100%',
+            gap: '20px'
+          }}>
+            <IonSpinner name="crescent" color="warning" />
+            <p style={{ color: 'var(--ion-color-medium)', fontSize: '1.1rem' }}>
+              Chargement de votre partie poulet...
+            </p>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  // Error boundary - handle any critical errors
+  if (!gameState || !gameId) {
+    return (
+      <IonPage className="chicken-page">
+        <IonHeader>
+          <IonToolbar color="danger">
+            <IonTitle className="ion-text-center">Erreur</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding ion-text-center">
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            height: '100%',
+            gap: '20px'
+          }}>
+            <IonIcon 
+              icon={warningOutline} 
+              style={{ fontSize: '4rem', color: 'var(--ion-color-danger)' }} 
+            />
+            <h2 style={{ color: 'var(--ion-color-danger)' }}>
+              Impossible de charger la partie
+            </h2>
+            <p style={{ color: 'var(--ion-color-medium)', textAlign: 'center', maxWidth: '300px' }}>
+              {!gameId ? 'ID de partie manquant' : 'Erreur lors du chargement des données de la partie'}
+            </p>
+            <IonButton 
+              color="primary" 
+              routerLink="/home"
+              style={{ marginTop: '10px' }}
+            >
+              Retour à l'accueil
+            </IonButton>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
     <IonPage className="chicken-page">
       <IonHeader>
@@ -254,12 +316,9 @@ const ChickenPage: React.FC = () => {
         
         {activeTab === 'cagnotte' && (
           <div className="cagnotte-tab-content">
-            <CagnotteManager 
+            <SimpleCagnotteActions 
               gameId={gameId!}
-              playerId="chicken"
-              showHistory={true}
-              allowCustomOperations={true}
-              compact={false}
+              playerId={session.playerId || 'unknown'}
             />
           </div>
         )}
