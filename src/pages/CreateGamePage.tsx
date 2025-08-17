@@ -42,7 +42,7 @@ const CreateGamePage: React.FC = () => {
   const [importedBarsCount, setImportedBarsCount] = useState(0);
   const [importedBars, setImportedBars] = useState<Bar[]>([]);
   const [importMethod, setImportMethod] = useState<'link' | 'search'>('search');
-  const [searchLocation, setSearchLocation] = useState('Bruxelles');
+  const [searchLocation, setSearchLocation] = useState('Rue Kessels 32, 1030 Schaerbeek, Bruxelles');
   const [searchRadius, setSearchRadius] = useState(1000);
   const [searchCoordinates, setSearchCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const history = useHistory();
@@ -307,7 +307,7 @@ const CreateGamePage: React.FC = () => {
   const handleCreateGame = async () => {
     if (!config.hostNickname.trim()) {
       present({
-        message: 'Votre pseudo est requis pour créer une partie.',
+        message: '📝 Votre pseudo est requis pour créer une partie.',
         duration: 3000,
         color: 'warning'
       });
@@ -316,11 +316,31 @@ const CreateGamePage: React.FC = () => {
 
     if (config.cagnotteInitial < 0) {
       present({
-        message: 'La cagnotte ne peut pas être négative.',
+        message: '💰 La cagnotte ne peut pas être négative.',
         duration: 3000,
         color: 'warning'
       });
       return;
+    }
+
+    // Validation des bars - OBLIGATOIRE
+    if (importedBars.length === 0) {
+      present({
+        message: '🍺 Vous devez ajouter au moins un bar pour créer la partie !',
+        duration: 4000,
+        color: 'danger',
+        position: 'top'
+      });
+      return;
+    }
+
+    if (importedBars.length < 3) {
+      present({
+        message: '⚠️ Recommandation : Ajoutez au moins 3 bars pour une meilleure expérience de jeu',
+        duration: 4000,
+        color: 'warning',
+        position: 'top'
+      });
     }
 
     setLoading(true);
@@ -382,38 +402,24 @@ const CreateGamePage: React.FC = () => {
         console.log('Challenges initialized:', challengeInit.message);
       }
 
-      // Si des bars ont été importés, les sauvegarder dans la base de données
-      if (importedBars.length > 0) {
-        present({
-          message: 'Sauvegarde des bars importés...',
-          duration: 2000,
-          color: 'secondary'
-        });
+      // Sauvegarder les bars (OBLIGATOIRE)
+      present({
+        message: '🍺 Sauvegarde des bars importés...',
+        duration: 2000,
+        color: 'secondary'
+      });
 
-        const importResult = await GameBarService.importBarsToGame(game_id, importedBars);
-        
-        if (importResult.success) {
-          present({
-            message: `Partie créée ! Code: ${join_code} - ${importResult.count} bars ajoutés`,
-            duration: 5000,
-            color: 'success'
-          });
-        } else {
-          // Avertir mais continuer quand même
-          present({
-            message: `Partie créée ! Code: ${join_code} (bars non sauvegardés)`,
-            duration: 5000,
-            color: 'warning'
-          });
-        }
-      } else {
-        // Afficher le code de partie créé
-        present({
-          message: `Partie créée ! Code: ${join_code}`,
-          duration: 4000,
-          color: 'success'
-        });
+      const importResult = await GameBarService.importBarsToGame(game_id, importedBars);
+      
+      if (!importResult.success) {
+        throw new Error('Impossible de sauvegarder les bars pour la partie');
       }
+
+      present({
+        message: `🎉 Partie créée ! Code: ${join_code} - ${importResult.count} bars ajoutés`,
+        duration: 5000,
+        color: 'success'
+      });
 
       // Naviguer vers le lobby
       history.push(`/lobby/${game_id}`);
@@ -449,14 +455,16 @@ const CreateGamePage: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <IonLoading isOpen={loading} message={'Création de la partie...'} />
         
-        <div className="flex flex-col items-center min-h-full py-4">
-          <IonCard className="w-full max-w-md mx-auto">
-            <IonCardHeader>
-              <IonCardTitle className="ion-text-center text-2xl">
-                <IonIcon icon={gameControllerOutline} /> Nouvelle Partie
+        <div className="flex flex-col items-center min-h-full py-2 px-2">
+          {/* Header Card avec design amélioré */}
+          <IonCard className="w-full max-w-lg mx-auto mb-4 bg-gradient-to-br from-blue-50 to-indigo-100 border-0 shadow-lg">
+            <IonCardHeader className="pb-2">
+              <IonCardTitle className="ion-text-center text-2xl font-bold text-gray-800">
+                <IonIcon icon={gameControllerOutline} className="text-blue-600 mr-2" /> 
+                Nouvelle Partie
               </IonCardTitle>
             </IonCardHeader>
-            <IonCardContent>
+            <IonCardContent className="pt-0">
               <form style={{ width: '100%' }}>
                 {/* Pseudo organisateur - REQUIS */}
                 <IonItem className="mb-4" style={{ width: '100%' }}>

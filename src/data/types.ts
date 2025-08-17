@@ -1,7 +1,7 @@
 // Game related types for Chicken Chase app
 
-// Type pour le statut du jeu
-export type GameStatus = "pending" | "active" | "in_progress" | "chicken_hidden" | "completed" | "finished";
+// Type pour le statut du jeu - aligned with database types
+export type GameStatus = "lobby" | "in_progress" | "chicken_hidden" | "finished" | "cancelled";
 
 export interface Game {
   id: string;

@@ -168,6 +168,30 @@ export const useRealtimeCagnotte = (gameId?: string): UseRealtimeCagnotteResult 
 
     console.log('🚀 quickOperation: Starting operation:', operation, 'for game:', gameId);
 
+    // 🎯 OPTIMISTIC UPDATE - Update UI immediately
+    const currentAmount = state.current;
+    let estimatedNewAmount = currentAmount;
+    
+    // Estimate the new amount based on operation
+    if (operation === 'spend_5') estimatedNewAmount = currentAmount - 500;
+    else if (operation === 'spend_10') estimatedNewAmount = currentAmount - 1000;
+    else if (operation === 'spend_15') estimatedNewAmount = currentAmount - 1500;
+    else if (operation === 'spend_20') estimatedNewAmount = currentAmount - 2000;
+    else if (operation === 'spend_30') estimatedNewAmount = currentAmount - 3000;
+    else if (operation === 'spend_50') estimatedNewAmount = currentAmount - 5000;
+    
+    // Prevent negative amounts
+    if (estimatedNewAmount < 0) estimatedNewAmount = 0;
+    
+    console.log('⚡ Optimistic update: ', currentAmount, '→', estimatedNewAmount);
+    
+    // Update UI immediately (optimistic)
+    setState(prev => ({
+      ...prev,
+      current: estimatedNewAmount,
+      lastUpdate: new Date().toISOString()
+    }));
+
     try {
       const { data, error } = await supabase.rpc('quick_cagnotte_operation', {
         p_game_id: gameId,
@@ -178,18 +202,33 @@ export const useRealtimeCagnotte = (gameId?: string): UseRealtimeCagnotteResult 
       if (error) throw error;
 
       console.log('✅ quickOperation: Success:', operation, data);
-      console.log('💰 Expected: Real-time update should follow shortly...');
+      console.log('💰 Real-time update will confirm the optimistic update...');
+      
+      // If the RPC returns the actual new amount, use it to correct any discrepancy
+      if (data && data.new_amount !== undefined) {
+        console.log('🔄 Correcting optimistic update with real value:', data.new_amount);
+        setState(prev => ({
+          ...prev,
+          current: data.new_amount,
+          lastUpdate: new Date().toISOString()
+        }));
+      }
+      
       return data;
 
     } catch (error) {
       console.error('❌ quickOperation: Error:', error);
+      
+      // 🔄 ROLLBACK - Restore original amount on error
+      console.log('🔄 Rolling back optimistic update due to error');
       setState(prev => ({
         ...prev,
+        current: currentAmount, // Restore original amount
         error: error instanceof Error ? error.message : 'Erreur lors de l\'opération rapide'
       }));
       throw error;
     }
-  }, [gameId]);
+  }, [gameId, state.current]);
 
   /**
    * Configurer les souscriptions Realtime

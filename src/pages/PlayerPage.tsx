@@ -10,8 +10,7 @@ import {
 // Import types
 import { Game, Bar, Team, Challenge, Message, ChallengeCompletion } from '../data/types';
 
-// Import mock data
-import { mockChickenGameState } from '../data/mock/mockData';
+// No mock data needed - using real services
 
 // Import hooks
 import { useCamera, UseCameraPhoto } from '../hooks/useCamera';
@@ -54,20 +53,18 @@ const formatTime = (milliseconds: number): string => {
 };
 
 // Player-specific Game State Interface
-interface PlayerGameState {
-  game: Game;
-  team: Team;
-  bars: Bar[];
-  visitedBars: Bar[];
+type PlayerGameState = {
+  game?: Game;
+  team: Team | null;
   challenges: Challenge[];
-  completedChallenges: Challenge[];
   challengeCompletions: ChallengeCompletion[];
+  bars: Bar[];
   messages: Message[];
-  leaderboard: Team[];
+  visitedBars: Bar[];
+  completedChallenges: Challenge[];
   score: number;
-  currentTime: string;
-  lastClue: string | null;
-}
+  leaderboard: Team[];
+};
 
 // --- Constants ---
 // Remove unused constants
@@ -124,35 +121,17 @@ const PlayerPage: React.FC = () => {
     }
   }, [liveDataError]);
 
-  // --- Initialize State using Mock Data (will be replaced gradually) ---
-  const currentPlayerTeamId = 'c012d6cc-a0c9-4e42-b2f4-e0e226f81a5d'; // Real UUID - Team "Poulet"
-  
-  // Create a temporary team with real UUID if not found in mock data  
-  const foundMockTeam = mockChickenGameState.teams.find(t => t.id === currentPlayerTeamId);
-  const initialPlayerTeam = foundMockTeam || {
-    ...mockChickenGameState.teams[0],
-    id: currentPlayerTeamId // Use real UUID instead of mock ID
-  };
-
-  const [gameState, setGameState] = useState<PlayerGameState>(() => {
-    const playerTeam = initialPlayerTeam;
-    const visitedBars = mockChickenGameState.barOptions.slice(0, playerTeam.barsVisited);
-    const completedChallenges = mockChickenGameState.challenges.slice(0, playerTeam.challengesCompleted);
-
-    return {
-      game: mockChickenGameState.game,
-      team: playerTeam,
-      bars: [], // Will be populated from liveGameState
-      visitedBars: visitedBars,
-      challenges: [], // Will be populated from liveGameState
-      completedChallenges: completedChallenges,
-      challengeCompletions: mockChickenGameState.challengeCompletions,
-      messages: mockChickenGameState.messages,
-      leaderboard: mockChickenGameState.teams,
-      score: playerTeam.score,
-      currentTime: mockChickenGameState.timeLeft,
-      lastClue: mockChickenGameState.messages.filter(m => m.isClue).pop()?.content || null,
-    };
+  // Initialize empty state - will be populated from usePlayerGameData
+  const [gameState, setGameState] = useState<PlayerGameState>({
+    team: null,
+    challenges: [],
+    challengeCompletions: [],
+    bars: [],
+    messages: [],
+    visitedBars: [],
+    completedChallenges: [],
+    score: 0,
+    leaderboard: [],
   });
 
   // Update gameState when live data arrives
@@ -162,7 +141,14 @@ const PlayerPage: React.FC = () => {
         ...prev,
         bars: liveGameState.bars,
         challenges: liveGameState.challenges,
-        team: liveGameState.team || prev.team
+        team: liveGameState.team || prev.team,
+        // Set default values for missing properties
+        challengeCompletions: [], // TODO: Fetch from challenge_submissions
+        messages: [], // TODO: Fetch from game messages
+        visitedBars: [], // TODO: Calculate from team's bar visits
+        completedChallenges: [], // TODO: Calculate from challenge completions
+        score: liveGameState.team?.score || 0,
+        leaderboard: [], // TODO: Fetch all teams for leaderboard
       }));
     }
   }, [liveGameState, liveDataLoading]);
@@ -278,7 +264,7 @@ const PlayerPage: React.FC = () => {
   const challengeStatuses = useMemo(() => {
     const statuses: Record<string, ChallengeCompletion['status'] | undefined> = {};
     gameState.challengeCompletions
-      .filter(comp => comp.teamId === gameState.team.id) // Filter completions for the current player's team
+      .filter(comp => comp.teamId === gameState.team?.id) // Filter completions for the current player's team
       .forEach(comp => {
         statuses[comp.challengeId] = comp.status;
       });
@@ -289,7 +275,7 @@ const PlayerPage: React.FC = () => {
       }
     });
     return statuses;
-  }, [gameState.challengeCompletions, gameState.challenges, gameState.team.id]);
+  }, [gameState.challengeCompletions, gameState.challenges, gameState.team?.id]);
 
   // --- Event Handlers ---
   const handleTabChange = (tab: 'map' | 'challenges' | 'chat' | 'leaderboard') => {
@@ -308,7 +294,7 @@ const PlayerPage: React.FC = () => {
       case 'leaderboard':
         return 'Classement';
       default:
-        return gameState.team.name;
+        return gameState.team?.name || 'Équipe';
     }
   };
 
@@ -405,7 +391,7 @@ const PlayerPage: React.FC = () => {
     } 
     else { // Challenge already attempted (pending, approved, rejected)
       const completion = gameState.challengeCompletions.find(
-        comp => comp.challengeId === challengeId && comp.teamId === gameState.team.id
+        comp => comp.challengeId === challengeId && comp.teamId === gameState.team?.id
       ) || null;
       
       console.log(`Opening detail modal for challenge ${challengeId}, Completion found:`, !!completion);
@@ -693,7 +679,7 @@ const PlayerPage: React.FC = () => {
         {activeTab === 'leaderboard' && (
           <LeaderboardTab 
             leaderboard={gameState.leaderboard}
-            currentPlayerTeamId={gameState.team.id}
+            currentPlayerTeamId={gameState.team?.id || ''}
           />
         )}
       </IonContent>

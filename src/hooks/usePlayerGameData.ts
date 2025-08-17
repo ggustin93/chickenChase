@@ -133,17 +133,110 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
       return;
     }
 
-    // Set up a real-time subscription for future updates with optimized channel name
-    const subscription = supabase
-      .channel(`${CHANNEL_PREFIX}${gameId}`)
-      .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
-        console.log('Game data change received!', payload);
-        fetchData(); // Refetch all data on any change
-      })
-      .subscribe();
+    // Set up specific real-time subscriptions for player game updates
+    const channelName = `${CHANNEL_PREFIX}${gameId}`;
+    console.log('📡 Setting up player game real-time channel:', channelName);
+    
+    const gameChannel = supabase.channel(channelName);
+
+    // Listen for game status changes
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'games',
+        filter: `id=eq.${gameId}`
+      },
+      (payload) => {
+        console.log('🎮 Player game status update received:', payload);
+        fetchData(); // Refetch data when game status changes
+      }
+    );
+
+    // Listen for team updates (especially for the player's team)
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'teams'
+      },
+      (payload) => {
+        console.log('👥 Player team update received:', payload);
+        fetchData(); // Refetch data when teams change
+      }
+    );
+
+    // Listen for challenge updates
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'challenges'
+      },
+      (payload) => {
+        console.log('🏆 Challenge update received:', payload);
+        fetchData(); // Refetch data when challenges change
+      }
+    );
+
+    // Listen for bar updates
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'game_bars'
+      },
+      (payload) => {
+        console.log('🍺 Bar update received:', payload);
+        fetchData(); // Refetch data when bars change
+      }
+    );
+
+    // Listen for game events (real-time notifications)
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'game_events'
+      },
+      (payload) => {
+        console.log('🔔 Player game event received:', payload);
+        fetchData(); // Refetch data when new events occur
+      }
+    );
+
+    // Listen for challenge submission changes
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'challenge_submissions'
+      },
+      (payload) => {
+        console.log('🏆 Challenge submission update received:', payload);
+        fetchData(); // Refetch data when challenge submissions change
+      }
+    );
+
+    // Subscribe to the channel
+    const subscription = gameChannel.subscribe((status) => {
+      console.log(`📡 Player game realtime status: ${status}`);
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Successfully subscribed to player game updates');
+      } else if (status === 'CLOSED') {
+        console.log('❌ Player game subscription closed');
+      }
+    });
 
     return () => {
-      supabase.removeChannel(subscription);
+      console.log('🧹 Cleaning up player game real-time subscriptions');
+      supabase.removeChannel(gameChannel);
     };
 
   }, [fetchData, gameId]);

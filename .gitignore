@@ -56,7 +56,7 @@ node_modules/
 # Added by Claude Task Master
 # Task files
 tasks.json
-tasks/ 
+
 
 # 🔒 Security - MCP & API Keys (Added for vulnerability protection)
 # MCP Configuration files
@@ -83,3 +83,14 @@ setup-mcp-env.sh
 *-secrets.sh
 
 .mcp.json
+
+# Test artifacts and reports
+test-results/
+playwright-report/
+*.png
+*.jpg
+.playwright-mcp/
+
+# Task management files
+.claude/tasks/
+memory-bank/tasks/
