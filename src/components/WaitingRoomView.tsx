@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonTitle, IonCardContent, IonButton, IonIcon, IonList, IonListHeader, IonLabel, IonItem, IonBadge, IonFab, IonFabButton } from '@ionic/react';
 import { exitOutline, star, people, playCircleOutline, flame, refresh } from 'ionicons/icons';
-import { Player, Team } from '../types/types';
+import { DbPlayer as Player, DbTeam as Team } from '../data/database-types';
 import { supabase } from '../lib/supabase';
 
 interface WaitingRoomViewProps {

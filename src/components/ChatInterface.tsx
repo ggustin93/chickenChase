@@ -7,12 +7,8 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
-  IonFooter,
-  IonInput,
-  IonItem,
-  IonLabel
 } from '@ionic/react';
-import { bulbOutline, sendOutline, alertCircleOutline } from 'ionicons/icons';
+import { bulbOutline } from 'ionicons/icons';
 import { ChickenGameState, Message } from '../data/types'; // Assurez-vous que le chemin est correct
 import '../pages/ChickenPage.css'; // Importer les styles globaux ou spécifiques nécessaires
 

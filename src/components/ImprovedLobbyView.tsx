@@ -8,7 +8,7 @@ import {
   star, people, personAdd, add, copy, share, trophy, 
   checkmarkCircle, alertCircle, time, person, refresh
 } from 'ionicons/icons';
-import { Player, Team, Game } from '../types/types';
+import { DbPlayer as Player, DbTeam as Team, DbGame as Game } from '../data/database-types';
 import '../styles/modern-lobby.css';
 
 interface ImprovedLobbyViewProps {

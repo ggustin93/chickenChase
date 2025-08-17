@@ -1,7 +1,7 @@
 import React from 'react';
 import { IonCard, IonCardContent, IonTitle, IonButton, IonIcon, IonItemDivider, IonLabel, IonList, IonItem, IonInput } from '@ionic/react';
 import { star, people, personAdd, add } from 'ionicons/icons';
-import { Player, Team } from '../types/types';
+import { DbPlayer as Player, DbTeam as Team } from '../data/database-types';
 
 interface TeamSelectionViewProps {
   teams: Team[];

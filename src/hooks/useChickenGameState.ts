@@ -174,6 +174,7 @@ export const useChickenGameState = (gameId?: string) => {
 
   // Initial data fetch and real-time subscriptions
   useEffect(() => {
+    // Fetch data on mount
     fetchGameData();
 
     if (!gameId) return;
@@ -270,7 +271,7 @@ export const useChickenGameState = (gameId?: string) => {
       console.log('🧹 Cleaning up chicken game real-time subscriptions');
       supabase.removeChannel(gameChannel);
     };
-  }, [fetchGameData, gameId]);
+  }, [gameId]); // Remove fetchGameData dependency to prevent loops
   
   // Vérification périodique du statut du jeu dans Supabase
   useEffect(() => {
@@ -300,40 +301,43 @@ export const useChickenGameState = (gameId?: string) => {
         
         if (data && data.length > 0) {
           const dbStatus = data[0].status;
-          console.log("Statut du jeu dans Supabase:", dbStatus, "Statut local:", gameState.game.status);
+          console.log("Statut du jeu dans Supabase:", dbStatus);
           
-          // Si le statut dans Supabase est différent de celui en local, mettre à jour l'état local
-          if (gameState.game.status !== dbStatus) {
-            console.log("Mise à jour du statut local avec celui de Supabase:", dbStatus);
-            
-            setGameState(prevState => ({
-              ...prevState,
-              game: {
-                ...prevState.game,
-                status: dbStatus
-              },
-              isChickenHidden: dbStatus === 'chicken_hidden'
-            }));
-            
-            // Si le statut est passé à "chicken_hidden", mettre à jour l'état local en conséquence
-            if (dbStatus === 'chicken_hidden' && !gameState.isChickenHidden) {
-              console.log("Le poulet est maintenant caché selon Supabase");
+          // Use ref to get current state without causing dependency loop
+          setGameState(prevState => {
+            // Only update if status actually changed
+            if (prevState.game.status !== dbStatus) {
+              console.log("Mise à jour du statut local avec celui de Supabase:", dbStatus);
               
-              // Reset le timer avec constante
-              const formattedGameTime = `${DEFAULT_GAME_DURATION_HOURS}:00:00`;
-              
-              setGameState(prevState => ({
-                ...prevState,
-                isChickenHidden: true,
-                hidingTimeLeft: '00:00',
-                timeLeft: formattedGameTime,
-                game: {
-                  ...prevState.game,
-                  status: 'chicken_hidden'
-                }
-              }));
+              // If status changed to "chicken_hidden", update accordingly
+              if (dbStatus === 'chicken_hidden' && !prevState.isChickenHidden) {
+                console.log("Le poulet est maintenant caché selon Supabase");
+                
+                const formattedGameTime = `${DEFAULT_GAME_DURATION_HOURS}:00:00`;
+                
+                return {
+                  ...prevState,
+                  game: {
+                    ...prevState.game,
+                    status: dbStatus
+                  },
+                  isChickenHidden: true,
+                  hidingTimeLeft: '00:00',
+                  timeLeft: formattedGameTime
+                };
+              } else {
+                return {
+                  ...prevState,
+                  game: {
+                    ...prevState.game,
+                    status: dbStatus
+                  },
+                  isChickenHidden: dbStatus === 'chicken_hidden'
+                };
+              }
             }
-          }
+            return prevState; // No change needed
+          });
         } else {
           console.warn("Aucune partie trouvée avec l'ID:", gameId);
         }
@@ -351,7 +355,7 @@ export const useChickenGameState = (gameId?: string) => {
     return () => {
       clearInterval(interval);
     };
-  }, [gameId, gameState.game.status, gameState.isChickenHidden]);
+  }, [gameId]); // Remove gameState dependencies to prevent infinite loop
   
   // Update game state when database bars are loaded
   useEffect(() => {
@@ -370,7 +374,8 @@ export const useChickenGameState = (gameId?: string) => {
   
   // Gestion du timer de cachette
   useEffect(() => {
-    if (gameState.hidingTimeLeft && !gameState.isChickenHidden) {
+    // Only start timer if we have hiding time and chicken is not hidden yet
+    if (gameState.hidingTimeLeft && !gameState.isChickenHidden && gameState.hidingTimeLeft !== '00:00') {
       // Si timer déjà en cours, le nettoyer
       if (hidingTimerRef.current) {
         clearInterval(hidingTimerRef.current);
@@ -404,11 +409,11 @@ export const useChickenGameState = (gameId?: string) => {
         clearInterval(hidingTimerRef.current);
       }
     };
-  }, [gameState.isChickenHidden, gameState.hidingTimeLeft]);
+  }, [gameState.isChickenHidden]); // Only depend on isChickenHidden to prevent timer restart loops
   
   // Gestion du timer principal du jeu
   useEffect(() => {
-    if (gameState.isChickenHidden) {
+    if (gameState.isChickenHidden && gameState.timeLeft && gameState.timeLeft !== '00:00:00') {
       // Si timer déjà en cours, le nettoyer
       if (gameTimerRef.current) {
         clearInterval(gameTimerRef.current);
@@ -440,7 +445,7 @@ export const useChickenGameState = (gameId?: string) => {
         clearInterval(gameTimerRef.current);
       }
     };
-  }, [gameState.isChickenHidden]);
+  }, [gameState.isChickenHidden]); // Keep dependency minimal to prevent restart loops
 
   const sendClue = (clueText: string) => {
     const newClue: Message = {

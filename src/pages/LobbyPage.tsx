@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import { logOut, personCircle, person, people } from 'ionicons/icons';
 import { useSession } from '../contexts/SessionContext';
 import { PostgrestError, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { Game, Player, Team } from '../types/types';
+import { DbGame as Game, DbPlayer as Player, DbTeam as Team } from '../data/database-types';
 import WaitingRoomView from '../components/WaitingRoomView';
 import ImprovedLobbyView from '../components/ImprovedLobbyView';
 import { usePlayerPresence } from '../hooks/usePlayerPresence';
@@ -343,7 +343,7 @@ const LobbyPage: React.FC = () => {
         const updatedSession = { ...currentSession, gameStatus: newStatus };
         localStorage.setItem('player-session', JSON.stringify(updatedSession));
         
-        setGame(prevGame => {
+        setGame((prevGame: Game | null) => {
           if (prevGame) return { ...prevGame, status: newStatus };
           return null;
         });
@@ -592,7 +592,7 @@ const LobbyPage: React.FC = () => {
       console.log("Session mise à jour:", updatedSession);
 
       // Mettre à jour l'état local immédiatement
-      setGame(prev => prev ? {...prev, status: 'in_progress'} : null);
+      setGame((prev: Game | null) => prev ? {...prev, status: 'in_progress'} : null);
       
       present({ 
         message: 'La partie commence !', 

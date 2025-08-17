@@ -3,7 +3,8 @@ import {
   IonBackButton, IonTitle, IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonItem, IonInput, IonButton, IonIcon,
   useIonToast, IonLoading, IonLabel, IonNote, IonToggle, IonText,
-  IonList, IonListHeader, IonChip, IonSegment, IonSegmentButton
+  IonList, IonListHeader, IonChip, IonSegment, IonSegmentButton,
+  IonBadge, IonGrid, IonRow, IonCol
 } from '@ionic/react';
 import { gameControllerOutline, cashOutline, peopleOutline, timeOutline, mapOutline, linkOutline, closeCircleOutline, locationOutline, searchOutline, addOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
@@ -36,6 +37,12 @@ const CreateGamePage: React.FC = () => {
     gameDuration: 120,
     googleMapsUrl: ''
   });
+  
+  // Validation states following Ionic React best practices
+  const [hostNicknameTouched, setHostNicknameTouched] = useState(false);
+  const [cagnotteTouched, setCagnotteTouched] = useState(false);
+  const [isHostNicknameValid, setIsHostNicknameValid] = useState<boolean>();
+  const [isCagnotteValid, setIsCagnotteValid] = useState<boolean>();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [importingBars, setImportingBars] = useState(false);
@@ -304,34 +311,76 @@ const CreateGamePage: React.FC = () => {
     }
   };
 
+  // Validation functions following Ionic React patterns
+  const validateHostNickname = (value: string) => {
+    const isValid = value.trim().length >= 2;
+    setIsHostNicknameValid(isValid);
+    return isValid;
+  };
+
+  const validateCagnotte = (value: number) => {
+    const isValid = value >= 0 && value <= 1000;
+    setIsCagnotteValid(isValid);
+    return isValid;
+  };
+
+  const markHostNicknameTouched = () => {
+    setHostNicknameTouched(true);
+  };
+
+  const markCagnotteTouched = () => {
+    setCagnotteTouched(true);
+  };
+
+  // Comprehensive form validation without triggering state updates
+  const isFormValid = () => {
+    const isNicknameValid = config.hostNickname.trim().length >= 2;
+    const isCagnotteValidValue = config.cagnotteInitial >= 0 && config.cagnotteInitial <= 1000;
+    const hasBars = importedBars.length > 0;
+    
+    return isNicknameValid && isCagnotteValidValue && hasBars;
+  };
+
   const handleCreateGame = async () => {
-    if (!config.hostNickname.trim()) {
-      present({
-        message: '📝 Votre pseudo est requis pour créer une partie.',
-        duration: 3000,
-        color: 'warning'
-      });
-      return;
-    }
+    // Mark fields as touched for validation display
+    markHostNicknameTouched();
+    markCagnotteTouched();
+    
+    // Trigger validation
+    validateHostNickname(config.hostNickname);
+    validateCagnotte(config.cagnotteInitial);
+    
+    // Use Ionic validation pattern
+    if (!isFormValid()) {
+      if (!config.hostNickname.trim()) {
+        present({
+          message: '📝 Votre pseudo doit contenir au moins 2 caractères.',
+          duration: 3000,
+          color: 'warning',
+          position: 'top'
+        });
+        return;
+      }
 
-    if (config.cagnotteInitial < 0) {
-      present({
-        message: '💰 La cagnotte ne peut pas être négative.',
-        duration: 3000,
-        color: 'warning'
-      });
-      return;
-    }
+      if (config.cagnotteInitial < 0 || config.cagnotteInitial > 1000) {
+        present({
+          message: '💰 La cagnotte doit être entre 0€ et 1000€.',
+          duration: 3000,
+          color: 'warning',
+          position: 'top'
+        });
+        return;
+      }
 
-    // Validation des bars - OBLIGATOIRE
-    if (importedBars.length === 0) {
-      present({
-        message: '🍺 Vous devez ajouter au moins un bar pour créer la partie !',
-        duration: 4000,
-        color: 'danger',
-        position: 'top'
-      });
-      return;
+      if (importedBars.length === 0) {
+        present({
+          message: '🍺 Vous devez ajouter au moins un bar pour créer la partie !',
+          duration: 4000,
+          color: 'danger',
+          position: 'top'
+        });
+        return;
+      }
     }
 
     if (importedBars.length < 3) {
@@ -466,47 +515,105 @@ const CreateGamePage: React.FC = () => {
             </IonCardHeader>
             <IonCardContent className="pt-0">
               <form style={{ width: '100%' }}>
-                {/* Pseudo organisateur - REQUIS */}
-                <IonItem className="mb-4" style={{ width: '100%' }}>
+                {/* Pseudo organisateur - REQUIS avec validation Ionic */}
+                <IonItem 
+                  className={`mb-4 ${
+                    isHostNicknameValid ? 'ion-valid' : ''
+                  } ${
+                    isHostNicknameValid === false ? 'ion-invalid' : ''
+                  } ${
+                    hostNicknameTouched ? 'ion-touched' : ''
+                  }`} 
+                  style={{ width: '100%' }}
+                >
                   <IonInput
                     label="Votre pseudo"
                     labelPlacement="floating"
                     value={config.hostNickname}
-                    onIonInput={(e) => setConfig(prev => ({ ...prev, hostNickname: e.detail.value! }))}
+                    onIonInput={(e) => {
+                      const value = e.detail.value!;
+                      setConfig(prev => ({ ...prev, hostNickname: value }));
+                      if (hostNicknameTouched) {
+                        validateHostNickname(value);
+                      }
+                    }}
+                    onIonBlur={() => {
+                      markHostNicknameTouched();
+                      validateHostNickname(config.hostNickname);
+                    }}
                     clearInput
                     required
                     placeholder="Ex: Alex"
                     style={{ width: '100%' }}
+                    helperText="Minimum 2 caractères requis"
+                    errorText="Le pseudo doit contenir au moins 2 caractères"
                   />
                 </IonItem>
 
-                {/* Cagnotte initiale - REQUIS */}
-                <IonItem className="mb-4" style={{ width: '100%' }}>
+                {/* Cagnotte initiale - REQUIS avec validation Ionic */}
+                <IonItem 
+                  className={`mb-4 ${
+                    isCagnotteValid ? 'ion-valid' : ''
+                  } ${
+                    isCagnotteValid === false ? 'ion-invalid' : ''
+                  } ${
+                    cagnotteTouched ? 'ion-touched' : ''
+                  }`} 
+                  style={{ width: '100%' }}
+                >
                   <IonIcon icon={cashOutline} slot="start" />
                   <IonInput
                     label="Cagnotte initiale (€)"
                     labelPlacement="floating"
                     type="number"
                     min="0"
+                    max="1000"
                     step="5"
                     value={config.cagnotteInitial}
-                    onIonInput={(e) => setConfig(prev => ({ 
-                      ...prev, 
-                      cagnotteInitial: parseFloat(e.detail.value!) || 0 
-                    }))}
+                    onIonInput={(e) => {
+                      const value = parseFloat(e.detail.value!) || 0;
+                      setConfig(prev => ({ ...prev, cagnotteInitial: value }));
+                      if (cagnotteTouched) {
+                        validateCagnotte(value);
+                      }
+                    }}
+                    onIonBlur={() => {
+                      markCagnotteTouched();
+                      validateCagnotte(config.cagnotteInitial);
+                    }}
                     required
                     style={{ width: '100%' }}
+                    helperText="Montant entre 0€ et 1000€ pour les consommations"
+                    errorText="La cagnotte doit être entre 0€ et 1000€"
                   />
-                  <IonNote slot="helper">Montant total pour les consommations du poulet</IonNote>
                 </IonItem>
 
-                {/* Import de bars - OPTIONNEL */}
-                <IonCard className="mb-4" style={{ margin: '16px 0' }}>
-                  <IonCardHeader>
-                    <IonCardTitle className="text-lg flex items-center">
-                      <IonIcon icon={mapOutline} className="mr-2" />
-                      Ajouter des bars
+                {/* Import de bars - OBLIGATOIRE */}
+                <IonCard className="mb-4 border-2 border-dashed border-orange-300 bg-orange-50" style={{ margin: '16px 0' }}>
+                  <IonCardHeader className="pb-2">
+                    <IonCardTitle className="text-lg flex items-center justify-between">
+                      <div className="flex items-center">
+                        <IonIcon icon={mapOutline} className="mr-2 text-orange-600" />
+                        Ajouter des bars
+                      </div>
+                      <div className="flex items-center text-sm">
+                        {importedBars.length === 0 ? (
+                          <IonChip color="danger" className="text-xs">
+                            <IonIcon icon={addOutline} />
+                            Requis
+                          </IonChip>
+                        ) : (
+                          <IonChip color="success" className="text-xs">
+                            ✅ {importedBars.length} bar{importedBars.length > 1 ? 's' : ''}
+                          </IonChip>
+                        )}
+                      </div>
                     </IonCardTitle>
+                    {importedBars.length === 0 && (
+                      <IonNote className="text-orange-700 text-sm">
+                        🍺 Vous devez ajouter au moins un bar pour créer la partie
+                      </IonNote>
+                    )}
                   </IonCardHeader>
                   <IonCardContent>
                     {/* Onglets pour les différentes méthodes */}
@@ -625,143 +732,90 @@ const CreateGamePage: React.FC = () => {
                       </IonText>
                     )}
 
-                    {/* Liste des bars importés */}
-                    {importedBars.length > 0 && (
-                      <div className="mt-4">
-                        <div className="flex justify-between items-center mb-2">
-                          <IonListHeader className="px-0">
-                            <IonLabel className="text-sm font-semibold">
-                              Bars importés ({importedBars.length}) :
-                            </IonLabel>
-                          </IonListHeader>
-                          <div className="flex gap-2">
-                            {importedBars.some(bar => bar.address === 'Adresse non disponible') && (
-                              <IonButton 
-                                fill="clear" 
-                                size="small" 
-                                color="primary"
-                                onClick={handleFixAddresses}
-                                disabled={importingBars}
-                              >
-                                Corriger adresses
-                              </IonButton>
-                            )}
+                  {/* Mobile-optimized bar list */}
+                  {importedBars.length > 0 && (
+                    <div className="mt-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">{importedBars.length} bar{importedBars.length > 1 ? 's' : ''}</span>
+                        <IonButton 
+                          fill="clear" 
+                          size="small" 
+                          color="danger"
+                          onClick={handleClearAllBars}
+                        >
+                          Effacer
+                        </IonButton>
+                      </div>
+                      
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {importedBars.slice(0, 3).map((bar, index) => (
+                          <div key={bar.id || index} className="flex items-center justify-between bg-white rounded p-2 text-sm">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">{bar.name}</div>
+                              <div className="text-xs text-gray-500 truncate">{bar.address}</div>
+                            </div>
                             <IonButton 
                               fill="clear" 
-                              size="small" 
-                              color="danger"
-                              onClick={handleClearAllBars}
+                              size="small"
+                              color="medium"
+                              onClick={() => handleRemoveBar(bar.id)}
                             >
-                              Tout effacer
+                              <IonIcon icon={closeCircleOutline} />
                             </IonButton>
                           </div>
-                        </div>
-                        <IonList className="rounded-lg overflow-hidden border border-gray-200">
-                          {importedBars.map((bar, index) => (
-                            <IonItem key={bar.id || index} lines={index === importedBars.length - 1 ? 'none' : 'inset'}>
-                              <IonIcon 
-                                icon={locationOutline} 
-                                slot="start" 
-                                color="primary" 
-                                className="text-lg"
-                              />
-                              <div className="flex-1 py-2">
-                                <div className="font-medium text-sm">{bar.name}</div>
-                                <div className="text-xs text-gray-500">{bar.address}</div>
-                                {bar.description && (
-                                  <div className="text-xs text-primary mt-1">
-                                    {bar.description}
-                                  </div>
-                                )}
-                              </div>
-                              <IonButton 
-                                fill="clear" 
-                                slot="end" 
-                                color="medium"
-                                onClick={() => handleRemoveBar(bar.id)}
-                              >
-                                <IonIcon icon={closeCircleOutline} />
-                              </IonButton>
-                            </IonItem>
-                          ))}
-                        </IonList>
-                        <IonNote className="text-xs mt-2 block text-center">
-                          Ces bars seront utilisés comme lieux à visiter dans le jeu
-                        </IonNote>
+                        ))}
+                        {importedBars.length > 3 && (
+                          <div className="text-xs text-center text-gray-500">
+                            +{importedBars.length - 3} autres bars
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </IonCardContent>
-                </IonCard>
+                    </div>
+                  )}
+                </div>
 
-                {/* Toggle pour paramètres avancés */}
-                <IonItem className="mb-4">
-                  <IonLabel>Paramètres avancés</IonLabel>
-                  <IonToggle 
-                    checked={showAdvanced} 
-                    onIonChange={(e) => setShowAdvanced(e.detail.checked)}
-                  />
-                </IonItem>
-
-                {/* Paramètres avancés - OPTIONNELS */}
-                {showAdvanced && (
-                  <>
-                    <IonItem className="mb-4" style={{ width: '100%' }}>
-                      <IonIcon icon={peopleOutline} slot="start" />
-                      <IonInput
-                        label="Limite d'équipes"
-                        labelPlacement="floating"
-                        type="number"
-                        min="1"
-                        value={config.maxTeams}
-                        onIonInput={(e) => setConfig(prev => ({ 
-                          ...prev, 
-                          maxTeams: e.detail.value ? parseInt(e.detail.value) : undefined
-                        }))}
-                        clearInput
-                        placeholder="Illimité"
-                        style={{ width: '100%' }}
-                      />
-                      <IonNote slot="helper">Laisser vide pour aucune limite</IonNote>
-                    </IonItem>
-
-                    <IonItem className="mb-6" style={{ width: '100%' }}>
-                      <IonIcon icon={timeOutline} slot="start" />
-                      <IonInput
-                        label="Durée de partie (minutes)"
-                        labelPlacement="floating"
-                        type="number"
-                        min="30"
-                        max="480"
-                        value={config.gameDuration}
-                        onIonInput={(e) => setConfig(prev => ({ 
-                          ...prev, 
-                          gameDuration: parseInt(e.detail.value!) || 120
-                        }))}
-                        required
-                        style={{ width: '100%' }}
-                      />
-                      <IonNote slot="helper">Recommandé: 120 minutes (2h)</IonNote>
-                    </IonItem>
-                  </>
-                )}
+                {/* Simple status indicator */}
+                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>État:</span>
+                    <div className="flex items-center space-x-2">
+                      <span className={isHostNicknameValid ? 'text-green-600' : 'text-gray-400'}>Pseudo</span>
+                      <span className={importedBars.length > 0 ? 'text-green-600' : 'text-red-600'}>Bars ({importedBars.length})</span>
+                      <span className={isCagnotteValid ? 'text-green-600' : 'text-gray-400'}>{config.cagnotteInitial}€</span>
+                    </div>
+                  </div>
+                </div>
 
                 <IonButton
                   onClick={handleCreateGame}
                   expand="block"
                   size="large"
-                  disabled={!config.hostNickname.trim() || loading}
-                  style={{ width: '100%', marginTop: '16px' }}
+                  disabled={loading || !isFormValid()}
+                  color={(!config.hostNickname.trim() || importedBars.length === 0 || config.cagnotteInitial < 0) ? "medium" : "primary"}
+                  className={`w-full mt-4 font-bold transition-all duration-300 ${
+                    (!config.hostNickname.trim() || importedBars.length === 0 || config.cagnotteInitial < 0) ? 'opacity-60' : 'opacity-100'
+                  }`}
                 >
                   <IonIcon slot="start" icon={gameControllerOutline} />
-                  Créer la Partie
+                  {!config.hostNickname.trim() ? '📝 Complétez votre pseudo' : 
+                   importedBars.length === 0 ? '🍺 Ajoutez des bars d\'abord' :
+                   config.cagnotteInitial < 0 ? '💰 Cagnotte invalide' :
+                   '🚀 Créer la Partie'}
                 </IonButton>
               </form>
 
-              {/* Informations d'aide */}
-              <div className="ion-margin-top ion-text-center">
-                <IonNote>
-                  Un code de 6 caractères sera généré pour que les joueurs puissent rejoindre la partie.
-                </IonNote>
+              {/* Informations d'aide améliorées */}
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-center">
+                  <IonNote className="text-blue-700 text-sm">
+                    🎮 Un code de 6 caractères sera généré pour que les joueurs puissent rejoindre la partie.
+                  </IonNote>
+                </div>
+                <div className="text-center mt-2">
+                  <IonNote className="text-blue-600 text-xs">
+                    💡 Tip: Ajoutez au moins 3 bars pour une meilleure expérience de jeu
+                  </IonNote>
+                </div>
               </div>
             </IonCardContent>
           </IonCard>
