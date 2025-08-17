@@ -260,8 +260,8 @@ export interface DbGameBarUpdate {
 export interface GameWithRelations extends DbGame {
   host_player?: DbPlayer;
   chicken_team?: DbTeam;
-  teams?: DbTeam[];
-  players?: DbPlayer[];
+  all_teams?: DbTeam[];
+  all_players?: DbPlayer[];
   bars?: DbGameBar[];
 }
 

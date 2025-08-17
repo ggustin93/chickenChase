@@ -28,8 +28,8 @@ export class GameService extends DatabaseService<'games', DbGame, DbGameInsert, 
           *,
           host_player:players!games_host_player_id_fkey(*),
           chicken_team:teams!games_chicken_team_id_fkey(*),
-          teams(*),
-          players(*),
+          all_teams:teams!teams_game_id_fkey(*),
+          all_players:players!players_game_id_fkey(*),
           bars:game_bars(*)
         `)
         .eq('id', gameId)

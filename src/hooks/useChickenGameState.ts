@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ChickenGameState, Challenge, Message } from '../data/types';
-import { mockChickenGameState } from '../data/mock/mockData';
 import { supabase } from '../lib/supabase';
 import { GameEventService } from '../services/GameEventService';
+import { gameService } from '../services/GameService';
+import { challengeService } from '../services/ChallengeService';
+import { messageService } from '../services/MessageService';
 import { useGameBars } from './useGameBars';
 
 // Constants for performance optimization
@@ -17,9 +19,33 @@ declare global {
   }
 }
 
+// Initial empty state matching ChickenGameState interface
+const createInitialGameState = (): ChickenGameState => ({
+  game: {
+    id: '',
+    name: '',
+    startTime: '',
+    endTime: '',
+    status: 'lobby',
+    maxTeams: 8,
+    chicken_hidden_at: undefined
+  },
+  teams: [],
+  challenges: [],
+  challengeCompletions: [],
+  messages: [],
+  timeLeft: '00:00:00',
+  barOptions: [],
+  isChickenHidden: false,
+  hidingTimeLeft: '00:00',
+  initialCagnotte: 0,
+  currentCagnotte: 0
+});
+
 export const useChickenGameState = (gameId?: string) => {
-  const [gameState, setGameState] = useState<ChickenGameState>(mockChickenGameState);
-  const [isLoading, setIsLoading] = useState(false);
+  const [gameState, setGameState] = useState<ChickenGameState>(createInitialGameState);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Use the game bars hook to get bars from database
   const { bars: databaseBars, loading: barsLoading, error: barsError } = useGameBars(gameId);
@@ -55,6 +81,196 @@ export const useChickenGameState = (gameId?: string) => {
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
   }, []);
+
+  // Fetch all game data from services
+  const fetchGameData = useCallback(async () => {
+    if (!gameId) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch game with relations
+      const gameResult = await gameService.findByIdWithRelations(gameId);
+      if (!gameResult.success) {
+        setError(gameResult.error || 'Failed to fetch game data');
+        return;
+      }
+
+      const gameData = gameResult.data!;
+
+      // Fetch challenges
+      const challengesResult = await challengeService.findMany({});
+      const challenges = challengesResult.success ? challengesResult.data! : [];
+
+      // Fetch messages for this game
+      const messagesResult = await messageService.findByGameId(gameId);
+      const messages = messagesResult.success ? messagesResult.data! : [];
+
+      // Transform the data to match ChickenGameState structure
+      const transformedState: ChickenGameState = {
+        game: {
+          id: gameData.id,
+          name: `Game ${gameData.join_code}`,
+          startTime: gameData.started_at || gameData.created_at,
+          endTime: gameData.started_at 
+            ? new Date(new Date(gameData.started_at).getTime() + (gameData.game_duration || 120) * 60000).toISOString()
+            : '',
+          status: gameData.status,
+          maxTeams: gameData.max_teams || 8,
+          chicken_hidden_at: gameData.chicken_hidden_at || undefined
+        },
+        teams: (gameData.all_teams || []).map(t => ({
+          id: t.id,
+          name: t.name,
+          avatarUrl: '', // Default empty avatar
+          score: t.score || 0,
+          members: [], // Will be populated by players in team
+          barsVisited: t.bars_visited || 0,
+          challengesCompleted: t.challenges_completed || 0,
+          foundChicken: t.found_chicken || false,
+          is_chicken_team: t.is_chicken_team || false
+        })),
+        challenges: challenges.map(c => ({
+          id: c.id,
+          title: c.title,
+          description: c.description || '',
+          points: c.points,
+          type: c.type as 'photo' | 'unlock' | undefined,
+          active: true,
+          correctAnswer: c.correct_answer || undefined,
+          completed: false,
+          teams: []
+        })),
+        challengeCompletions: [], // TODO: Fetch from challenge_submissions
+        messages: messages.map(m => ({
+          id: m.id.toString(),
+          content: m.content,
+          sender: m.sender || 'Unknown',
+          timestamp: m.timestamp || m.created_at,
+          isClue: m.is_clue || false,
+          gameId: m.game_id,
+          userId: m.user_id || ''
+        })),
+        timeLeft: gameData.status === 'chicken_hidden' ? '03:00:00' : '00:00:00',
+        barOptions: databaseBars || [],
+        isChickenHidden: gameData.status === 'chicken_hidden',
+        hidingTimeLeft: '00:00',
+        initialCagnotte: gameData.cagnotte_initial || 0,
+        currentCagnotte: gameData.cagnotte_current || 0
+      };
+
+      setGameState(transformedState);
+    } catch (err) {
+      console.error('Error fetching game data:', err);
+      setError('Failed to load game data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [gameId, databaseBars]);
+
+  // Initial data fetch and real-time subscriptions
+  useEffect(() => {
+    fetchGameData();
+
+    if (!gameId) return;
+
+    // Set up real-time subscriptions for game data changes
+    const channelName = `chicken-game-${gameId}`;
+    console.log('📡 Setting up chicken game real-time channel:', channelName);
+    
+    const gameChannel = supabase.channel(channelName);
+
+    // Listen for game status changes
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'games',
+        filter: `id=eq.${gameId}`
+      },
+      (payload) => {
+        console.log('🎮 Game status update received:', payload);
+        fetchGameData(); // Refetch all game data when game changes
+      }
+    );
+
+    // Listen for team updates
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'teams'
+      },
+      (payload) => {
+        console.log('👥 Team update received:', payload);
+        fetchGameData(); // Refetch game data when teams change
+      }
+    );
+
+    // Listen for challenge submission changes
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'challenge_submissions'
+      },
+      (payload) => {
+        console.log('🏆 Challenge submission update received:', payload);
+        fetchGameData(); // Refetch game data when challenge submissions change
+      }
+    );
+
+    // Listen for message updates
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages'
+      },
+      (payload) => {
+        console.log('💬 New message received:', payload);
+        fetchGameData(); // Refetch game data when new messages arrive
+      }
+    );
+
+    // Listen for game events (real-time notifications)
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'game_events'
+      },
+      (payload) => {
+        console.log('🔔 Game event received:', payload);
+        fetchGameData(); // Refetch game data when new events occur
+      }
+    );
+
+    // Subscribe to the channel
+    gameChannel.subscribe((status) => {
+      console.log(`📡 Chicken game realtime status: ${status}`);
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Successfully subscribed to chicken game updates');
+      } else if (status === 'CLOSED') {
+        console.log('❌ Chicken game subscription closed');
+      }
+    });
+
+    // Cleanup function
+    return () => {
+      console.log('🧹 Cleaning up chicken game real-time subscriptions');
+      supabase.removeChannel(gameChannel);
+    };
+  }, [fetchGameData, gameId]);
   
   // Vérification périodique du statut du jeu dans Supabase
   useEffect(() => {
@@ -147,42 +363,7 @@ export const useChickenGameState = (gameId?: string) => {
     }
   }, [databaseBars]);
 
-  // Chargement des données du jeu
-  useEffect(() => {
-    const fetchGameData = async () => {
-      if (!gameId) return;
-      
-      setIsLoading(true);
-      
-      try {
-        // Récupérer les données du jeu depuis Supabase
-        // Pour l'instant, nous utilisons les données mockées pour autres données
-        // Les bars sont maintenant chargés depuis la base de données
-        
-        // Simuler un délai de chargement
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Utiliser les données mockées pour l'instant, sauf pour les bars
-        // À remplacer par les données réelles de Supabase
-        setGameState({
-          ...mockChickenGameState,
-          game: {
-            ...mockChickenGameState.game,
-            id: gameId
-          },
-          // barOptions will be updated by the useEffect above when databaseBars loads
-          barOptions: databaseBars.length > 0 ? databaseBars : mockChickenGameState.barOptions
-        });
-        
-      } catch (error) {
-        console.error('Erreur lors du chargement des données du jeu:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchGameData();
-  }, [gameId, databaseBars]);
+  // Chargement des données du jeu - this is handled by the fetchGameData useEffect above
 
   // Update loading state to include bars loading
   const totalLoading = isLoading || barsLoading;
@@ -280,16 +461,69 @@ export const useChickenGameState = (gameId?: string) => {
     return newClue;
   };
 
-  const handleChallengeValidation = (id: string, approve: boolean) => {
-    setGameState(prevState => {
-      const updatedCompletions = prevState.challengeCompletions.map(completion => 
-        completion.id === id 
-          ? { ...completion, status: approve ? 'approved' as const : 'rejected' as const } 
-          : completion
-      );
-      return { ...prevState, challengeCompletions: updatedCompletions };
-    });
-  };
+  const handleChallengeValidation = useCallback(async (id: string, approve: boolean) => {
+    try {
+      // First get the submission details for the game event
+      const { data: submission, error: fetchError } = await supabase
+        .from('challenge_submissions')
+        .select('*, challenge:challenges(title), team:teams(name)')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) {
+        console.error('Failed to fetch submission details:', fetchError);
+        return;
+      }
+
+      // Update challenge submission status
+      const { error } = await supabase
+        .from('challenge_submissions')
+        .update({ status: approve ? 'approved' : 'rejected' })
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Failed to update challenge submission:', error);
+        return;
+      }
+
+      // Create a game event for the validation
+      if (gameId && submission) {
+        const gameEventService = new GameEventService();
+        await gameEventService.createEvent(gameId, 'challenge_validated', {
+          submissionId: id,
+          challengeTitle: (submission as any).challenge?.title || 'Unknown Challenge',
+          teamName: (submission as any).team?.name || 'Unknown Team',
+          approved: approve,
+          timestamp: new Date().toISOString()
+        });
+
+        // Send a message notification
+        const status = approve ? 'validé' : 'rejeté';
+        const teamName = (submission as any).team?.name || 'Une équipe';
+        const challengeTitle = (submission as any).challenge?.title || 'un défi';
+        
+        const newMessage: Message = {
+          id: `validation-${Date.now()}`,
+          content: `🏆 ${teamName} a eu son défi "${challengeTitle}" ${status} !`,
+          sender: 'Le Poulet',
+          gameId: gameId,
+          userId: 'chicken',
+          timestamp: new Date().toISOString(),
+          isClue: false,
+        };
+
+        setGameState(prevState => ({
+          ...prevState,
+          messages: [...prevState.messages, newMessage],
+        }));
+      }
+
+      // Refresh game data to get updated submissions
+      await fetchGameData();
+    } catch (error) {
+      console.error('Error updating challenge validation:', error);
+    }
+  }, [fetchGameData, gameId]);
 
   const markTeamFound = (teamId: string) => {
     setGameState(prevState => {
@@ -361,7 +595,7 @@ export const useChickenGameState = (gameId?: string) => {
   
   // Fonction pour indiquer que le poulet est caché
   const hideChicken = useCallback(async () => {
-    if (!gameId || !gameState.currentBar) return;
+    if (!gameId) return;
     
     // Arrêter le timer de cachette si actif
     if (hidingTimerRef.current) {
@@ -373,21 +607,15 @@ export const useChickenGameState = (gameId?: string) => {
       // Marquer une mise à jour locale pour éviter les conflits avec la vérification périodique
       markLocalUpdate();
       
-      // Appeler la fonction Supabase pour mettre à jour le statut du jeu
-      const { data, error } = await supabase
-        .rpc('update_game_status', { 
-          game_id: gameId,
-          new_status: 'chicken_hidden'
-        });
+      // Use the game service to hide chicken
+      const result = await gameService.hideChicken(gameId);
       
-      if (error) throw error;
-      
-      if (!data || !data.success) {
-        console.error("La mise à jour du statut a échoué:", data);
-        throw new Error('Erreur lors de la mise à jour du statut du jeu');
+      if (!result.success) {
+        console.error("Failed to hide chicken:", result.error);
+        throw new Error(result.error || 'Failed to hide chicken');
       }
       
-      console.log("Chicken hidden status updated:", data);
+      console.log("Chicken hidden successfully");
       
       // Reset the timer to 3 hours when the chicken is hidden
       const gameTimeInHours = 3;
@@ -406,8 +634,29 @@ export const useChickenGameState = (gameId?: string) => {
         }
       }));
       
+      // Create a game event for chicken hiding
+      const gameEventService = new GameEventService();
+      await gameEventService.createEvent(gameId, 'chicken_hidden', {
+        hiddenAt: new Date().toISOString(),
+        gameTimeHours: gameTimeInHours,
+        timestamp: new Date().toISOString()
+      });
+
       // Message système indiquant que la chasse a commencé
-      sendMessage(`🔔 Le poulet est caché ! La chasse est officiellement ouverte et durera ${gameTimeInHours} heures !`);
+      const gameStartMessage: Message = {
+        id: `game-start-${Date.now()}`,
+        content: `🔔 Le poulet est caché ! La chasse est officiellement ouverte et durera ${gameTimeInHours} heures !`,
+        sender: 'Le Poulet',
+        gameId: gameId,
+        userId: 'chicken',
+        timestamp: new Date().toISOString(),
+        isClue: false,
+      };
+
+      setGameState(prevState => ({
+        ...prevState,
+        messages: [...prevState.messages, gameStartMessage],
+      }));
     } catch (err) {
       console.error("Error updating chicken hidden status:", err);
       // Fallback en cas d'erreur
@@ -418,7 +667,7 @@ export const useChickenGameState = (gameId?: string) => {
         timeLeft: `3:00:00` // Reset to 3 hours
       }));
     }
-  }, [gameId, gameState.currentBar, sendMessage, markLocalUpdate]);
+  }, [gameId, markLocalUpdate]);
 
   // Fonction pour terminer la partie
   const finishGame = useCallback(async () => {
@@ -482,8 +731,8 @@ export const useChickenGameState = (gameId?: string) => {
 
   return {
     gameState,
-    isLoading: totalLoading,
-    barsError,
+    isLoading: isLoading || barsLoading,
+    error: error || barsError,
     sendClue,
     handleChallengeValidation,
     markTeamFound,
@@ -492,7 +741,8 @@ export const useChickenGameState = (gameId?: string) => {
     sendMessage,
     addChallenge,
     hideChicken,
-    finishGame
+    finishGame,
+    refetch: fetchGameData
   };
 };
 
