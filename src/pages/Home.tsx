@@ -1,11 +1,12 @@
 import { 
   IonContent, IonPage, IonButton, IonIcon, IonCard, IonCardContent, 
-  useIonToast, IonSkeletonText, IonText, IonChip, IonImg 
+  useIonToast, IonSkeletonText, IonText, IonChip, IonImg, IonAlert 
 } from '@ionic/react';
-import { add, logIn, gameController, time, person } from 'ionicons/icons';
+import { add, logIn, gameController, time, person, refresh } from 'ionicons/icons';
 import { useIonRouter } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useSession } from '../contexts/SessionContext';
 import '../styles/modern-lobby.css';
 import '../styles/ux-enhancements.css';
 import logo from '../assets/images/logo.png';
@@ -18,9 +19,77 @@ interface Game {
 
 const Home: React.FC = () => {
   const router = useIonRouter();
+  const { session } = useSession();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [showSessionAlert, setShowSessionAlert] = useState(false);
+  const [sessionGame, setSessionGame] = useState<Game | null>(null);
   const [present] = useIonToast();
+
+  // Vérifier la session existante au chargement
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      if (session.playerId && session.gameId) {
+        try {
+          // Vérifier que la partie et le joueur existent toujours
+          const [{ data: gameData, error: gameError }, { data: playerData, error: playerError }] = await Promise.all([
+            supabase.from('games').select('*').eq('id', session.gameId).single(),
+            supabase.from('players').select('*').eq('id', session.playerId).single()
+          ]);
+
+          if (!gameError && !playerError && gameData && playerData) {
+            // La session est valide, proposer de reprendre
+            setSessionGame(gameData);
+            setShowSessionAlert(true);
+          } else {
+            // Session invalide, la nettoyer
+            present({
+              message: 'Session expirée. Veuillez rejoindre une nouvelle partie.',
+              duration: 3000,
+              color: 'warning'
+            });
+          }
+        } catch (error) {
+          console.error('Error checking session:', error);
+        }
+      }
+      setCheckingSession(false);
+    };
+
+    checkExistingSession();
+  }, [session, present]);
+
+  const handleResumeGame = () => {
+    if (sessionGame) {
+      // Rediriger vers la page appropriée selon le statut
+      if (sessionGame.status === 'lobby') {
+        router.push(`/lobby/${sessionGame.id}`, 'forward', 'replace');
+      } else if (sessionGame.status === 'in_progress' || sessionGame.status === 'chicken_hidden') {
+        // Déterminer la page selon le rôle (poulet ou chasseur)
+        // Pour l'instant on va vers la page joueur générique
+        router.push(`/player/${sessionGame.id}`, 'forward', 'replace');
+      } else {
+        present({
+          message: 'Cette partie est terminée.',
+          duration: 3000,
+          color: 'warning'
+        });
+      }
+    }
+    setShowSessionAlert(false);
+  };
+
+  const handleNewSession = () => {
+    // Nettoyer la session actuelle
+    localStorage.removeItem('player-session');
+    setShowSessionAlert(false);
+    present({
+      message: 'Session effacée. Vous pouvez maintenant créer ou rejoindre une nouvelle partie.',
+      duration: 3000,
+      color: 'success'
+    });
+  };
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -58,6 +127,36 @@ const Home: React.FC = () => {
   return (
     <IonPage>
       <IonContent className="lobby-content-modern">
+        {/* Alert pour session existante */}
+        <IonAlert
+          isOpen={showSessionAlert}
+          onDidDismiss={() => setShowSessionAlert(false)}
+          header="Session existante détectée"
+          message={`Vous étiez connecté à la partie ${sessionGame?.join_code}. Voulez-vous la reprendre ou commencer une nouvelle session ?`}
+          buttons={[
+            {
+              text: 'Nouvelle session',
+              role: 'destructive',
+              handler: handleNewSession
+            },
+            {
+              text: 'Reprendre',
+              role: 'confirm',
+              handler: handleResumeGame
+            }
+          ]}
+        />
+
+        {/* Indicateur de chargement session */}
+        {checkingSession && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+              <p className="text-gray-600">Vérification de la session...</p>
+            </div>
+          </div>
+        )}
+
         {/* Header compact avec branding optimisé */}
         <div className="modern-lobby-header header-enhanced" style={{ background: 'linear-gradient(135deg, #4a5568 0%, #2d3748 100%)' }}>
           <div className="header-content" style={{ padding: '1.5rem 1.5rem 2rem' }}>

@@ -258,24 +258,48 @@ const LobbyPage: React.FC = () => {
     // Plus de polling automatique - remplacé par bouton refresh manuel
 
     const handlePlayerChanges = (payload: RealtimePostgresChangesPayload<Player>) => {
-      console.log('Player change received:', payload);
+      console.log('🔥 Player change received:', payload);
+      console.log('🔥 EventType:', payload.eventType);
+      console.log('🔥 New player:', payload.new);
+      console.log('🔥 Old player:', payload.old);
+      
       const { eventType, new: newPlayer, old: oldPlayer } = payload;
       
       switch (eventType) {
         case 'INSERT':
-          setPlayers(currentPlayers => [...currentPlayers, newPlayer]);
+          console.log('🔥 Adding new player to state:', newPlayer);
+          setPlayers(currentPlayers => {
+            console.log('🔥 Current players before insert:', currentPlayers);
+            const updated = [...currentPlayers, newPlayer];
+            console.log('🔥 Updated players after insert:', updated);
+            return updated;
+          });
+          // Forcer un refresh de l'UI
+          present({ 
+            message: `🎉 ${newPlayer?.nickname || 'Un joueur'} a rejoint la partie !`, 
+            duration: 3000, 
+            color: 'success' 
+          });
           break;
         case 'UPDATE':
+          console.log('🔥 Updating player in state:', newPlayer);
           setPlayers(currentPlayers => 
             currentPlayers.map(p => p.id === newPlayer.id ? newPlayer : p)
           );
           break;
         case 'DELETE':
           if (oldPlayer?.id) {
+            console.log('🔥 Removing player from state:', oldPlayer);
             setPlayers(currentPlayers => currentPlayers.filter(p => p.id !== oldPlayer.id));
+            present({ 
+              message: `👋 ${oldPlayer?.nickname || 'Un joueur'} a quitté la partie`, 
+              duration: 3000, 
+              color: 'warning' 
+            });
           }
           break;
         default:
+          console.log('🔥 Unknown event type:', eventType);
           break;
       }
     };
@@ -304,6 +328,7 @@ const LobbyPage: React.FC = () => {
     };
 
     // Canal unifié pour les changements de joueurs et d'équipes
+    console.log('🔗 Setting up realtime subscriptions for gameId:', gameId);
     const generalChannel = supabase
       .channel(`lobby-updates-${gameId}`)
       .on('postgres_changes', { 
@@ -321,9 +346,11 @@ const LobbyPage: React.FC = () => {
       .subscribe((status) => {
         console.log('📡 General Realtime status:', status);
         if (status === 'SUBSCRIBED') {
-          console.log('✅ Realtime connected successfully!');
+          console.log('✅ Realtime connected successfully! Channel:', `lobby-updates-${gameId}`);
         } else if (status === 'CHANNEL_ERROR') {
           console.log('❌ Realtime connection error - falling back to polling');
+        } else if (status === 'CLOSED') {
+          console.log('🚪 Realtime connection closed');
         }
       });
 
@@ -359,6 +386,35 @@ const LobbyPage: React.FC = () => {
       supabase.removeChannel(gameStatusChannel);
     };
   }, [gameId, fetchGameData, history, session]);
+
+  // Polling de secours léger pour le nombre de joueurs uniquement
+  useEffect(() => {
+    if (!gameId) return;
+
+    const lightPolling = setInterval(async () => {
+      try {
+        const { data: playersData, error } = await supabase
+          .from('players')
+          .select('*')
+          .eq('game_id', gameId);
+        
+        if (!error && playersData) {
+          // Seulement mettre à jour si le nombre a changé
+          setPlayers(currentPlayers => {
+            if (currentPlayers.length !== playersData.length) {
+              console.log(`🔄 Polling detected player count change: ${currentPlayers.length} -> ${playersData.length}`);
+              return playersData;
+            }
+            return currentPlayers;
+          });
+        }
+      } catch (error) {
+        console.warn('Light polling error:', error);
+      }
+    }, 10000); // Toutes les 10 secondes
+
+    return () => clearInterval(lightPolling);
+  }, [gameId]);
 
   const handleJoinTeam = async (teamId: string) => {
     if (!session || !session.playerId) return;
@@ -560,11 +616,16 @@ const LobbyPage: React.FC = () => {
         }
       }
 
-      // Utiliser la nouvelle fonction RPC pour mettre à jour le statut du jeu
+      // Utiliser la fonction RPC corrigée pour mettre à jour le statut du jeu
       const { data: updateData, error } = await supabase
         .rpc('update_game_status', { 
           game_id: gameId,
-          new_status: 'in_progress'
+          new_status: 'in_progress',
+          changed_by: currentPlayer?.nickname || 'unknown',
+          metadata: { 
+            chicken_team_id: currentPlayerTeam?.id,
+            started_by: currentPlayer?.id 
+          }
         });
 
       console.log("Update response data:", updateData);
@@ -747,6 +808,21 @@ const LobbyPage: React.FC = () => {
                 <span>{teams.length}</span>
               </div>
             </div>
+          )}
+          {/* Debug button for development */}
+          {process.env.NODE_ENV === 'development' && (
+            <IonButton 
+              size="small" 
+              fill="clear" 
+              onClick={() => {
+                console.log('🔍 Current players:', players);
+                console.log('🔍 Current teams:', teams);
+                console.log('🔍 Current game:', game);
+                fetchGameData();
+              }}
+            >
+              🔄 Debug
+            </IonButton>
           )}
         </div>
       </IonHeader>

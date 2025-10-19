@@ -420,14 +420,20 @@ const CreateGamePage: React.FC = () => {
         
         if (!authError && authData.user) {
           // Lier l'utilisateur authentifié au joueur créé
-          const { error: updatePlayerError } = await supabase
-            .from('players')
-            .update({ user_id: authData.user.id })
-            .eq('id', player_id);
+          try {
+            const { error: updatePlayerError } = await supabase
+              .from('players')
+              .update({ user_id: authData.user.id })
+              .eq('id', player_id);
 
-          if (updatePlayerError) {
-            console.warn('Warning updating player user_id:', updatePlayerError);
+            if (updatePlayerError) {
+              console.warn('Warning updating player user_id:', updatePlayerError);
+            }
+          } catch (updateError) {
+            console.warn('Failed to update player with user_id:', updateError);
           }
+        } else if (authError) {
+          console.warn('Anonymous auth failed, continuing without:', authError);
         }
       } catch (authError) {
         console.warn('Auth not available, continuing without:', authError);
@@ -772,7 +778,8 @@ const CreateGamePage: React.FC = () => {
                       </div>
                     </div>
                   )}
-                </div>
+                  </IonCardContent>
+                </IonCard>
 
                 {/* Simple status indicator */}
                 <div className="bg-gray-50 rounded-lg p-3 mb-4">

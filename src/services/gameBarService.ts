@@ -38,8 +38,8 @@ export class GameBarService extends DatabaseService<'game_bars', DbGameBar, DbGa
 
       // Call the Supabase function to import bars
       const { data, error } = await supabase.rpc('import_bars_to_game', {
-        p_game_id: gameId,
-        p_bars: barsData
+        p_bars: barsData,
+        p_game_id: gameId
       });
 
       if (error) {
