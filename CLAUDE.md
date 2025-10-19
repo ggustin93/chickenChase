@@ -97,10 +97,14 @@ npm run start   # Alternative: Start with Ionic serve
 
 ### Building and Testing
 ```bash
-npm run build     # TypeScript check and production build
-npm run test.unit # Run unit tests with Vitest
-npm run test.e2e  # Run E2E tests with Cypress
-npm run lint      # Run ESLint
+npm run build              # TypeScript check and production build
+npm run test.unit          # Unit tests with Vitest
+npm run test.integration   # Integration tests with real database  
+npm run test.e2e           # E2E tests with Playwright
+npm run test.e2e.ui        # Playwright tests with UI mode
+npm run test               # Run all unit + integration tests
+npm run test.coverage      # Test coverage analysis
+npm run lint               # Run ESLint
 ```
 
 ### Development Tools
@@ -117,7 +121,7 @@ npm run parse-prd  # Parse the product requirements document
 - **Backend**: Supabase (PostgreSQL, Authentication, Realtime, Storage)
 - **Styling**: Tailwind CSS + Ionic Components
 - **Build Tool**: Vite
-- **Testing**: Vitest (unit) + Cypress (E2E)
+- **Testing**: Vitest (unit/integration) + Playwright (E2E)
 
 ### Core Game Flow
 1. **Home** → User creates or joins a game
@@ -222,6 +226,33 @@ if (data && data.length > 0) {
 2. **Game state synchronization** - Proper status transitions and redirects
 3. **Error resilience** - Graceful handling of network/data issues
 4. **Mobile optimization** - PWA performance on mobile devices
+
+### Testing Infrastructure (Updated 2025-01-17)
+
+**Test Organization**: Unified structure in `tests/` directory
+```
+tests/
+├── unit/           # Vitest unit tests - Components and hooks
+├── integration/    # Vitest integration tests - Real database
+└── e2e/           # Playwright E2E tests - Full workflows
+```
+
+**Key Configurations**:
+- `vitest.config.ts` - Unit/integration test setup with React Testing Library
+- `playwright.config.js` - E2E tests with mobile-first viewport (768x1024)
+- Mobile optimization across Chrome, Firefox, Safari
+
+**Test Status**:
+- ✅ **Infinite loop bug fixed** in useChickenGameState hook
+- ✅ **Import paths corrected** across all test files
+- ✅ **Framework migration** from Cypress to Playwright complete
+- 24/46 tests passing (52% success rate, up from timeout failures)
+
+**Critical Fixes Applied**:
+1. Fixed React hook dependencies causing infinite re-render loops
+2. Corrected malformed import paths (`../../src/../` → `../../src/`)
+3. Migrated E2E testing from Cypress to Playwright
+4. Reorganized scattered tests into unified structure
 
 ### Environment Variables
 

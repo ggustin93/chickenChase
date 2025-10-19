@@ -7,13 +7,18 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test.e2e": "cypress run",
+    "test.e2e": "playwright test",
+    "test.e2e.ui": "playwright test --ui",
     "test.unit": "vitest",
+    "test.integration": "vitest tests/integration",
+    "test": "npm run test.unit && npm run test.integration",
+    "test.coverage": "vitest --coverage",
     "lint": "eslint",
     "start": "ionic serve",
     "list": "node scripts/dev.js list",
     "generate": "node scripts/dev.js generate",
-    "parse-prd": "node scripts/dev.js parse-prd"
+    "parse-prd": "node scripts/dev.js parse-prd",
+    "create-brussels-game": "node scripts/create-brussels-game.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
