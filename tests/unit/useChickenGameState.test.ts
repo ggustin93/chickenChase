@@ -9,16 +9,16 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import useChickenGameState from '../../hooks/useChickenGameState';
-import { gameService } from '../../services/GameService';
-import { challengeService } from '../../services/ChallengeService';
-import { messageService } from '../../services/MessageService';
+import useChickenGameState from '../../src/hooks/useChickenGameState';
+import { gameService } from '../../src/services/GameService';
+import { challengeService } from '../../src/services/ChallengeService';
+import { messageService } from '../../src/services/MessageService';
 
 // Mock dependencies following Dependency Inversion Principle
-vi.mock('../../services/GameService');
-vi.mock('../../services/ChallengeService');
-vi.mock('../../services/MessageService');
-vi.mock('../../lib/supabase', () => ({
+vi.mock('../../src/services/GameService');
+vi.mock('../../src/services/ChallengeService');
+vi.mock('../../src/services/MessageService');
+vi.mock('../../src/lib/supabase', () => ({
   supabase: {
     channel: vi.fn(() => ({
       on: vi.fn().mockReturnThis(),
@@ -34,7 +34,7 @@ vi.mock('../../lib/supabase', () => ({
 }));
 
 // Mock useGameBars hook
-vi.mock('../../hooks/useGameBars', () => ({
+vi.mock('../../src/hooks/useGameBars', () => ({
   useGameBars: vi.fn(() => ({
     bars: [],
     loading: false,
@@ -231,7 +231,7 @@ describe('useChickenGameState Hook', () => {
       };
       
       // Mock supabase calls for challenge validation
-      const { supabase } = await import('../../lib/supabase');
+      const { supabase } = await import('../../src/lib/supabase');
       (supabase.from as Mock).mockReturnValue({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),

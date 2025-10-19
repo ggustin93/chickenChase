@@ -8,8 +8,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DatabaseService } from '../../services/base/DatabaseService';
-import type { ApiResponse } from '../../data/database-types';
+import { DatabaseService } from '../../src/services/base/DatabaseService';
+import type { ApiResponse } from '../../src/data/database-types';
 
 // Test implementation of DatabaseService following SOLID principles
 class TestDatabaseService extends DatabaseService<'games', any, any, any> {

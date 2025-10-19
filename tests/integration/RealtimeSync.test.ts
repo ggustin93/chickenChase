@@ -8,9 +8,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { supabase } from '../../lib/supabase';
-import { gameService } from '../../services/GameService';
-import { GameEventService } from '../../services/GameEventService';
+import { supabase } from '../../src/lib/supabase';
+import { gameService } from '../../src/services/GameService';
+import { GameEventService } from '../../src/services/GameEventService';
 
 // Test interfaces following Interface Segregation Principle
 interface RealtimeTestCase {

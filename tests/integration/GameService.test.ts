@@ -6,9 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { gameService } from '../../services/GameService';
-import { supabase } from '../../lib/supabase';
-import type { GameStatus } from '../../data/database-types';
+import { gameService } from '../../src/services/GameService';
+import { supabase } from '../../src/lib/supabase';
+import type { GameStatus } from '../../src/data/database-types';
 
 // Test utilities following DRY principle
 class GameTestHelper {
@@ -18,8 +18,6 @@ class GameTestHelper {
   async createTestGame(hostNickname: string = `TestHost_${Date.now()}`) {
     const result = await gameService.createGameWithHost({
       cagnotte_initial: 1000,
-      cagnotte_current: 1000,
-      join_code: `TEST${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
       max_teams: 8,
       game_duration: 120
     }, hostNickname);
@@ -63,6 +61,10 @@ describe('GameService Integration Tests', () => {
     it('should create a game with host player successfully', async () => {
       // KISS: Simple, focused test for core functionality
       const result = await testHelper.createTestGame('TestHost');
+      
+      if (!result.success) {
+        console.log('createTestGame error:', result.error);
+      }
       
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();

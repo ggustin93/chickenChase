@@ -8,11 +8,11 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { supabase } from '../../lib/supabase';
-import { gameService } from '../../services/GameService';
-import { challengeService } from '../../services/ChallengeService';
-import { GameEventService } from '../../services/GameEventService';
-import type { GameStatus } from '../../data/database-types';
+import { supabase } from '../../src/lib/supabase';
+import { gameService } from '../../src/services/GameService';
+import { challengeService } from '../../src/services/ChallengeService';
+import { GameEventService } from '../../src/services/GameEventService';
+import type { GameStatus } from '../../src/data/database-types';
 
 // Game mechanics test helper following DRY principle
 class GameMechanicsTestHelper {
