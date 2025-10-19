@@ -1,6 +1,198 @@
-# Meta-Development Script
+# Scripts Directory
 
-This folder contains a **meta-development script** (`dev.js`) and related utilities that manage tasks for an AI-driven or traditional software development workflow. The script revolves around a `tasks.json` file, which holds an up-to-date list of development tasks.
+Development and utility scripts for the Chicken Chase project.
+
+## Available Scripts
+
+### 🍺 Game Creation
+- **`create-brussels-game.js`** - Creates realistic Brussels bar crawl games
+  ```bash
+  npm run create-brussels-game
+  ```
+
+### 🛠️ Development Tools  
+- **`dev.js`** - General development utilities
+  ```bash
+  npm run list        # List available commands
+  npm run generate    # Generate code templates
+  npm run parse-prd   # Parse product requirements
+  ```
+
+### 📊 Database Management
+- **`init-dev-data.sql`** - Initialize development data with challenges and Brussels game
+
+## File Structure
+
+```
+scripts/
+├── README.md                   # This file
+├── create-brussels-game.js     # Brussels game creator (Node.js)
+├── init-dev-data.sql          # Complete dev data setup (SQL)
+├── dev.js                     # General dev utilities
+└── example_prd.txt            # PRD parsing example
+```
+
+## Brussels Game Creator
+
+### Quick Start
+```bash
+npm run create-brussels-game
+```
+
+### Features
+- 🍺 8 authentic Brussels bars with real coordinates
+- 🏆 16+ Belgian beer-themed challenges
+- 👥 5 teams with Belgian names  
+- 💰 100€ cagnotte
+- ⏰ 3-hour duration
+- 🎯 Unique join codes (BRUX + 2 chars)
+
+### Output Example
+```
+🍺 Creating Brussels Bar Crawl Game...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Game Created Successfully!
+
+🎮 GAME INFORMATION:
+   Join Code: BRUXC1
+   Status: lobby
+   Host: Amélie-0a9a
+   Location: Brussels, Belgium
+   Duration: 3 hours
+   Cagnotte: 100€
+
+👥 TEAMS & PLAYERS:
+   Total Teams: 5
+   Total Players: 5
+   Chicken Team: Les Coqs de Bruxelles
+
+🍻 GAME CONTENT:
+   Brussels Bars: 8
+   Available Challenges: 28
+
+🎯 Game is ready! Join with code: BRUXC1
+```
+
+## Development Data SQL
+
+### Usage
+```sql
+-- Execute in Supabase dashboard
+\i scripts/init-dev-data.sql
+```
+
+### What it creates
+- All Belgian beer challenges
+- Complete Brussels game with teams/players  
+- Development views for easy debugging
+- Cleanup utilities
+
+### Development Views
+```sql
+-- View all games
+SELECT * FROM dev_games_overview;
+
+-- View all challenges  
+SELECT * FROM dev_challenges_overview;
+
+-- Cleanup old games
+SELECT cleanup_dev_games();
+```
+
+## Adding New Scripts
+
+### Best Practices
+1. **Use TypeScript/ES6**: For Node.js scripts
+2. **Add npm script**: In `package.json`
+3. **Include documentation**: Update this README
+4. **Error handling**: Proper try/catch and exit codes
+5. **Environment validation**: Check required variables
+
+### Template for New Scripts
+```javascript
+#!/usr/bin/env node
+
+/**
+ * Script Name
+ * 
+ * Description of what this script does
+ * 
+ * Usage:
+ *   node scripts/script-name.js
+ *   npm run script-name
+ */
+
+import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.VITE_SUPABASE_ANON_KEY
+);
+
+async function main() {
+  try {
+    console.log('🚀 Starting script...');
+    
+    // Your script logic here
+    
+    console.log('✅ Script completed successfully');
+  } catch (error) {
+    console.error('❌ Script failed:', error.message);
+    process.exit(1);
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}
+```
+
+## Integration with Development
+
+### Local Development
+```bash
+# Create test game
+npm run create-brussels-game
+
+# Start development server
+npm run dev
+
+# Join the game using the provided code
+```
+
+### Testing Integration
+```javascript
+import { createBrusselsGame } from '../scripts/create-brussels-game.js';
+
+// Use in tests
+const game = await createBrusselsGame();
+console.log('Test game code:', game.join_code);
+```
+
+### CI/CD Integration
+```yaml
+# Example GitHub Actions step
+- name: Setup test data
+  run: |
+    npm run create-brussels-game
+    echo "Test game created"
+```
+
+## Related Documentation
+
+- [`docs/Development-Game-Setup.md`](../docs/Development-Game-Setup.md) - Detailed setup guide
+- [`supabase/migrations/`](../supabase/migrations/) - Database migrations
+- [`CLAUDE.md`](../CLAUDE.md) - Project context and memory bank
+
+---
+
+# Meta-Development Script (dev.js)
+
+This folder also contains a **meta-development script** (`dev.js`) and related utilities that manage tasks for an AI-driven or traditional software development workflow. The script revolves around a `tasks.json` file, which holds an up-to-date list of development tasks.
 
 ## Overview
 
