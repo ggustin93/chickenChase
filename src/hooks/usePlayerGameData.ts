@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { Team, Challenge, Bar } from '../data/types';
+import { Team, Challenge, Bar, Message } from '../data/types';
 import { OpenStreetMapService } from '../services/openStreetMapService';
+import { messageService } from '../services/MessageService';
 
 // Constants for better maintainability
 const DEFAULT_ERROR_MESSAGE = 'An unknown error occurred';
@@ -25,15 +26,15 @@ interface PlayerGameState {
   team: Team | null;
   challenges: Challenge[];
   bars: Bar[];
+  messages: Message[];
 }
 
 export const usePlayerGameData = (gameId: string | undefined, teamId: string | undefined) => {
-  // Memoize dependencies to prevent unnecessary re-renders
-  const dependencies = useMemo(() => ({ gameId, teamId }), [gameId, teamId]);
   const [gameState, setGameState] = useState<PlayerGameState>({
     team: null,
     challenges: [],
     bars: [],
+    messages: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,11 +110,29 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
         longitude: Number(bar.longitude) || 0,
         photoUrl: bar.photo_url || undefined,
       }));
+
+      // Fetch messages for this game
+      const messagesResult = await messageService.findByGameId(gameId);
+      const messages = messagesResult.success ? messagesResult.data! : [];
       
       setGameState({
         team: teamData,
         challenges: challengesData || [],
         bars: bars,
+        messages: messages.map(m => ({
+          id: m.id,
+          gameId: m.game_id,
+          userId: m.user_id || m.player_id || '',
+          sender: m.sender || 'System',
+          content: m.content,
+          timestamp: m.timestamp || m.created_at,
+          isClue: m.is_clue || false,
+          photoUrl: m.photo_url,
+          isCagnotteEvent: m.is_cagnotte_event,
+          isBarRemoval: m.is_bar_removal,
+          amount: m.amount,
+          barId: m.bar_id,
+        })),
       });
 
     } catch (e) {
@@ -123,7 +142,7 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
     } finally {
       setLoading(false);
     }
-  }, [dependencies.gameId, dependencies.teamId]);
+  }, [gameId, teamId]);
 
   useEffect(() => {
     fetchData();
@@ -224,8 +243,22 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
       }
     );
 
+    // Listen for message updates
+    gameChannel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'messages'
+      },
+      (payload) => {
+        console.log('💬 New message received:', payload);
+        fetchData(); // Refetch game data when new messages arrive
+      }
+    );
+
     // Subscribe to the channel
-    const subscription = gameChannel.subscribe((status) => {
+    gameChannel.subscribe((status) => {
       console.log(`📡 Player game realtime status: ${status}`);
       if (status === 'SUBSCRIBED') {
         console.log('✅ Successfully subscribed to player game updates');
@@ -287,7 +320,7 @@ export const usePlayerGameData = (gameId: string | undefined, teamId: string | u
       
       // Clean up expired entries (keep cache size manageable)
       const expiredKeys = Array.from(barSearchCache.current.entries())
-        .filter(([_, cached]) => (now - cached.timestamp) >= CACHE_TTL)
+        .filter(([, cached]) => (now - cached.timestamp) >= CACHE_TTL)
         .map(([key]) => key);
       
       expiredKeys.forEach(key => barSearchCache.current.delete(key));

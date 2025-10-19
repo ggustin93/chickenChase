@@ -14,6 +14,7 @@ export { PlayerService, playerService } from './PlayerService';
 export { ChallengeService, ChallengeSubmissionService, challengeService, challengeSubmissionService } from './ChallengeService';
 export { GameEventService, gameEventService } from './GameEventService';
 export { GameBarService, gameBarService } from './gameBarService';
+export { MessageService, messageService } from './MessageService';
 
 // Legacy exports for backward compatibility
 export { GameBarService as GameBarServiceClass } from './gameBarService';
@@ -28,6 +29,7 @@ import { PlayerService, playerService } from './PlayerService';
 import { ChallengeService, ChallengeSubmissionService, challengeService, challengeSubmissionService } from './ChallengeService';
 import { GameEventService, gameEventService } from './GameEventService';
 import { GameBarService, gameBarService } from './gameBarService';
+import { MessageService, messageService } from './MessageService';
 
 // Service instances for easy access
 export const services = {
@@ -37,7 +39,8 @@ export const services = {
   challenge: challengeService,
   challengeSubmission: challengeSubmissionService,
   gameEvent: gameEventService,
-  gameBar: gameBarService
+  gameBar: gameBarService,
+  message: messageService
 } as const;
 
 /**
