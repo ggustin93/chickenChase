@@ -1,0 +1,160 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.cagnotte_transactions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  game_id uuid NOT NULL,
+  player_id uuid,
+  transaction_type text NOT NULL CHECK (transaction_type = ANY (ARRAY['add'::text, 'subtract'::text, 'set'::text, 'reset'::text])),
+  amount_cents integer NOT NULL,
+  previous_amount_cents integer NOT NULL,
+  new_amount_cents integer NOT NULL,
+  reason text,
+  metadata jsonb DEFAULT '{}'::jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT cagnotte_transactions_pkey PRIMARY KEY (id),
+  CONSTRAINT cagnotte_transactions_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id),
+  CONSTRAINT cagnotte_transactions_player_id_fkey FOREIGN KEY (player_id) REFERENCES public.players(id)
+);
+CREATE TABLE public.challenge_submissions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  challenge_id uuid NOT NULL,
+  team_id uuid NOT NULL,
+  game_id uuid NOT NULL,
+  status text NOT NULL DEFAULT 'pending'::text,
+  photo_url text,
+  submitted_at timestamp with time zone NOT NULL DEFAULT now(),
+  photo_urls ARRAY DEFAULT '{}'::text[],
+  photo_metadata jsonb DEFAULT '{}'::jsonb,
+  CONSTRAINT challenge_submissions_pkey PRIMARY KEY (id),
+  CONSTRAINT challenge_submissions_challenge_id_fkey FOREIGN KEY (challenge_id) REFERENCES public.challenges(id),
+  CONSTRAINT challenge_submissions_team_id_fkey FOREIGN KEY (team_id) REFERENCES public.teams(id),
+  CONSTRAINT challenge_submissions_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id)
+);
+CREATE TABLE public.challenges (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  description text,
+  points integer NOT NULL DEFAULT 10,
+  type text NOT NULL CHECK (type = ANY (ARRAY['photo'::text, 'question'::text, 'location'::text, 'quiz'::text])),
+  correct_answer text,
+  CONSTRAINT challenges_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.game_bars (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  game_id uuid NOT NULL,
+  name text NOT NULL,
+  address text NOT NULL,
+  description text,
+  latitude double precision NOT NULL,
+  longitude double precision NOT NULL,
+  photo_url text,
+  google_place_id text,
+  rating numeric,
+  visited boolean DEFAULT false,
+  visited_by_team_id uuid,
+  visited_at timestamp with time zone,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT game_bars_pkey PRIMARY KEY (id),
+  CONSTRAINT game_bars_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id),
+  CONSTRAINT game_bars_visited_by_team_id_fkey FOREIGN KEY (visited_by_team_id) REFERENCES public.teams(id)
+);
+CREATE TABLE public.game_events (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  game_id uuid NOT NULL,
+  event_type text NOT NULL,
+  event_data jsonb NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT game_events_pkey PRIMARY KEY (id),
+  CONSTRAINT game_events_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id)
+);
+CREATE TABLE public.game_status_history (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  game_id uuid NOT NULL,
+  old_status text,
+  new_status text NOT NULL,
+  changed_at timestamp with time zone NOT NULL DEFAULT now(),
+  changed_by uuid,
+  metadata jsonb,
+  CONSTRAINT game_status_history_pkey PRIMARY KEY (id),
+  CONSTRAINT game_status_history_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id),
+  CONSTRAINT game_status_history_changed_by_fkey FOREIGN KEY (changed_by) REFERENCES auth.users(id)
+);
+CREATE TABLE public.games (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  join_code character varying NOT NULL UNIQUE,
+  status text NOT NULL DEFAULT 'lobby'::text CHECK (status = ANY (ARRAY['lobby'::text, 'in_progress'::text, 'chicken_hidden'::text, 'finished'::text, 'cancelled'::text])),
+  host_player_id uuid,
+  chicken_team_id uuid,
+  cagnotte_initial integer NOT NULL DEFAULT 10000,
+  cagnotte_current integer NOT NULL DEFAULT 10000,
+  chicken_hidden_at timestamp with time zone,
+  max_teams integer DEFAULT 8,
+  game_duration integer DEFAULT 180,
+  started_at timestamp with time zone,
+  CONSTRAINT games_pkey PRIMARY KEY (id),
+  CONSTRAINT games_host_player_id_fkey FOREIGN KEY (host_player_id) REFERENCES public.players(id),
+  CONSTRAINT games_chicken_team_id_fkey FOREIGN KEY (chicken_team_id) REFERENCES public.teams(id)
+);
+CREATE TABLE public.messages (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  game_id uuid NOT NULL,
+  player_id uuid,
+  content text NOT NULL,
+  is_system_message boolean NOT NULL DEFAULT false,
+  sender text,
+  user_id text,
+  timestamp timestamp with time zone DEFAULT now(),
+  is_clue boolean DEFAULT false,
+  photo_url text,
+  is_cagnotte_event boolean DEFAULT false,
+  is_bar_removal boolean DEFAULT false,
+  amount integer,
+  bar_id uuid,
+  CONSTRAINT messages_pkey PRIMARY KEY (id),
+  CONSTRAINT messages_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id),
+  CONSTRAINT messages_player_id_fkey FOREIGN KEY (player_id) REFERENCES public.players(id)
+);
+CREATE TABLE public.player_presence (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  player_id uuid NOT NULL,
+  game_id uuid NOT NULL,
+  last_seen timestamp with time zone DEFAULT now(),
+  is_active boolean DEFAULT true,
+  session_id text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT player_presence_pkey PRIMARY KEY (id),
+  CONSTRAINT player_presence_player_id_fkey FOREIGN KEY (player_id) REFERENCES public.players(id),
+  CONSTRAINT player_presence_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id)
+);
+CREATE TABLE public.players (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid,
+  game_id uuid NOT NULL,
+  team_id uuid,
+  nickname text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT players_pkey PRIMARY KEY (id),
+  CONSTRAINT players_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT players_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id),
+  CONSTRAINT players_team_id_fkey FOREIGN KEY (team_id) REFERENCES public.teams(id)
+);
+CREATE TABLE public.teams (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  game_id uuid NOT NULL,
+  name text NOT NULL,
+  score integer NOT NULL DEFAULT 0,
+  bars_visited integer NOT NULL DEFAULT 0,
+  challenges_completed integer NOT NULL DEFAULT 0,
+  found_chicken boolean NOT NULL DEFAULT false,
+  is_chicken_team boolean DEFAULT false,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT teams_pkey PRIMARY KEY (id),
+  CONSTRAINT teams_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id)
+);

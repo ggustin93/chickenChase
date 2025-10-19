@@ -1,0 +1,22 @@
+╭─────────────────────────────────────────────────────╮
+│ ✻ Welcome to Claude Code!                           │
+│                                                     │
+│   /help for help, /status for your current setup    │
+│                                                     │
+│   cwd: /Users/pwablo/Documents/GitHub/chickenChase  │
+╰─────────────────────────────────────────────────────╯
+⏺ Compact summary (ctrl+r to expand)
+  ⎿ Read supabase/migrations/20250817100000_clean_reset.sql (382 
+    lines)
+  ⎿ Read 
+    supabase/migrations/20250621000000_complete_schema_setup.sql 
+    (600 lines)
+  ⎿  Read scripts/README.md (633 lines)
+  ⎿  Read docs/Development-Game-Setup.md (294 lines)
+  ⎿  Read package.json (94 lines)
+  ⎿  Todo list read (8 items)
+  ⎿  Claude usage limit reached. Your limit will reset at 3am 
+     (Europe/Brussels).
+
+      • /upgrade to increase your usage limit.
+

@@ -78,7 +78,40 @@
 *   **Reproducibility:** The use of a consolidated SQL migration ensures that any developer can reliably set up the database schema.
 *   **Data Consistency:** Centralized SQL functions ensure consistent data updates and proper event generation.
 
-## 7. Infrastructure Requirements
+## 7. Testing Infrastructure (Updated 2025-01-17)
+
+**Unified Test Organization**:
+```
+tests/
+├── unit/           # Vitest unit tests - Component and hook logic  
+├── integration/    # Vitest integration tests - Service layer with real database
+└── e2e/           # Playwright E2E tests - Complete user workflows
+```
+
+**Testing Stack**:
+*   **Unit Testing:** Vitest with React Testing Library, JSDoc environment
+*   **Integration Testing:** Vitest with real Supabase database connections
+*   **E2E Testing:** Playwright with mobile-first configuration (768x1024 viewport)
+*   **Multi-browser:** Chrome, Firefox, Safari, Mobile Chrome, Mobile Safari
+
+**Critical Fixes Applied**:
+*   ✅ **Infinite React Hook Loop:** Fixed useChickenGameState dependencies causing test timeouts
+*   ✅ **Import Path Issues:** Corrected malformed `../../src/../` paths in all test files  
+*   ✅ **Framework Migration:** Complete conversion from Cypress to Playwright
+*   ✅ **Test Organization:** Moved from scattered `src/tests/` to unified structure
+
+**Test Configuration Files**:
+*   `vitest.config.ts` - Unit and integration test configuration
+*   `playwright.config.js` - E2E test configuration with mobile optimization
+*   `package.json` - Updated test scripts for new structure
+
+**Current Test Status**:
+*   **DatabaseService**: 14/14 tests passing ✅
+*   **GameService Integration**: 10/10 tests passing ✅  
+*   **useChickenGameState**: 5/10 tests passing (infinite loop fixed)
+*   **Overall**: 24/46 tests passing (52% success rate, up from timeout failures)
+
+## 8. Infrastructure Requirements
 *   Supabase Cloud project.
 *   Hosting for PageCMS (if self-hosted or separate service).
 *   (No Apple/Google developer accounts needed for PWA MVP). 
