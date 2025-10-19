@@ -29,6 +29,9 @@ import './ChickenPage.css';
 import useChickenGameState from '../hooks/useChickenGameState';
 import { useRealtimeCagnotte } from '../hooks/useRealtimeCagnotte';
 
+// Import services
+import { messageService } from '../services';
+
 // Import extracted components
 import SelectHidingSpotModal from '../components/chicken/SelectHidingSpotModal';
 import MapTabContent from '../components/chicken/MapTabContent';
@@ -117,8 +120,8 @@ const ChickenPage: React.FC = () => {
   };
 
   // Handler for changing the current bar (chicken's hiding spot)
-  const handleChangeCurrentBar = (barId: string) => {
-    const bar = changeCurrentBar(barId);
+  const handleChangeCurrentBar = async (barId: string) => {
+    const bar = await changeCurrentBar(barId);
     if (bar) {
       setToastMessage(`Position mise à jour: ${bar.name}`);
       setShowToast(true);
@@ -188,27 +191,56 @@ const ChickenPage: React.FC = () => {
   };
 
   // Handler for pot consumption
-  const handleCagnotteConsumption = (amount: number, reason: string) => {
+  const handleCagnotteConsumption = async (amount: number, reason: string) => {
     if (!gameState.isChickenHidden) {
       setToastMessage("Vous devez d'abord vous cacher avant d'utiliser la cagnotte.");
       setShowToast(true);
       return;
     }
 
-    // Create a notification message
-    sendGameMessage(`💰 Le poulet a dépensé ${amount}€ de la cagnotte${reason ? ` pour "${reason}"` : ''}.`);
+    if (!gameId) {
+      setToastMessage("Erreur: ID de partie manquant.");
+      setShowToast(true);
+      return;
+    }
+
+    try {
+      // Create a notification message in the database for all players to see
+      const messageContent = `💰 Le poulet a dépensé ${amount}€ de la cagnotte${reason ? ` pour "${reason}"` : ''}.`;
+      
+      // Save the message to database so all players can see it in their chat
+      const result = await messageService.createSystemMessage(gameId, messageContent, {
+        isCagnotteEvent: true,
+        amount: amount * 100 // Convert to cents for database storage
+      });
+
+      if (result.success) {
+        // Also add to local state for immediate UI update
+        sendGameMessage(messageContent);
+        setToastMessage(`${amount}€ utilisés de la cagnotte!`);
+      } else {
+        console.error('Failed to create cagnotte message:', result.error);
+        setToastMessage('Erreur lors de la notification de dépense.');
+      }
+    } catch (error) {
+      console.error('Error creating cagnotte message:', error);
+      setToastMessage('Erreur lors de la notification de dépense.');
+    }
     
-    // Here you'd typically call an API to update the cagnotte amount
-    // For now, just show a toast
-    setToastMessage(`${amount}€ utilisés de la cagnotte!`);
     setShowToast(true);
   };
 
   // Effect to notify when bars are loaded from database
   React.useEffect(() => {
+    console.log('🔧 DEBUG: gameState.barOptions:', gameState.barOptions);
+    console.log('🔧 DEBUG: gameState.barOptions.length:', gameState.barOptions.length);
+    console.log('🔧 DEBUG: error:', error);
+    
     if (gameState.barOptions.length > 0 && !error) {
       const databaseBarsCount = gameState.barOptions.length;
       console.log(`✅ ${databaseBarsCount} bars loaded from Supabase database`);
+    } else if (gameState.barOptions.length === 0) {
+      console.log('⚠️ No bars found in gameState.barOptions');
     }
   }, [gameState.barOptions, error]);
 

@@ -5,6 +5,7 @@ import { GameEventService } from '../services/GameEventService';
 import { gameService } from '../services/GameService';
 import { challengeService } from '../services/ChallengeService';
 import { messageService } from '../services/MessageService';
+import { chickenPositionService } from '../services/ChickenPositionService';
 import { useGameBars } from './useGameBars';
 
 // Constants for performance optimization
@@ -34,6 +35,7 @@ const createInitialGameState = (): ChickenGameState => ({
   challenges: [],
   challengeCompletions: [],
   messages: [],
+  currentBar: null,
   timeLeft: '00:00:00',
   barOptions: [],
   isChickenHidden: false,
@@ -49,6 +51,12 @@ export const useChickenGameState = (gameId?: string) => {
   
   // Use the game bars hook to get bars from database
   const { bars: databaseBars, loading: barsLoading, error: barsError } = useGameBars(gameId);
+  
+  // Debug bars loading
+  console.log('🔧 DEBUG useChickenGameState: gameId:', gameId);
+  console.log('🔧 DEBUG useChickenGameState: databaseBars:', databaseBars);
+  console.log('🔧 DEBUG useChickenGameState: barsLoading:', barsLoading);
+  console.log('🔧 DEBUG useChickenGameState: barsError:', barsError);
   
   // Référence pour stocker les intervalles de timer
   const hidingTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -364,8 +372,62 @@ export const useChickenGameState = (gameId?: string) => {
         ...prevState,
         barOptions: databaseBars
       }));
+    } else if (!barsLoading && gameId) {
+      // Fallback: use demo bars if no database bars are found
+      console.log('🔧 No database bars found, using demo bars for development');
+      const demoBars = [
+        {
+          id: 'demo-bar-1',
+          name: 'Delirium Café',
+          address: 'Impasse de la Fidélité 4, 1000 Bruxelles',
+          description: 'Famous beer café with over 3000 beers',
+          latitude: 50.8476,
+          longitude: 4.3564,
+          photoUrl: undefined
+        },
+        {
+          id: 'demo-bar-2', 
+          name: 'À la Mort Subite',
+          address: 'Rue Montagne aux Herbes Potagères 7, 1000 Bruxelles',
+          description: 'Historic lambic specialist since 1928',
+          latitude: 50.8462,
+          longitude: 4.3547,
+          photoUrl: undefined
+        },
+        {
+          id: 'demo-bar-3',
+          name: 'Brussels Beer Project',
+          address: 'Rue Antoine Dansaert 188, 1000 Bruxelles', 
+          description: 'Modern craft brewery and taproom',
+          latitude: 50.8509,
+          longitude: 4.3442,
+          photoUrl: undefined
+        }
+      ];
+      
+      setGameState(prevState => ({
+        ...prevState,
+        barOptions: demoBars
+      }));
     }
-  }, [databaseBars]);
+  }, [databaseBars, barsLoading, gameId]);
+
+  // Effect to load saved chicken position
+  useEffect(() => {
+    const loadSavedPosition = async () => {
+      if (!gameId || databaseBars.length === 0) return;
+      
+      const result = await chickenPositionService.getChickenCurrentBar(gameId);
+      if (result.success && result.data?.currentBarId) {
+        const savedBar = databaseBars.find(bar => bar.id === result.data!.currentBarId);
+        if (savedBar) {
+          setGameState(prevState => ({ ...prevState, currentBar: savedBar }));
+        }
+      }
+    };
+
+    loadSavedPosition();
+  }, [gameId, databaseBars]);
 
   // Chargement des données du jeu - this is handled by the fetchGameData useEffect above
 
@@ -539,14 +601,18 @@ export const useChickenGameState = (gameId?: string) => {
     });
   };
 
-  const changeCurrentBar = (barId: string) => {
+  const changeCurrentBar = async (barId: string) => {
     // Si le poulet est déjà caché, il ne peut plus changer de bar
     if (gameState.isChickenHidden) return null;
     
     // Use database bars if available, otherwise fall back to mock data
     const barsToSearch = databaseBars.length > 0 ? databaseBars : gameState.barOptions;
     const bar = barsToSearch.find(b => b.id === barId);
-    if (bar) {
+    if (bar && gameId) {
+      // Save to persistent storage
+      await chickenPositionService.updateChickenCurrentBar(gameId, barId);
+      
+      // Update local state
       setGameState(prevState => ({ ...prevState, currentBar: bar }));
       return bar;
     }
@@ -681,11 +747,16 @@ export const useChickenGameState = (gameId?: string) => {
     try {
       console.log("Finishing game with ID:", gameId);
       
-      // Utiliser la fonction RPC pour mettre à jour le statut
+      // Utiliser la fonction RPC corrigée pour mettre à jour le statut
       const { data, error } = await supabase
         .rpc('update_game_status', { 
           game_id: gameId,
-          new_status: 'finished'
+          new_status: 'finished',
+          changed_by: 'chicken_player',
+          metadata: { 
+            final_scores: gameState.teams.map(t => ({ id: t.id, score: t.score })),
+            ended_by: 'chicken'
+          }
         });
       
       if (error) throw error;
