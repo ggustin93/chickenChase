@@ -94,7 +94,7 @@ export interface ChickenGameState {
   challenges: Challenge[];
   challengeCompletions: ChallengeCompletion[];
   messages: Message[];
-  currentBar?: Bar;
+  currentBar?: Bar | null;
   timeLeft: string;
   barOptions: Bar[];
   
