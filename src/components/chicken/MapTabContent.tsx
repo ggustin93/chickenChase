@@ -254,7 +254,10 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
             <IonButton 
               expand="block" 
               color="primary" 
-              onClick={onOpenSelectBarModal}
+              onClick={() => {
+                console.log('Bouton Choisir un bar cliqué!');
+                onOpenSelectBarModal();
+              }}
               className="select-bar-button"
             >
               Choisir un bar
@@ -262,6 +265,43 @@ const MapTabContent: React.FC<MapTabContentProps> = ({
           </div>
         </div>
       )}
+      
+      {/* Debug overlay - always visible for testing */}
+      <div style={{ 
+        position: 'absolute', 
+        top: '50px', 
+        left: '10px', 
+        background: 'rgba(255,0,0,0.9)', 
+        color: 'white',
+        padding: '12px', 
+        borderRadius: '4px',
+        fontSize: '14px',
+        zIndex: 9999,
+        maxWidth: '300px'
+      }}>
+        <div>Overlay should show: {(!gameState.currentBar && onOpenSelectBarModal) ? 'YES' : 'NO'}</div>
+        <div>!gameState.currentBar: {!gameState.currentBar ? 'true' : 'false'}</div>
+        <div>currentBar: {gameState.currentBar ? JSON.stringify({id: gameState.currentBar.id, name: gameState.currentBar.name}) : 'null'}</div>
+        <div>onOpenSelectBarModal: {onOpenSelectBarModal ? 'exists' : 'null'}</div>
+        <div>bars count: {gameState.barOptions?.length || 0}</div>
+        <div>gameId: {gameState.game?.id || 'undefined'}</div>
+      </div>
+      
+      {/* Debug information */}
+      <div style={{ 
+        position: 'absolute', 
+        top: '10px', 
+        right: '10px', 
+        background: 'rgba(255,255,255,0.9)', 
+        padding: '8px', 
+        borderRadius: '4px',
+        fontSize: '12px',
+        zIndex: 9998
+      }}>
+        Debug: currentBar={gameState.currentBar ? 'exists' : 'null'}, 
+        onOpenSelectBarModal={onOpenSelectBarModal ? 'exists' : 'null'},
+        bars={gameState.barOptions?.length || 0}
+      </div>
 
       <IonToast
         isOpen={showToast}
